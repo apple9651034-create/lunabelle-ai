@@ -2,7 +2,7 @@
  * Design: Mystic Dark Luxury
  */
 import React, { useState } from 'react';
-import { Calendar, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 interface SajuResult {
   personality: string;
@@ -14,10 +14,23 @@ interface SajuResult {
 }
 
 export default function SajuPage() {
-  const [birthDate, setBirthDate] = useState('');
+  const [birthYear, setBirthYear] = useState('');
+  const [birthMonth, setBirthMonth] = useState('');
+  const [birthDay, setBirthDay] = useState('');
+  const birthDate = birthYear && birthMonth && birthDay ? `${birthYear}-${birthMonth}-${birthDay}` : '';
   const [gender, setGender] = useState('');
   const [result, setResult] = useState<SajuResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const years = Array.from({ length: 80 }, (_, i) => String(2010 - i));
+  const months = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
+  const days = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0'));
+
+  const selectStyle = {
+    background: 'oklch(0.20 0.05 270)',
+    color: 'oklch(0.94 0.015 90)',
+    border: '1px solid oklch(1 0 0 / 15%)',
+  };
 
   const handleAnalyzeSaju = () => {
     if (!birthDate || !gender) {
@@ -79,19 +92,35 @@ export default function SajuPage() {
             <label className="block text-xs font-semibold mb-2 tracking-wide uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>
               생년월일
             </label>
-            <input
-              type="date"
-              value={birthDate}
-              onChange={(e) => setBirthDate(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl text-sm focus:outline-none transition-all"
-              style={{
-                background: 'oklch(0.20 0.05 270)',
-                color: 'oklch(0.94 0.015 90)',
-                border: '1px solid oklch(1 0 0 / 15%)',
-              }}
-              onFocus={(e) => { e.currentTarget.style.borderColor = 'oklch(0.55 0.25 290 / 60%)'; }}
-              onBlur={(e) => { e.currentTarget.style.borderColor = 'oklch(1 0 0 / 15%)'; }}
-            />
+            <div className="grid grid-cols-3 gap-2">
+              <select
+                value={birthYear}
+                onChange={(e) => setBirthYear(e.target.value)}
+                className="w-full px-3 py-3 rounded-xl text-sm focus:outline-none appearance-none text-center"
+                style={selectStyle}
+              >
+                <option value="">년도</option>
+                {years.map((y) => <option key={y} value={y}>{y}년</option>)}
+              </select>
+              <select
+                value={birthMonth}
+                onChange={(e) => setBirthMonth(e.target.value)}
+                className="w-full px-3 py-3 rounded-xl text-sm focus:outline-none appearance-none text-center"
+                style={selectStyle}
+              >
+                <option value="">월</option>
+                {months.map((m) => <option key={m} value={m}>{parseInt(m)}월</option>)}
+              </select>
+              <select
+                value={birthDay}
+                onChange={(e) => setBirthDay(e.target.value)}
+                className="w-full px-3 py-3 rounded-xl text-sm focus:outline-none appearance-none text-center"
+                style={selectStyle}
+              >
+                <option value="">일</option>
+                {days.map((d) => <option key={d} value={d}>{parseInt(d)}일</option>)}
+              </select>
+            </div>
           </div>
           <div>
             <label className="block text-xs font-semibold mb-2 tracking-wide uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>
