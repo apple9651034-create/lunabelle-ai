@@ -1,9 +1,10 @@
 /* AI 루나 — AppLayout
  * Design: Mystic Dark Luxury — bottom navigation with gold active state
+ * 모든 서브 페이지에 뒤로가기 화살표 표시
  */
 import React from 'react';
 import { useLocation } from 'wouter';
-import { Home, MessageCircle, Wand2, Calendar, ShoppingBag, Heart, User, HelpCircle } from 'lucide-react';
+import { Home, MessageCircle, Wand2, Calendar, ShoppingBag, Heart, User, HelpCircle, ArrowLeft } from 'lucide-react';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -23,11 +24,33 @@ export default function AppLayout({ children }: AppLayoutProps) {
     { path: '/support', icon: HelpCircle, label: '지원' },
   ];
 
+  const isHome = location === '/';
+
   return (
     <div
       className="flex flex-col h-screen"
       style={{ background: 'oklch(0.12 0.03 270)' }}
     >
+      {/* Top Back Button (서브 페이지에서만 표시) */}
+      {!isHome && (
+        <div
+          className="flex items-center px-4 py-3 border-b"
+          style={{
+            background: 'oklch(0.10 0.03 270)',
+            borderColor: 'oklch(1 0 0 / 8%)',
+          }}
+        >
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 py-1 px-2 rounded-lg transition-all active:scale-95"
+            style={{ color: 'oklch(0.78 0.15 85)' }}
+          >
+            <ArrowLeft size={20} strokeWidth={2} />
+            <span className="text-sm font-medium" style={{ color: 'oklch(0.80 0.02 90)' }}>뒤로</span>
+          </button>
+        </div>
+      )}
+
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto pb-20">
         {children}
