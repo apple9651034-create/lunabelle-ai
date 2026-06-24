@@ -1,6 +1,8 @@
+/* AI 루나 — TalismanShop
+ * Design: Mystic Dark Luxury — dark card grid, gold borders, purple CTA
+ */
 import React, { useState } from 'react';
-import { ShoppingCart, Plus, Minus, ArrowLeft, Heart, Download } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ShoppingCart, Plus, Minus, ArrowLeft, Heart, Download, X } from 'lucide-react';
 import { useLocation } from 'wouter';
 
 interface Talisman {
@@ -19,80 +21,16 @@ interface CartItem extends Talisman {
 
 export default function TalismanShop() {
   const [, setLocation] = useLocation();
-  
+
   const [talismans, setTalismans] = useState<Talisman[]>([
-    {
-      id: 1,
-      name: '연애 부적',
-      price: 15000,
-      description: '사랑과 인연을 이끌어주는 부적',
-      benefit: '연애운 상승, 좋은 인연 만남',
-      image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-1-love-bLeDzFpnV2UzvMrKEXHcfS.png',
-      liked: false,
-    },
-    {
-      id: 2,
-      name: '재물 부적',
-      price: 15000,
-      description: '재운과 복을 가져오는 부적',
-      benefit: '재운 상승, 사업 번영',
-      image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-2-wealth-mRS4ntPC5oMZUSQrufKhfx.png',
-      liked: false,
-    },
-    {
-      id: 3,
-      name: '건강 부적',
-      price: 15000,
-      description: '건강과 치유를 주는 부적',
-      benefit: '건강 증진, 질병 예방',
-      image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-3-health-e8fgjmK6ft6oQ2RaJMeRPG.png',
-      liked: false,
-    },
-    {
-      id: 4,
-      name: '보호 부적',
-      price: 15000,
-      description: '안전과 보호를 주는 부적',
-      benefit: '사고 예방, 안전 보호',
-      image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-4-protection-j6YmcCi3ALWNMUxQAFYHsm.png',
-      liked: false,
-    },
-    {
-      id: 5,
-      name: '성공 부적',
-      price: 15000,
-      description: '성공과 성취를 이끌어주는 부적',
-      benefit: '성공운 상승, 목표 달성',
-      image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-5-success-6yziXbQeZ27Bpmt9S2S5Vi.png',
-      liked: false,
-    },
-    {
-      id: 6,
-      name: '조화 부적',
-      price: 15000,
-      description: '조화와 평화를 가져오는 부적',
-      benefit: '가정 화목, 인간관계 개선',
-      image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-6-harmony-HATmo4UvH6h2kFMqvf4PQw.png',
-      liked: false,
-    },
-    {
-      id: 7,
-      name: '행운 부적',
-      price: 15000,
-      description: '행운과 좋은 기운을 주는 부적',
-      benefit: '행운 상승, 좋은 일 발생',
-      image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-7-luck-GjiKSjMM23b5PgV7RKgAc8.png',
-      liked: false,
-    },
-    {
-      id: 8,
-      name: '학업 부적',
-      price: 15000,
-      description: '학업과 지혜를 주는 부적',
-      benefit: '학업 성취, 시험 합격',
-      image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-8-study-XuKPVKHHHxDWQ2JVKPUjn2.png',
-      liked: false,
-    },
+    { id: 1, name: '연애 부적', price: 15000, description: '사랑과 인연을 이끌어주는 부적', benefit: '연애운 상승, 좋은 인연 만남', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-1-love-bLeDzFpnV2UzvMrKEXHcfS.png', liked: false },
+    { id: 2, name: '재물 부적', price: 15000, description: '재운과 복을 가져오는 부적', benefit: '재운 상승, 사업 번영', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-2-wealth-mRS4ntPC5oMZUSQrufKhfx.png', liked: false },
+    { id: 3, name: '건강 부적', price: 15000, description: '건강과 치유를 주는 부적', benefit: '건강 증진, 질병 예방', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-3-health-e8fgjmK6ft6oQ2RaJMeRPG.png', liked: false },
+    { id: 4, name: '보호 부적', price: 15000, description: '안전과 보호를 주는 부적', benefit: '사고 예방, 안전 보호', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-4-protection-j6YmcCi3ALWNMUxQAFYHsm.png', liked: false },
+    { id: 5, name: '성공 부적', price: 15000, description: '성공과 성취를 이끌어주는 부적', benefit: '성공운 상승, 목표 달성', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-5-success-6yziXbQeZ27Bpmt9S2S5Vi.png', liked: false },
+    { id: 6, name: '조화 부적', price: 15000, description: '조화와 평화를 가져오는 부적', benefit: '가정 화목, 인간관계 개선', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-6-harmony-HATmo4UvH6h2kFMqvf4PQw.png', liked: false },
+    { id: 7, name: '행운 부적', price: 15000, description: '행운과 좋은 기운을 주는 부적', benefit: '행운 상승, 좋은 일 발생', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-7-luck-GjiKSjMM23b5PgV7RKgAc8.png', liked: false },
+    { id: 8, name: '학업 부적', price: 15000, description: '학업과 지혜를 주는 부적', benefit: '학업 성취, 시험 합격', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-8-study-XuKPVKHHHxDWQ2JVKPUjn2.png', liked: false },
   ]);
 
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -100,220 +38,238 @@ export default function TalismanShop() {
   const [purchasedItems, setPurchasedItems] = useState<number[]>([]);
 
   const toggleLike = (id: number) => {
-    setTalismans(talismans.map(item =>
-      item.id === id ? { ...item, liked: !item.liked } : item
-    ));
+    setTalismans((prev) => prev.map((t) => t.id === id ? { ...t, liked: !t.liked } : t));
   };
 
   const addToCart = (talisman: Talisman) => {
-    const existing = cart.find((item) => item.id === talisman.id);
-    if (existing) {
-      setCart(
-        cart.map((item) =>
-          item.id === talisman.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        )
-      );
-    } else {
-      setCart([...cart, { ...talisman, quantity: 1 }]);
-    }
+    setCart((prev) => {
+      const existing = prev.find((item) => item.id === talisman.id);
+      if (existing) return prev.map((item) => item.id === talisman.id ? { ...item, quantity: item.quantity + 1 } : item);
+      return [...prev, { ...talisman, quantity: 1 }];
+    });
   };
 
-  const removeFromCart = (id: number) => {
-    setCart(cart.filter((item) => item.id !== id));
-  };
-
-  const updateQuantity = (id: number, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(id);
-    } else {
-      setCart(
-        cart.map((item) =>
-          item.id === id ? { ...item, quantity } : item
-        )
-      );
-    }
+  const updateQuantity = (id: number, delta: number) => {
+    setCart((prev) =>
+      prev
+        .map((item) => item.id === id ? { ...item, quantity: item.quantity + delta } : item)
+        .filter((item) => item.quantity > 0)
+    );
   };
 
   const handleCheckout = () => {
-    const newPurchased = [...purchasedItems, ...cart.map(item => item.id)];
-    setPurchasedItems(newPurchased);
+    const ids = cart.map((item) => item.id);
+    setPurchasedItems((prev) => Array.from(new Set([...prev, ...ids])));
     setCart([]);
     setShowCart(false);
-    alert('결제가 완료되었습니다! 부적 이미지를 다운로드할 수 있습니다.');
+    alert('구매가 완료되었습니다! 부적 이미지를 다운로드하실 수 있습니다.');
   };
 
-  const downloadImage = async (imageUrl: string, talismanName: string) => {
+  const downloadImage = async (imageUrl: string, name: string) => {
     try {
       const response = await fetch(imageUrl);
       const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${talismanName}.png`;
-      document.body.appendChild(a);
+      a.download = `${name}.png`;
       a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('다운로드 실패:', error);
-      alert('이미지 다운로드에 실패했습니다.');
+      URL.revokeObjectURL(url);
+    } catch {
+      alert('다운로드 중 오류가 발생했습니다.');
     }
   };
 
   const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  const cardStyle = {
+    background: 'oklch(0.17 0.04 270)',
+    border: '1px solid oklch(1 0 0 / 10%)',
+    borderRadius: '1rem',
+  };
+
+  if (showCart) {
+    return (
+      <div className="min-h-screen" style={{ background: 'oklch(0.12 0.03 270)' }}>
+        <div
+          className="px-5 py-4 flex items-center gap-3 border-b"
+          style={{ background: 'oklch(0.14 0.04 270)', borderColor: 'oklch(1 0 0 / 10%)' }}
+        >
+          <button onClick={() => setShowCart(false)} className="p-1.5 rounded-lg transition-colors" style={{ color: 'oklch(0.78 0.15 85)' }}>
+            <ArrowLeft size={20} />
+          </button>
+          <h1 className="text-lg font-bold" style={{ color: 'oklch(0.94 0.015 90)', fontFamily: "'Noto Serif KR', serif" }}>
+            장바구니
+          </h1>
+        </div>
+
+        <div className="p-4 space-y-3">
+          {cart.length === 0 ? (
+            <div className="text-center py-16" style={{ color: 'oklch(0.55 0.02 290)' }}>
+              <ShoppingCart size={40} className="mx-auto mb-3 opacity-40" />
+              <p>장바구니가 비어있습니다</p>
+            </div>
+          ) : (
+            <>
+              {cart.map((item) => (
+                <div key={item.id} className="p-4 flex items-center gap-3" style={cardStyle}>
+                  <img src={item.image} alt={item.name} className="w-14 h-14 rounded-lg object-cover flex-shrink-0" style={{ background: '#fff' }} />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm" style={{ color: 'oklch(0.94 0.015 90)' }}>{item.name}</p>
+                    <p className="text-xs" style={{ color: 'oklch(0.78 0.15 85)' }}>{item.price.toLocaleString()}원</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => updateQuantity(item.id, -1)} className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'oklch(0.22 0.05 270)', color: 'oklch(0.94 0.015 90)' }}>
+                      <Minus size={12} />
+                    </button>
+                    <span className="text-sm font-bold w-4 text-center" style={{ color: 'oklch(0.94 0.015 90)' }}>{item.quantity}</span>
+                    <button onClick={() => updateQuantity(item.id, 1)} className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'oklch(0.22 0.05 270)', color: 'oklch(0.94 0.015 90)' }}>
+                      <Plus size={12} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              <div className="p-4 rounded-2xl" style={{ background: 'oklch(0.17 0.04 270)', border: '1px solid oklch(0.78 0.15 85 / 20%)' }}>
+                <div className="flex justify-between items-center mb-4">
+                  <span className="font-semibold" style={{ color: 'oklch(0.94 0.015 90)' }}>총 금액</span>
+                  <span className="text-xl font-bold" style={{ color: 'oklch(0.78 0.15 85)', fontFamily: "'Noto Serif KR', serif" }}>
+                    {totalPrice.toLocaleString()}원
+                  </span>
+                </div>
+                <button
+                  onClick={handleCheckout}
+                  className="w-full py-3.5 rounded-xl font-bold text-sm transition-all active:scale-[0.97]"
+                  style={{
+                    background: 'linear-gradient(135deg, oklch(0.50 0.28 290), oklch(0.45 0.25 310))',
+                    color: 'oklch(0.97 0.005 90)',
+                    boxShadow: '0 4px 20px oklch(0.55 0.25 290 / 40%)',
+                    fontFamily: "'Noto Serif KR', serif",
+                  }}
+                >
+                  구매하기
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-white pb-24">
-      {/* 헤더 */}
-      <div className="sticky top-0 z-30 bg-gradient-to-r from-yellow-500 to-yellow-400 text-white p-4 flex items-center justify-between shadow-lg">
+    <div className="min-h-screen" style={{ background: 'oklch(0.12 0.03 270)' }}>
+      {/* Header */}
+      <div
+        className="px-5 py-4 flex items-center justify-between border-b"
+        style={{
+          background: 'linear-gradient(160deg, oklch(0.18 0.08 290) 0%, oklch(0.14 0.04 270) 100%)',
+          borderColor: 'oklch(1 0 0 / 10%)',
+        }}
+      >
+        <div>
+          <h1 className="text-xl font-bold" style={{ color: 'oklch(0.94 0.015 90)', fontFamily: "'Noto Serif KR', serif" }}>
+            🏮 부적 상점
+          </h1>
+          <p className="text-xs mt-0.5" style={{ color: 'oklch(0.78 0.15 85)' }}>전통 한국 부적 컬렉션</p>
+        </div>
         <button
-          onClick={() => setLocation('/')}
-          className="hover:bg-white/20 p-2 rounded-lg transition-colors"
+          onClick={() => setShowCart(true)}
+          className="relative p-2.5 rounded-xl transition-all"
+          style={{ background: 'oklch(0.22 0.05 270)', color: 'oklch(0.94 0.015 90)' }}
         >
-          <ArrowLeft size={24} />
-        </button>
-        <h1 className="text-2xl font-bold">✨ 부적 상점</h1>
-        <button
-          onClick={() => setShowCart(!showCart)}
-          className="relative hover:bg-white/20 p-2 rounded-lg transition-colors"
-        >
-          <ShoppingCart size={24} />
-          {totalItems > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-              {totalItems}
+          <ShoppingCart size={20} />
+          {cart.length > 0 && (
+            <span
+              className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center"
+              style={{ background: 'oklch(0.78 0.15 85)', color: 'oklch(0.12 0.03 270)' }}
+            >
+              {cart.reduce((s, i) => s + i.quantity, 0)}
             </span>
           )}
         </button>
       </div>
 
-      {showCart ? (
-        // 장바구니 뷰
-        <div className="p-4">
-          <div className="bg-white rounded-2xl shadow-lg p-6 border-2 border-yellow-300">
-            <h2 className="text-3xl font-bold text-yellow-800 mb-6">🛒 장바구니</h2>
-            {cart.length === 0 ? (
-              <p className="text-yellow-700 text-center py-8">장바구니가 비어있습니다</p>
-            ) : (
-              <>
-                <div className="space-y-3 mb-6">
-                  {cart.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                      <div className="flex-1">
-                        <p className="font-semibold text-yellow-900">{item.name}</p>
-                        <p className="text-sm text-yellow-700">{item.price.toLocaleString()}원</p>
-                      </div>
-                      <div className="flex items-center gap-2 mx-4">
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="p-1 hover:bg-amber-200 rounded"
-                        >
-                          <Minus size={16} className="text-yellow-700" />
-                        </button>
-                        <span className="w-6 text-center font-semibold text-yellow-900">{item.quantity}</span>
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="p-1 hover:bg-amber-200 rounded"
-                        >
-                          <Plus size={16} className="text-yellow-700" />
-                        </button>
-                      </div>
-                      <p className="w-24 text-right font-semibold text-yellow-600">
-                        {(item.price * item.quantity).toLocaleString()}원
-                      </p>
-                    </div>
-                  ))}
-                </div>
-                <div className="border-t-2 border-yellow-200 pt-4">
-                  <div className="flex justify-between mb-4">
-                    <p className="text-lg font-bold text-yellow-900">총액</p>
-                    <p className="text-lg font-bold text-yellow-600">{totalPrice.toLocaleString()}원</p>
-                  </div>
-                  <button
-                    onClick={handleCheckout}
-                    className="w-full bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 text-white font-bold py-3 rounded-lg transition-all duration-300"
-                  >
-                    결제하기
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      ) : (
-        // 부적 그리드 뷰
-        <div className="p-4">
-          <div className="bg-gradient-to-r from-yellow-100 to-yellow-50 border-2 border-yellow-300 rounded-lg p-4 mb-6">
-            <h2 className="text-yellow-900 font-bold mb-2">✨ 영적 보호와 행운의 부적</h2>
-            <p className="text-yellow-800 text-sm">
-              전통 한국 부적으로 당신의 삶에 긍정적인 에너지를 불어넣으세요.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            {talismans.map((talisman) => (
-              <div
-                key={talisman.id}
-                className="bg-white border-2 border-yellow-300 rounded-lg overflow-hidden hover:shadow-xl transition-all duration-300 group"
+      {/* Grid */}
+      <div className="p-4 grid grid-cols-2 gap-3">
+        {talismans.map((talisman) => (
+          <div
+            key={talisman.id}
+            className="rounded-2xl overflow-hidden transition-all duration-150"
+            style={{
+              ...cardStyle,
+              ...(purchasedItems.includes(talisman.id)
+                ? { borderColor: 'oklch(0.78 0.15 85 / 40%)' }
+                : {}),
+            }}
+          >
+            {/* Image */}
+            <div className="relative aspect-square" style={{ background: '#f8f4ef' }}>
+              <img src={talisman.image} alt={talisman.name} className="w-full h-full object-cover" />
+              <button
+                onClick={() => toggleLike(talisman.id)}
+                className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center"
+                style={{ background: 'oklch(0.12 0.03 270 / 60%)' }}
               >
-                {/* 이미지 */}
-                <div className="relative overflow-hidden bg-yellow-50 aspect-square">
-                  <img
-                    src={talisman.image}
-                    alt={talisman.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  />
+                <Heart
+                  size={14}
+                  style={{
+                    color: talisman.liked ? 'oklch(0.65 0.22 15)' : 'oklch(0.70 0.02 290)',
+                    fill: talisman.liked ? 'oklch(0.65 0.22 15)' : 'none',
+                  }}
+                />
+              </button>
+              {purchasedItems.includes(talisman.id) && (
+                <div
+                  className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold"
+                  style={{ background: 'oklch(0.78 0.15 85)', color: 'oklch(0.12 0.03 270)' }}
+                >
+                  구매완료
                 </div>
+              )}
+            </div>
 
-                {/* 정보 */}
-                <div className="p-3">
-                  <h3 className="text-yellow-900 font-bold text-sm mb-1">{talisman.name}</h3>
-                  <p className="text-yellow-700 text-xs mb-2">{talisman.description}</p>
-                  <p className="text-yellow-600 text-xs mb-3 font-semibold">💫 {talisman.benefit}</p>
+            {/* Info */}
+            <div className="p-3">
+              <p className="font-bold text-sm mb-0.5" style={{ color: 'oklch(0.94 0.015 90)', fontFamily: "'Noto Serif KR', serif" }}>
+                {talisman.name}
+              </p>
+              <p className="text-[11px] mb-1 leading-snug" style={{ color: 'oklch(0.60 0.02 290)' }}>
+                {talisman.benefit}
+              </p>
+              <p className="text-sm font-bold mb-2" style={{ color: 'oklch(0.78 0.15 85)' }}>
+                {talisman.price.toLocaleString()}원
+              </p>
 
-                  {/* 가격 */}
-                  <div className="mb-3 pb-3 border-b-2 border-yellow-200">
-                    <p className="text-yellow-900 font-bold text-lg">₩{talisman.price.toLocaleString()}</p>
-                  </div>
-
-                  {/* 버튼 */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => addToCart(talisman)}
-                      className="flex-1 bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 text-white py-2 rounded-lg text-sm font-semibold transition-all duration-300"
-                    >
-                      담기
-                    </button>
-                    <button
-                      onClick={() => toggleLike(talisman.id)}
-                      className={`px-3 py-2 rounded-lg transition-all duration-300 ${
-                        talisman.liked
-                          ? 'bg-red-100 text-red-600'
-                          : 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200'
-                      }`}
-                    >
-                      <Heart size={18} fill={talisman.liked ? 'currentColor' : 'none'} />
-                    </button>
-                  </div>
-
-                  {/* 다운로드 버튼 - 구매한 경우만 표시 */}
-                  {purchasedItems.includes(talisman.id) && (
-                    <button
-                      onClick={() => downloadImage(talisman.image, talisman.name)}
-                      className="w-full mt-2 bg-green-100 hover:bg-green-200 text-green-700 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-1"
-                    >
-                      <Download size={14} />
-                      다운로드
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
+              {purchasedItems.includes(talisman.id) ? (
+                <button
+                  onClick={() => downloadImage(talisman.image, talisman.name)}
+                  className="w-full py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition-all active:scale-[0.97]"
+                  style={{
+                    background: 'oklch(0.78 0.15 85 / 15%)',
+                    color: 'oklch(0.78 0.15 85)',
+                    border: '1px solid oklch(0.78 0.15 85 / 30%)',
+                  }}
+                >
+                  <Download size={12} />
+                  다운로드
+                </button>
+              ) : (
+                <button
+                  onClick={() => addToCart(talisman)}
+                  className="w-full py-2 rounded-lg text-xs font-bold transition-all active:scale-[0.97]"
+                  style={{
+                    background: 'linear-gradient(135deg, oklch(0.50 0.28 290), oklch(0.45 0.25 310))',
+                    color: 'oklch(0.97 0.005 90)',
+                  }}
+                >
+                  담기
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        ))}
+      </div>
     </div>
   );
 }

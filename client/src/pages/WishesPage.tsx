@@ -1,163 +1,160 @@
+/* AI 루나 — WishesPage
+ * Design: Mystic Dark Luxury
+ */
 import React, { useState } from 'react';
-import { Heart, MessageCircle, Share2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Heart, Send } from 'lucide-react';
 
 interface Wish {
   id: number;
-  author: string;
   content: string;
   category: string;
   likes: number;
-  comments: number;
-  date: string;
   liked: boolean;
+  date: string;
 }
+
+const CATEGORIES = ['연애', '재물', '건강', '학업', '기타'];
 
 export default function WishesPage() {
   const [wishes, setWishes] = useState<Wish[]>([
-    {
-      id: 1,
-      author: '사용자A',
-      content: '올해 안에 좋은 인연을 만나길 바랍니다. 🌙',
-      category: '연애',
-      likes: 24,
-      comments: 5,
-      date: '2024-06-23',
-      liked: false,
-    },
-    {
-      id: 2,
-      author: '사용자B',
-      content: '새로운 일자리에서 성공하기를 바랍니다!',
-      category: '직업',
-      likes: 18,
-      comments: 3,
-      date: '2024-06-22',
-      liked: false,
-    },
-    {
-      id: 3,
-      author: '사용자C',
-      content: '건강하고 행복한 한 해가 되길 소원합니다. ✨',
-      category: '건강',
-      likes: 32,
-      comments: 8,
-      date: '2024-06-21',
-      liked: false,
-    },
+    { id: 1, content: '올해 꼭 좋은 인연을 만나게 해주세요. 진심으로 사랑할 수 있는 사람을 만나고 싶습니다.', category: '연애', likes: 24, liked: false, date: '2026-06-20' },
+    { id: 2, content: '사업이 잘 되어서 가족들과 행복하게 살 수 있으면 좋겠습니다. 열심히 하겠습니다!', category: '재물', likes: 18, liked: false, date: '2026-06-21' },
+    { id: 3, content: '건강하게 오래오래 살고 싶습니다. 가족 모두 건강하길 바랍니다.', category: '건강', likes: 31, liked: false, date: '2026-06-22' },
   ]);
-
   const [newWish, setNewWish] = useState('');
-  const [category, setCategory] = useState('일반');
+  const [selectedCategory, setSelectedCategory] = useState('기타');
 
   const handleAddWish = () => {
-    if (newWish.trim()) {
-      const wish: Wish = {
-        id: wishes.length + 1,
-        author: '나',
-        content: newWish,
-        category,
-        likes: 0,
-        comments: 0,
-        date: new Date().toISOString().split('T')[0],
-        liked: false,
-      };
-      setWishes([wish, ...wishes]);
-      setNewWish('');
-    }
+    if (!newWish.trim()) return;
+    const wish: Wish = {
+      id: Date.now(),
+      content: newWish,
+      category: selectedCategory,
+      likes: 0,
+      liked: false,
+      date: new Date().toISOString().split('T')[0],
+    };
+    setWishes((prev) => [wish, ...prev]);
+    setNewWish('');
   };
 
   const handleLike = (id: number) => {
-    setWishes(
-      wishes.map((wish) =>
-        wish.id === id
-          ? {
-              ...wish,
-              likes: wish.liked ? wish.likes - 1 : wish.likes + 1,
-              liked: !wish.liked,
-            }
-          : wish
+    setWishes((prev) =>
+      prev.map((w) =>
+        w.id === id ? { ...w, liked: !w.liked, likes: w.liked ? w.likes - 1 : w.likes + 1 } : w
       )
     );
   };
 
-  const categories = ['일반', '연애', '직업', '건강', '학업', '재물'];
+  const categoryEmoji: Record<string, string> = {
+    연애: '💕', 재물: '💰', 건강: '🏥', 학업: '📚', 기타: '✨',
+  };
+
+  const cardStyle = {
+    background: 'oklch(0.17 0.04 270)',
+    border: '1px solid oklch(1 0 0 / 10%)',
+    borderRadius: '1rem',
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
+    <div className="min-h-screen" style={{ background: 'oklch(0.12 0.03 270)' }}>
       {/* Header */}
-      <div className="bg-gradient-to-r from-pink-600 to-pink-700 text-white px-6 py-8">
-        <h1 className="text-3xl font-bold">💝 소원 게시판</h1>
-        <p className="text-pink-100 mt-2">다른 사용자들과 소원을 공유해보세요</p>
-      </div>
-
-      {/* New Wish Form */}
-      <div className="px-6 py-8">
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-          <h3 className="text-lg font-bold text-slate-900 mb-4">소원을 작성해보세요</h3>
-          <div className="space-y-4">
-            <textarea
-              value={newWish}
-              onChange={(e) => setNewWish(e.target.value)}
-              placeholder="당신의 소원을 적어주세요..."
-              className="w-full p-4 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 resize-none"
-              rows={3}
-            />
-            <div className="flex gap-3">
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              >
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-              <Button
-                onClick={handleAddWish}
-                className="bg-gradient-to-r from-pink-600 to-pink-700 hover:from-pink-700 hover:to-pink-800 text-white"
-              >
-                소원 작성
-              </Button>
-            </div>
+      <div
+        className="px-5 py-4 border-b"
+        style={{
+          background: 'linear-gradient(160deg, oklch(0.18 0.08 290) 0%, oklch(0.14 0.04 270) 100%)',
+          borderColor: 'oklch(1 0 0 / 10%)',
+        }}
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">💫</span>
+          <div>
+            <h1 className="text-xl font-bold" style={{ color: 'oklch(0.94 0.015 90)', fontFamily: "'Noto Serif KR', serif" }}>
+              소원 게시판
+            </h1>
+            <p className="text-xs" style={{ color: 'oklch(0.78 0.15 85)' }}>소원을 빌고 서로 응원해요</p>
           </div>
         </div>
+      </div>
 
-        {/* Wishes List */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-bold text-slate-900 mb-4">모든 소원</h3>
+      <div className="p-4 space-y-4">
+        {/* Write */}
+        <div className="p-5 space-y-3" style={cardStyle}>
+          <label className="block text-xs font-semibold tracking-wide uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>
+            소원 작성
+          </label>
+          <textarea
+            value={newWish}
+            onChange={(e) => setNewWish(e.target.value)}
+            placeholder="당신의 소원을 적어보세요..."
+            rows={3}
+            className="w-full px-4 py-3 rounded-xl text-sm focus:outline-none transition-all resize-none"
+            style={{
+              background: 'oklch(0.20 0.05 270)',
+              color: 'oklch(0.94 0.015 90)',
+              border: '1px solid oklch(1 0 0 / 15%)',
+            }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = 'oklch(0.55 0.25 290 / 60%)'; }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = 'oklch(1 0 0 / 15%)'; }}
+          />
+          <div className="flex gap-2 flex-wrap">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+                style={
+                  selectedCategory === cat
+                    ? { background: 'oklch(0.55 0.25 290)', color: 'oklch(0.97 0.005 90)' }
+                    : { background: 'oklch(0.20 0.05 270)', color: 'oklch(0.65 0.02 290)', border: '1px solid oklch(1 0 0 / 10%)' }
+                }
+              >
+                {categoryEmoji[cat]} {cat}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={handleAddWish}
+            className="w-full py-3 rounded-xl font-bold text-sm transition-all active:scale-[0.97] flex items-center justify-center gap-2"
+            style={{
+              background: 'linear-gradient(135deg, oklch(0.50 0.28 290), oklch(0.45 0.25 310))',
+              color: 'oklch(0.97 0.005 90)',
+              boxShadow: '0 4px 20px oklch(0.55 0.25 290 / 40%)',
+              fontFamily: "'Noto Serif KR', serif",
+            }}
+          >
+            <Send size={14} />
+            소원 올리기
+          </button>
+        </div>
+
+        {/* List */}
+        <div className="space-y-3">
           {wishes.map((wish) => (
-            <div key={wish.id} className="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition-shadow">
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <p className="font-semibold text-slate-900">{wish.author}</p>
-                  <p className="text-sm text-slate-500">{wish.date}</p>
-                </div>
-                <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-sm font-medium">
-                  {wish.category}
-                </span>
-              </div>
-              <p className="text-slate-700 mb-4 leading-relaxed">{wish.content}</p>
-              <div className="flex items-center gap-4 pt-4 border-t border-slate-200">
-                <button
-                  onClick={() => handleLike(wish.id)}
-                  className={`flex items-center gap-2 transition-colors ${
-                    wish.liked ? 'text-pink-600' : 'text-slate-600 hover:text-pink-600'
-                  }`}
+            <div key={wish.id} className="p-4" style={cardStyle}>
+              <div className="flex items-start justify-between gap-3 mb-2">
+                <span
+                  className="text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0"
+                  style={{ background: 'oklch(0.55 0.25 290 / 20%)', color: 'oklch(0.78 0.15 85)' }}
                 >
-                  <Heart size={18} fill={wish.liked ? 'currentColor' : 'none'} />
-                  <span className="text-sm font-medium">{wish.likes}</span>
-                </button>
-                <button className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors">
-                  <MessageCircle size={18} />
-                  <span className="text-sm font-medium">{wish.comments}</span>
-                </button>
-                <button className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors ml-auto">
-                  <Share2 size={18} />
-                </button>
+                  {categoryEmoji[wish.category]} {wish.category}
+                </span>
+                <span className="text-[11px]" style={{ color: 'oklch(0.50 0.02 290)' }}>{wish.date}</span>
               </div>
+              <p className="text-sm leading-relaxed mb-3" style={{ color: 'oklch(0.85 0.015 90)' }}>
+                {wish.content}
+              </p>
+              <button
+                onClick={() => handleLike(wish.id)}
+                className="flex items-center gap-1.5 text-xs font-semibold transition-all"
+                style={{ color: wish.liked ? 'oklch(0.65 0.22 15)' : 'oklch(0.55 0.02 290)' }}
+              >
+                <Heart
+                  size={14}
+                  style={{ fill: wish.liked ? 'oklch(0.65 0.22 15)' : 'none' }}
+                />
+                {wish.likes}
+              </button>
             </div>
           ))}
         </div>

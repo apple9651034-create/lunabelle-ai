@@ -1,122 +1,153 @@
+/* AI 루나 — YukPage
+ * Design: Mystic Dark Luxury
+ */
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Wand2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 interface YukResult {
-  line: number;
   symbol: string;
   meaning: string;
+  advice: string;
 }
+
+const yukSymbols = [
+  { symbol: '━━━', meaning: '양효 (陽爻)', advice: '강한 양기가 흐릅니다. 적극적으로 행동하세요.' },
+  { symbol: '━ ━', meaning: '음효 (陰爻)', advice: '음기가 강합니다. 신중하게 판단하세요.' },
+  { symbol: '☰', meaning: '건 (乾)', advice: '하늘의 기운이 강합니다. 창조적 에너지를 활용하세요.' },
+  { symbol: '☷', meaning: '곤 (坤)', advice: '땅의 기운이 강합니다. 포용력을 발휘하세요.' },
+  { symbol: '☵', meaning: '감 (坎)', advice: '물의 흐름처럼 유연하게 대처하세요.' },
+  { symbol: '☲', meaning: '리 (離)', advice: '불의 기운이 강합니다. 열정을 유지하세요.' },
+];
 
 export default function YukPage() {
   const [question, setQuestion] = useState('');
-  const [results, setResults] = useState<YukResult[] | null>(null);
+  const [results, setResults] = useState<YukResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  const yukSymbols = [
-    { symbol: '☰', meaning: '건(乾) - 하늘, 창조, 강함' },
-    { symbol: '☱', meaning: '태(兌) - 호수, 기쁨, 변화' },
-    { symbol: '☲', meaning: '리(離) - 불, 밝음, 성장' },
-    { symbol: '☳', meaning: '진(震) - 천둥, 움직임, 시작' },
-    { symbol: '☴', meaning: '손(巽) - 바람, 침투, 유연함' },
-    { symbol: '☵', meaning: '감(坎) - 물, 위험, 흐름' },
-  ];
 
   const handleDrawYuk = () => {
     if (!question.trim()) {
-      alert('질문을 입력해주세요');
+      alert('질문을 입력해주세요.');
       return;
     }
-
     setIsLoading(true);
     setTimeout(() => {
-      const randomResults: YukResult[] = Array.from({ length: 6 }, (_, i) => ({
-        line: i + 1,
-        symbol: yukSymbols[Math.floor(Math.random() * yukSymbols.length)].symbol,
-        meaning: yukSymbols[Math.floor(Math.random() * yukSymbols.length)].meaning,
-      }));
-      setResults(randomResults);
+      const drawn = Array.from({ length: 6 }, () => yukSymbols[Math.floor(Math.random() * yukSymbols.length)]);
+      setResults(drawn);
       setIsLoading(false);
-    }, 1500);
+    }, 1200);
+  };
+
+  const cardStyle = {
+    background: 'oklch(0.17 0.04 270)',
+    border: '1px solid oklch(1 0 0 / 10%)',
+    borderRadius: '1rem',
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
+    <div className="min-h-screen" style={{ background: 'oklch(0.12 0.03 270)' }}>
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-8">
-        <h1 className="text-3xl font-bold">☯️ 육효 점술</h1>
-        <p className="text-blue-100 mt-2">변화의 흐름을 육효로 분석해보세요</p>
+      <div
+        className="px-5 py-4 border-b"
+        style={{
+          background: 'linear-gradient(160deg, oklch(0.18 0.08 290) 0%, oklch(0.14 0.04 270) 100%)',
+          borderColor: 'oklch(1 0 0 / 10%)',
+        }}
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">☯️</span>
+          <div>
+            <h1 className="text-xl font-bold" style={{ color: 'oklch(0.94 0.015 90)', fontFamily: "'Noto Serif KR', serif" }}>
+              육효 점술
+            </h1>
+            <p className="text-xs" style={{ color: 'oklch(0.78 0.15 85)' }}>변화의 흐름을 읽습니다</p>
+          </div>
+        </div>
       </div>
 
-      <div className="px-6 py-8">
-        {/* Question Input */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-          <h2 className="text-lg font-bold text-slate-900 mb-4">당신의 질문</h2>
-          <textarea
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            placeholder="궁금한 점을 자세히 적어주세요..."
-            className="w-full p-4 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none mb-4"
-            rows={4}
-          />
-          <Button
+      <div className="p-4 space-y-4">
+        {/* Input */}
+        <div className="p-5 space-y-4" style={cardStyle}>
+          <div>
+            <label className="block text-xs font-semibold mb-2 tracking-wide uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>
+              질문을 입력하세요
+            </label>
+            <textarea
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              placeholder="예: 이번 사업이 성공할까요?"
+              rows={3}
+              className="w-full px-4 py-3 rounded-xl text-sm focus:outline-none transition-all resize-none"
+              style={{
+                background: 'oklch(0.20 0.05 270)',
+                color: 'oklch(0.94 0.015 90)',
+                border: '1px solid oklch(1 0 0 / 15%)',
+              }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = 'oklch(0.55 0.25 290 / 60%)'; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = 'oklch(1 0 0 / 15%)'; }}
+            />
+          </div>
+          <button
             onClick={handleDrawYuk}
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
+            className="w-full py-3.5 rounded-xl font-bold text-sm transition-all active:scale-[0.97] disabled:opacity-50 flex items-center justify-center gap-2"
+            style={{
+              background: 'linear-gradient(135deg, oklch(0.50 0.28 290), oklch(0.45 0.25 310))',
+              color: 'oklch(0.97 0.005 90)',
+              boxShadow: '0 4px 20px oklch(0.55 0.25 290 / 40%)',
+              fontFamily: "'Noto Serif KR', serif",
+            }}
           >
-            {isLoading ? '육효를 뽑는 중...' : '육효 뽑기'}
-          </Button>
+            {isLoading ? <><Loader2 size={16} className="animate-spin" /> 점괘를 뽑는 중...</> : '☯️ 육효 점치기'}
+          </button>
         </div>
 
         {/* Results */}
-        {results && (
-          <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-            <h2 className="text-lg font-bold text-slate-900 mb-6">육효 결과</h2>
-            <div className="space-y-4 mb-8">
-              {results.map((result) => (
-                <div key={result.line} className="p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg">
-                  <div className="flex items-center gap-4 mb-2">
-                    <span className="text-4xl">{result.symbol}</span>
-                    <div>
-                      <p className="font-semibold text-slate-900">{result.line}번째 괘</p>
-                      <p className="text-sm text-slate-600">{result.meaning}</p>
-                    </div>
+        {results.length > 0 && (
+          <div className="space-y-3">
+            <div className="p-5" style={cardStyle}>
+              <h3 className="text-sm font-bold mb-3 tracking-wide uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>
+                뽑힌 효 (爻)
+              </h3>
+              <div className="grid grid-cols-3 gap-2">
+                {results.map((r, i) => (
+                  <div
+                    key={i}
+                    className="text-center py-3 px-2 rounded-xl"
+                    style={{
+                      background: 'oklch(0.20 0.05 270)',
+                      border: '1px solid oklch(0.55 0.25 290 / 20%)',
+                    }}
+                  >
+                    <div className="text-xl mb-1" style={{ color: 'oklch(0.78 0.15 85)' }}>{r.symbol}</div>
+                    <div className="text-[10px]" style={{ color: 'oklch(0.60 0.02 290)' }}>{i + 1}효</div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
-            {/* Interpretation */}
-            <div className="bg-blue-50 rounded-lg p-6 border-l-4 border-blue-600">
-              <h3 className="font-bold text-slate-900 mb-3">종합 해석</h3>
-              <p className="text-slate-700 leading-relaxed mb-3">
-                당신의 질문에 대한 육효 결과는 현재 상황이 변화의 시기임을 나타내고 있습니다.
-                위에서 나타난 괘들은 당신의 상황과 미래의 방향성을 보여주고 있습니다.
-              </p>
-              <p className="text-slate-700 leading-relaxed mb-3">
-                각 괘의 의미를 종합하면, 긍정적인 변화가 예상되며, 현재의 노력이 좋은 결과로
-                이어질 가능성이 높습니다. 계속 진행하되, 신중함을 잃지 마세요.
-              </p>
-              <p className="text-slate-700 leading-relaxed">
-                🌙 AI 루나의 조언: 이 시기에는 인내심과 지혜가 중요합니다. 
-                변화를 두려워하지 말고, 긍정적인 마음으로 나아가세요.
-              </p>
+            <div className="p-5" style={cardStyle}>
+              <h3 className="text-sm font-bold mb-3 tracking-wide uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>
+                해석
+              </h3>
+              <div className="space-y-3">
+                {results.map((r, i) => (
+                  <div key={i} className="flex gap-3 items-start">
+                    <span
+                      className="text-xs font-bold px-2 py-1 rounded-lg flex-shrink-0"
+                      style={{ background: 'oklch(0.55 0.25 290 / 20%)', color: 'oklch(0.78 0.15 85)' }}
+                    >
+                      {i + 1}효
+                    </span>
+                    <div>
+                      <p className="text-xs font-semibold mb-0.5" style={{ color: 'oklch(0.94 0.015 90)' }}>{r.meaning}</p>
+                      <p className="text-xs leading-relaxed" style={{ color: 'oklch(0.65 0.02 290)' }}>{r.advice}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
-
-        {/* Symbol Guide */}
-        <div className="bg-white rounded-2xl shadow-lg p-6">
-          <h2 className="text-lg font-bold text-slate-900 mb-4">육효 기호 설명</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {yukSymbols.map((item, index) => (
-              <div key={index} className="p-4 bg-slate-50 rounded-lg">
-                <p className="text-3xl mb-2">{item.symbol}</p>
-                <p className="text-sm text-slate-700">{item.meaning}</p>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );

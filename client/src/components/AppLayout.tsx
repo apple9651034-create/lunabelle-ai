@@ -1,3 +1,6 @@
+/* AI 루나 — AppLayout
+ * Design: Mystic Dark Luxury — bottom navigation with gold active state
+ */
 import React from 'react';
 import { useLocation } from 'wouter';
 import { Home, MessageCircle, Wand2, Calendar, ShoppingBag, Heart, User, HelpCircle } from 'lucide-react';
@@ -21,15 +24,24 @@ export default function AppLayout({ children }: AppLayoutProps) {
   ];
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-b from-slate-50 to-slate-100">
+    <div
+      className="flex flex-col h-screen"
+      style={{ background: 'oklch(0.12 0.03 270)' }}
+    >
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto pb-20">
         {children}
       </div>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg">
-        <div className="flex justify-around items-center h-20 max-w-4xl mx-auto w-full">
+      <nav
+        className="fixed bottom-0 left-0 right-0 border-t shadow-2xl"
+        style={{
+          background: 'oklch(0.10 0.03 270)',
+          borderColor: 'oklch(1 0 0 / 10%)',
+        }}
+      >
+        <div className="flex justify-around items-center h-[4.5rem] max-w-2xl mx-auto w-full px-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location === item.path;
@@ -37,14 +49,20 @@ export default function AppLayout({ children }: AppLayoutProps) {
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                className={`flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg transition-all ${
+                className="flex flex-col items-center justify-center gap-0.5 px-2 py-2 rounded-xl transition-all duration-150"
+                style={
                   isActive
-                    ? 'text-purple-600 bg-purple-50'
-                    : 'text-slate-600 hover:text-purple-600'
-                }`}
+                    ? {
+                        color: 'oklch(0.78 0.15 85)',
+                        background: 'oklch(0.55 0.25 290 / 15%)',
+                      }
+                    : {
+                        color: 'oklch(0.60 0.02 290)',
+                      }
+                }
               >
-                <Icon size={24} />
-                <span className="text-xs font-medium">{item.label}</span>
+                <Icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
+                <span className="text-[10px] font-medium leading-none">{item.label}</span>
               </button>
             );
           })}
