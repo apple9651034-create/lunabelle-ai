@@ -1,12 +1,11 @@
-/**
+/*
+ * SajuConsultationPage.tsx
  * 실시간 운세 상담 채팅
  * 사주 명식을 기반으로 AI 루나가 맞춤형 상담 제공
  */
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, ArrowLeft, Loader2 } from 'lucide-react';
 import { useLocation } from 'wouter';
-import MysticalLoadingAnimation from '@/components/MysticalLoadingAnimation';
-import TypingEffect from '@/components/TypingEffect';
 import ChatLoadingWithTips from '@/components/ChatLoadingWithTips';
 import { getUserSajuProfile, getSajuContext, getSajuMingshik } from '@/lib/userSajuProfile';
 import { Streamdown } from 'streamdown';
@@ -16,6 +15,7 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  isStreaming?: boolean;
 }
 
 export default function SajuConsultationPage() {
@@ -23,7 +23,6 @@ export default function SajuConsultationPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingStage, setLoadingStage] = useState<'analyzing' | 'divining' | 'interpreting' | 'completing'>('analyzing');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const userProfile = getUserSajuProfile();
 
@@ -43,7 +42,7 @@ export default function SajuConsultationPage() {
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -55,7 +54,6 @@ export default function SajuConsultationPage() {
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
-    setLoadingStage('analyzing');
 
     try {
       const response = await fetch('/api/chat', {
@@ -67,7 +65,7 @@ export default function SajuConsultationPage() {
           messages: [
             {
               role: 'system',
-              content: `당신은 AI 루나, 신비로운 운세 상담사입니다. 사용자의 사주를 기반으로 정확하고 깊이 있는 상담을 제공합니다.\n\n${getSajuContext()}\n\n사용자의 질문에 대해 사주 분석을 바탕으로 따뜻하고 희망적인 조언을 제공하세요.`,
+              content: `당신은 AI 루나, 신비로운 운세 상담사입니다. 사용자의 사주를 기반으로 정확하고 깊이 있는 상담을 제공합니다.\n\n${getSajuContext()}\n\n사용자의 질문에 대해 사주 분석을 바탕으로 따뜻하고 희망적인 조언을 제공하세요. 답변 후 마지막에는 반드시 다음 형식으로 요약과 재질문을 추가하세요:\n\n---\n📝 요약: [상담 내용 한 줄 요약]\n❓ 추가 질문: [관련된 재질문 1개]`,
             },
             ...messages.map((msg) => ({
               role: msg.role,
@@ -78,6 +76,7 @@ export default function SajuConsultationPage() {
               content: input,
             },
           ],
+          model: 'gemini-2.5-flash',
         }),
       });
 
@@ -85,22 +84,24 @@ export default function SajuConsultationPage() {
         throw new Error('API 요청 실패');
       }
 
-      setLoadingStage('divining');
       const data = await response.json();
-      setLoadingStage('interpreting');
+      const assistantContent = data.content || '죄송합니다. 응답을 생성할 수 없었습니다.';
+
+      // 스트리밍 방식으로 메시지 추가
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: data.content || '죄송합니다. 응답을 생성할 수 없었습니다.',
+        content: assistantContent,
         timestamp: new Date(),
+        isStreaming: true,
       };
 
-      setLoadingStage('completing');
+      setMessages((prev) => [...prev, assistantMessage]);
+      
+      // 스트리밍 완료 후 로딩 해제
       setTimeout(() => {
-        setMessages((prev) => [...prev, assistantMessage]);
         setIsLoading(false);
-        setLoadingStage('analyzing');
-      }, 800);
+      }, 500);
     } catch (error) {
       console.error('채팅 오류:', error);
       const errorMessage: Message = {
@@ -111,16 +112,11 @@ export default function SajuConsultationPage() {
       };
       setMessages((prev) => [...prev, errorMessage]);
       setIsLoading(false);
-      setLoadingStage('analyzing');
     }
   };
 
-  if (isLoading) {
-    return <MysticalLoadingAnimation isLoading={isLoading} stage={loadingStage} />;
-  }
-
   return (
-    <div className="min-h-screen" style={{ background: 'oklch(0.12 0.03 270)' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: 'oklch(0.12 0.03 270)' }}>
       {/* 헤더 */}
       <div className="p-4 border-b flex items-center justify-between" style={{ background: 'oklch(0.18 0.08 290)', borderColor: 'oklch(1 0 0 / 10%)' }}>
         <div className="flex items-center gap-3">
@@ -136,6 +132,10 @@ export default function SajuConsultationPage() {
 
       {/* 메시지 영역 */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {isLoading && messages.length > 0 && messages[messages.length - 1].role === 'user' && (
+          <ChatLoadingWithTips category="saju" />
+        )}
+        
         {messages.map((msg) => (
           <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div
@@ -147,21 +147,15 @@ export default function SajuConsultationPage() {
               }}
             >
               {msg.role === 'assistant' ? (
-                <TypingEffect text={msg.content} speed={20} />
+                <div className="text-sm leading-relaxed">
+                  <Streamdown>{msg.content}</Streamdown>
+                </div>
               ) : (
                 <p className="text-sm">{msg.content}</p>
               )}
-              <p className="text-xs mt-2" style={{ color: msg.role === 'user' ? 'oklch(1 0 0 / 70%)' : 'oklch(0.70 0.02 290)' }}>
-                {msg.timestamp.toLocaleTimeString()}
-              </p>
             </div>
           </div>
         ))}
-        {isLoading && (
-          <div className="flex justify-center w-full">
-            <ChatLoadingWithTips category="saju" />
-          </div>
-        )}
         <div ref={messagesEndRef} />
       </div>
 
@@ -173,25 +167,25 @@ export default function SajuConsultationPage() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-            placeholder="운세에 대해 궁금한 점을 물어보세요..."
+            placeholder="궁금한 점을 물어보세요..."
+            disabled={isLoading}
             className="flex-1 px-4 py-2 rounded-lg outline-none"
             style={{
-              background: 'oklch(0.25 0.05 270)',
+              background: 'oklch(0.12 0.03 270)',
               color: 'oklch(0.94 0.015 90)',
               border: '1px solid oklch(1 0 0 / 10%)',
             }}
-            disabled={isLoading}
           />
           <button
             onClick={handleSendMessage}
             disabled={isLoading || !input.trim()}
-            className="p-2 rounded-lg transition-all hover:opacity-80 disabled:opacity-50"
+            className="p-2 rounded-lg transition-colors disabled:opacity-50"
             style={{
-              background: 'oklch(0.50 0.28 290)',
-              color: 'oklch(1 0 0)',
+              background: 'oklch(0.70 0.18 60)',
+              color: 'oklch(0.10 0.02 270)',
             }}
           >
-            <Send size={20} />
+            {isLoading ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
           </button>
         </div>
       </div>

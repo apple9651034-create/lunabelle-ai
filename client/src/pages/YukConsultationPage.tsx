@@ -5,8 +5,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, ArrowLeft, Loader2 } from 'lucide-react';
 import { useLocation } from 'wouter';
-import MysticalLoadingAnimation from '@/components/MysticalLoadingAnimation';
-import TypingEffect from '@/components/TypingEffect';
+
 import ChatLoadingWithTips from '@/components/ChatLoadingWithTips';
 import { Streamdown } from 'streamdown';
 
@@ -22,7 +21,7 @@ export default function YukConsultationPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingStage, setLoadingStage] = useState<'analyzing' | 'divining' | 'interpreting' | 'completing'>('analyzing');
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -53,7 +52,6 @@ export default function YukConsultationPage() {
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
-    setLoadingStage('analyzing');
 
     try {
       const response = await fetch('/api/chat', {
@@ -78,7 +76,11 @@ export default function YukConsultationPage() {
 2. 괘의 의미와 변화를 해석하고
 3. 사용자의 상황에 맞게 현명한 조언을 제공하세요
 
-따뜻하고 희망적인 톤으로 상담하세요.`,
+따뜻하고 희망적인 톤으로 상담하세요. 답변 후 마지막에는 반드시 다음 형식으로 요약과 재질문을 추가하세요:
+
+---
+📝 요약: [육효 해석 한 줄 요약]
+❓ 추가 질문: [관련된 재질문 1개]`,
             },
             ...messages.map((msg) => ({
               role: msg.role,
@@ -96,23 +98,19 @@ export default function YukConsultationPage() {
         throw new Error('API 요청 실패');
       }
 
-      setLoadingStage('divining');
       const data = await response.json();
-      setLoadingStage('interpreting');
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: data.content || data.message?.content || data.choices?.[0]?.message?.content || '죄송합니다. 응답을 생성할 수 없었습니다.',
         timestamp: new Date(),
       };
-      console.log('API Response:', data); // 디버깅용
 
-      setLoadingStage('completing');
+      setMessages((prev) => [...prev, assistantMessage]);
+      
       setTimeout(() => {
-        setMessages((prev) => [...prev, assistantMessage]);
         setIsLoading(false);
-        setLoadingStage('analyzing');
-      }, 800);
+      }, 500);
     } catch (error) {
       console.error('채팅 오류:', error);
       const errorMessage: Message = {
@@ -123,13 +121,8 @@ export default function YukConsultationPage() {
       };
       setMessages((prev) => [...prev, errorMessage]);
       setIsLoading(false);
-      setLoadingStage('analyzing');
     }
   };
-
-  if (isLoading) {
-    return <MysticalLoadingAnimation isLoading={isLoading} stage={loadingStage} category="saju" />;
-  }
 
   return (
     <div className="min-h-screen" style={{ background: 'oklch(0.12 0.03 270)' }}>
@@ -159,7 +152,9 @@ export default function YukConsultationPage() {
               }}
             >
               {msg.role === 'assistant' ? (
-                <TypingEffect text={msg.content} speed={20} />
+                <div className="text-sm leading-relaxed">
+                  <Streamdown>{msg.content}</Streamdown>
+                </div>
               ) : (
                 <p className="text-sm">{msg.content}</p>
               )}
@@ -169,10 +164,8 @@ export default function YukConsultationPage() {
             </div>
           </div>
         ))}
-        {isLoading && (
-          <div className="flex justify-center w-full">
-            <ChatLoadingWithTips category="yuk" />
-          </div>
+        {isLoading && messages.length > 0 && messages[messages.length - 1].role === 'user' && (
+          <ChatLoadingWithTips category="yuk" />
         )}
         <div ref={messagesEndRef} />
       </div>
@@ -197,15 +190,14 @@ export default function YukConsultationPage() {
           />
           <button
             onClick={handleSendMessage}
-            disabled={isLoading}
-            className="px-4 py-2 rounded-lg font-semibold transition-all active:scale-95 disabled:opacity-50"
+            disabled={isLoading || !input.trim()}
+            className="p-2 rounded-lg transition-colors disabled:opacity-50"
             style={{
-              background: 'linear-gradient(135deg, oklch(0.50 0.28 290), oklch(0.45 0.25 310))',
-              color: 'oklch(1 0 0)',
-              boxShadow: '0 4px 15px oklch(0.55 0.25 290 / 30%)',
+              background: 'oklch(0.70 0.18 60)',
+              color: 'oklch(0.10 0.02 270)',
             }}
           >
-            <Send size={18} />
+            {isLoading ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
           </button>
         </div>
       </div>
