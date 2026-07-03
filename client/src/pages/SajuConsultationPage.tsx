@@ -87,7 +87,23 @@ export default function SajuConsultationPage() {
       }
 
       const data = await response.json();
-      const assistantContent = data.content || '죄송합니다. 응답을 생성할 수 없었습니다.';
+      let assistantContent = '';
+      
+      if (data.choices && data.choices[0]) {
+        const choice = data.choices[0];
+        if (choice.message && choice.message.content) {
+          assistantContent = choice.message.content;
+        } else if (choice.content) {
+          assistantContent = choice.content;
+        }
+      } else if (data.content) {
+        assistantContent = data.content;
+      }
+      
+      if (!assistantContent) {
+        console.error('[Saju] No content in response:', data);
+        throw new Error('Empty response content');
+      }
 
       // 스트리밍 방식으로 메시지 추가
       const assistantMessage: Message = {

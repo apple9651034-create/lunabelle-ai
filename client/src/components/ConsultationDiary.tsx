@@ -2,13 +2,44 @@
  * 상담일지 컴포넌트
  * 이전 상담 내용과 루나의 요약 코멘트를 한눈에 볼 수 있음
  */
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ChevronDown, ChevronUp, Calendar, Sparkles } from 'lucide-react';
 import { ConsultationMemory, getConsultationMemories } from '@/lib/consultationMemory';
+import ConsultationFilter from './ConsultationFilter';
 
 export default function ConsultationDiary() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [filters, setFilters] = useState({
+    searchTerm: '',
+    category: 'all',
+    sortBy: 'recent' as 'recent' | 'oldest' | 'longest',
+  });
   const memories = getConsultationMemories();
+
+  const filteredAndSortedMemories = useMemo(() => {
+    let filtered = [...memories];
+
+    if (filters.searchTerm) {
+      filtered = filtered.filter((m) =>
+        m.mainConcern.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        m.details.toLowerCase().includes(filters.searchTerm.toLowerCase())
+      );
+    }
+
+    if (filters.category !== 'all') {
+      filtered = filtered.filter((m) => m.type === filters.category);
+    }
+
+    if (filters.sortBy === 'recent') {
+      filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    } else if (filters.sortBy === 'oldest') {
+      filtered.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    } else if (filters.sortBy === 'longest') {
+      filtered.sort((a, b) => b.details.length - a.details.length);
+    }
+
+    return filtered;
+  }, [memories, filters]);
 
   if (memories.length === 0) {
     return (
@@ -42,12 +73,21 @@ export default function ConsultationDiary() {
     return colors[type] || 'oklch(0.70 0.18 60)';
   };
 
-  // 최신순으로 정렬
-  const sortedMemories = [...memories].reverse();
-
   return (
-    <div className="space-y-3">
-      {sortedMemories.map((memory) => (
+    <div className="space-y-4">
+      <ConsultationFilter onFilter={setFilters} />
+      {filteredAndSortedMemories.length === 0 ? (
+        <div className="rounded-lg border p-6 text-center" style={{
+          background: 'oklch(0.17 0.04 270)',
+          borderColor: 'oklch(0.78 0.15 85 / 20%)',
+        }}>
+          <p style={{ color: 'oklch(0.60 0.02 290)' }} className="text-sm">
+            검색 결과가 없습니다.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {filteredAndSortedMemories.map((memory) => (
         <div
           key={memory.id}
           className="rounded-lg border overflow-hidden transition-all"
@@ -191,6 +231,8 @@ export default function ConsultationDiary() {
           )}
         </div>
       ))}
+        </div>
+      )}
     </div>
   );
 }

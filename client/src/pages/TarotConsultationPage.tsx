@@ -98,10 +98,28 @@ export default function TarotConsultationPage() {
       }
 
       const data = await response.json();
+      let content = '';
+      
+      if (data.choices && data.choices[0]) {
+        const choice = data.choices[0];
+        if (choice.message && choice.message.content) {
+          content = choice.message.content;
+        } else if (choice.content) {
+          content = choice.content;
+        }
+      } else if (data.content) {
+        content = data.content;
+      }
+      
+      if (!content) {
+        console.error('[Tarot] No content in response:', data);
+        throw new Error('Empty response content');
+      }
+      
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: data.content || '죄송합니다. 응답을 생성할 수 없었습니다.',
+        content: content,
         timestamp: new Date(),
       };
 

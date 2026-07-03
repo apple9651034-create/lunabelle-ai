@@ -4,6 +4,8 @@
  */
 import React, { useState } from 'react';
 import { Heart, ShoppingCart, X } from 'lucide-react';
+import TalismanPurchaseButton from './TalismanPurchaseButton';
+import ConsultationCardShare from './ConsultationCardShare';
 
 interface TalismanRecommendation {
   id: number;
@@ -26,6 +28,31 @@ export default function RecommendedTalisman({
   onAddToCart,
 }: RecommendedTalismanProps) {
   const [liked, setLiked] = useState(false);
+  const [showShareCard, setShowShareCard] = useState(false);
+
+  const handleAddToCart = (talisman: TalismanRecommendation) => {
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    cart.push({
+      id: talisman.id,
+      name: talisman.name,
+      price: Math.floor(talisman.price * 0.9),
+      originalPrice: talisman.price,
+      discount: 10,
+    });
+    localStorage.setItem('cart', JSON.stringify(cart));
+    alert(`${talisman.name}을(를) 장바구니에 담았습니다!`);
+  };
+
+  const handleCheckout = (talisman: TalismanRecommendation) => {
+    localStorage.setItem('checkoutTalisman', JSON.stringify({
+      id: talisman.id,
+      name: talisman.name,
+      price: Math.floor(talisman.price * 0.9),
+      originalPrice: talisman.price,
+      discount: 10,
+    }));
+    window.location.href = '/charge';
+  };
 
   // 상담 내용 기반 부적 추천 로직
   const getRecommendedTalismanByContent = (): TalismanRecommendation => {
@@ -218,6 +245,43 @@ export default function RecommendedTalisman({
           이 부적은 당신의 현재 상황과 고민을 깊이 있게 분석한 결과, 가장 도움이 될 것으로 판단됩니다.
           부적을 소지하고 당신의 의도에 집중하면, 더욱 큰 효과를 경험하실 수 있습니다.
         </p>
+      </div>
+
+      {/* 구매 버튼 */}
+      <div className="mt-6 pt-6 border-t" style={{ borderColor: 'oklch(0.78 0.15 85 / 20%)' }}>
+        <TalismanPurchaseButton
+          talismanId={recommendation.id.toString()}
+          talismanName={recommendation.name}
+          price={recommendation.price}
+          discountPercentage={10}
+          onAddToCart={handleAddToCart}
+          onCheckout={handleCheckout}
+        />
+      </div>
+
+      {/* 공유 버튼 */}
+      <div className="mt-6 pt-6 border-t" style={{ borderColor: 'oklch(0.78 0.15 85 / 20%)' }}>
+        <button
+          onClick={() => setShowShareCard(!showShareCard)}
+          className="w-full px-4 py-2 rounded-lg font-bold text-sm transition-all"
+          style={{
+            background: 'oklch(0.78 0.15 85 / 15%)',
+            color: 'oklch(0.78 0.15 85)',
+            border: '1px solid oklch(0.78 0.15 85 / 30%)',
+          }}
+        >
+          {showShareCard ? '닫기' : '✨ 공유 버튼'}
+        </button>
+        {showShareCard && (
+          <div className="mt-4">
+            <ConsultationCardShare
+              talismanName={recommendation.name}
+              talismanImage={recommendation.image}
+              summary={recommendation.reason}
+              consultationType="yuk"
+            />
+          </div>
+        )}
       </div>
     </div>
   );
