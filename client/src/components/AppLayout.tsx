@@ -22,11 +22,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
     { path: '/history', icon: Clock, label: '기록' },
     { path: '/shop', icon: ShoppingBag, label: '부적' },
     { path: '/wishes', icon: Heart, label: '소원' },
-    { path: '/mypage', icon: User, label: '마이' },
+    { path: '/dashboard', icon: User, label: '대시' },
     { path: '/support', icon: HelpCircle, label: '지원' },
   ];
 
   const isHome = location === '/';
+  const isDashboard = location === '/dashboard';
 
   return (
     <div
@@ -34,7 +35,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       style={{ background: 'oklch(0.12 0.03 270)' }}
     >
       {/* Top Back Button (서브 페이지에서만 표시) */}
-      {!isHome && (
+      {!isHome && !isDashboard && (
         <div
           className="flex items-center px-4 py-3 border-b"
           style={{

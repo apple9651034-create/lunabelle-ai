@@ -96,9 +96,9 @@
 - [ ] 복비 결제 PortOne 연결 (WishesPage)
 
 
-## 신규 기능 (진행 중)
+## 신규 기능 (완료)
 
-- [ ] 마이페이지 대시보드 (크레딧 잔액, 상담 내역, 올린 소원)
-- [ ] 상담 내보내기 기능 (이미지/PDF 저장)
-- [ ] 결제 성공 애니메이션 (동전 떨어지는 효과)
-- [ ] 부적 설명 추가 (8가지 부적 의미)
+- [x] 마이페이지 대시보드 (크레딧 잔액, 상담 내역, 올린 소원) - MyPageDashboard.tsx
+- [x] 상담 내보내기 기능 (이미지/PDF 저장) - ConsultationExporter.tsx
+- [x] 결제 성공 애니메이션 (동전 떨어지는 효과) - PaymentSuccessAnimation.tsx
+- [x] 부적 설명 추가 (8가지 부적 의미) - TalismanDescriptions.tsx

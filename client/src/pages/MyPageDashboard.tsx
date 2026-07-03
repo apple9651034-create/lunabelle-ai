@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Wallet, History, Heart, TrendingUp } from 'lucide-react';
 import { useLocation } from 'wouter';
-import { useAuth } from '@/_core/hooks/useAuth';
-import { trpc } from '@/lib/trpc';
+// 불필요한 임포트 제거됨
 
 export default function MyPageDashboard() {
   const [, navigate] = useLocation();
-  const { user } = useAuth();
   const [consultationHistory, setConsultationHistory] = useState<any[]>([]);
   const [wishes, setWishes] = useState<any[]>([]);
   const [creditBalance, setCreditBalance] = useState(10000);
