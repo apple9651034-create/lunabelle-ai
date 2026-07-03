@@ -16,6 +16,8 @@ import TalismanShop from "./pages/TalismanShop";
 import YukPage from "./pages/YukPage";
 import SajuPage from "./pages/SajuPage";
 import SupportPage from "./pages/SupportPage";
+import TarotPage from "./pages/TarotPage";
+import ConsultationHistoryPage from "./pages/ConsultationHistoryPage";
 
 function Router() {
   return (
@@ -29,6 +31,8 @@ function Router() {
         <Route path="/yuk" component={YukPage} />
         <Route path="/saju" component={SajuPage} />
         <Route path="/support" component={SupportPage} />
+        <Route path="/tarot" component={TarotPage} />
+        <Route path="/history" component={ConsultationHistoryPage} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>

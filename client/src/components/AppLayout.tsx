@@ -4,7 +4,7 @@
  */
 import React from 'react';
 import { useLocation } from 'wouter';
-import { Home, MessageCircle, Wand2, Calendar, ShoppingBag, Heart, User, HelpCircle, ArrowLeft } from 'lucide-react';
+import { Home, MessageCircle, Wand2, Calendar, ShoppingBag, Heart, User, HelpCircle, ArrowLeft, Sparkles, Clock } from 'lucide-react';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -18,6 +18,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
     { path: '/chat', icon: MessageCircle, label: '채팅' },
     { path: '/yuk', icon: Wand2, label: '육효' },
     { path: '/saju', icon: Calendar, label: '사주' },
+    { path: '/tarot', icon: Sparkles, label: '타로' },
+    { path: '/history', icon: Clock, label: '기록' },
     { path: '/shop', icon: ShoppingBag, label: '부적' },
     { path: '/wishes', icon: Heart, label: '소원' },
     { path: '/mypage', icon: User, label: '마이' },
