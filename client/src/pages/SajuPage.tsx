@@ -4,8 +4,8 @@
  */
 import React, { useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import { calculateFourPillars } from 'manseryeok';
 
-// manseryeok 라이브러리는 런타임에 동적으로 로드됨
 interface FourPillars {
   year: { heavenlyStem: string; earthlyBranch: string };
   month: { heavenlyStem: string; earthlyBranch: string };
@@ -27,7 +27,7 @@ interface FourPillars {
   monthHanja: string;
   dayHanja: string;
   hourHanja: string;
-  tenGods: Record<string, Record<string, string>>;
+  tenGods?: any;
   voidBranches: string[];
 }
 
@@ -35,38 +35,6 @@ interface SajuResult {
   fourPillars: FourPillars;
   personality: string;
   luck: string;
-}
-
-// 시진 (자시 = 24:00~01:59 기준)
-const TIME_SLOTS = [
-  { label: '자시 (子時) 24:00~01:59', value: 0 },
-  { label: '축시 (丑時) 02:00~03:59', value: 1 },
-  { label: '인시 (寅時) 04:00~05:59', value: 2 },
-  { label: '묘시 (卯時) 06:00~07:59', value: 3 },
-  { label: '진시 (辰時) 08:00~09:59', value: 4 },
-  { label: '사시 (巳時) 10:00~11:59', value: 5 },
-  { label: '오시 (午時) 12:00~13:59', value: 6 },
-  { label: '미시 (未時) 14:00~15:59', value: 7 },
-  { label: '신시 (申時) 16:00~17:59', value: 8 },
-  { label: '유시 (酉時) 18:00~19:59', value: 9 },
-  { label: '술시 (戌時) 20:00~21:59', value: 10 },
-  { label: '해시 (亥時) 22:00~23:59', value: 11 },
-];
-
-async function calculateSaju(
-  year: number,
-  month: number,
-  day: number,
-  hour: number | null,
-  minute: number
-): Promise<FourPillars | null> {
-  try {
-    // 동적 import (브라우저 환경에서는 작동 안 함, 서버 사이드에서만)
-    // 클라이언트에서는 mock 데이터 반환
-    return null;
-  } catch (e) {
-    return null;
-  }
 }
 
 export default function SajuPage() {
@@ -86,7 +54,7 @@ export default function SajuPage() {
   const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
   const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
 
-  const handleAnalyzeSaju = async () => {
+  const handleAnalyzeSaju = () => {
     if (!birthYear || !birthMonth || !birthDay || !gender) {
       alert('생년월일과 성별을 모두 입력해주세요.');
       return;
@@ -99,24 +67,13 @@ export default function SajuPage() {
     setIsLoading(true);
 
     try {
-      // 서버 API 호출 (백엔드에서 manseryeok 사용)
-      const response = await fetch('/api/saju', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          year: parseInt(birthYear),
-          month: parseInt(birthMonth),
-          day: parseInt(birthDay),
-          hour: unknownTime ? null : parseInt(birthHour),
-          minute: unknownTime ? 0 : parseInt(birthMinute),
-        }),
+      const fourPillars = calculateFourPillars({
+        year: parseInt(birthYear),
+        month: parseInt(birthMonth),
+        day: parseInt(birthDay),
+        hour: unknownTime ? 12 : parseInt(birthHour),
+        minute: unknownTime ? 0 : parseInt(birthMinute),
       });
-
-      if (!response.ok) {
-        throw new Error('사주 계산 실패');
-      }
-
-      const fourPillars: FourPillars = await response.json();
 
       // 성격/운세 해석
       const dayElement = fourPillars.dayElement.stem;
