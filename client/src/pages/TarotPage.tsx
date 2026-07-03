@@ -37,11 +37,11 @@ export default function TarotPage() {
   const handleDrawTarot = () => {
     if (!question.trim()) {
       alert('질문을 입력해주세요.');
-    if (!deductCharge()) {
-      setShowChargeModal(true);
-      setIsLoading(false);
       return;
     }
+
+    if (!deductCharge()) {
+      setShowChargeModal(true);
       return;
     }
 
@@ -245,7 +245,7 @@ export default function TarotPage() {
           </div>
         )}
       </div>
+      <ChargeModal isOpen={showChargeModal} onClose={() => setShowChargeModal(false)} />
     </div>
   );
-      <ChargeModal isOpen={showChargeModal} onClose={() => setShowChargeModal(false)} />
 }
