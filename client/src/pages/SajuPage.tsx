@@ -4,11 +4,12 @@
  * 양력/음력 선택 + 윤달 옵션 + 이미지 저장/카카오톡 공유
  */
 import React, { useState, useRef } from 'react';
-import { Loader2, Download, Share2, ArrowLeft } from 'lucide-react';
+import { Loader2, Download, Share2, ArrowLeft, MessageCircle } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { calculateFourPillars, solarToLunar, lunarToSolar } from 'manseryeok';
 import html2canvas from 'html2canvas';
 import MysticalLoader from '@/components/MysticalLoader';
+import { shareToKakao, shareToInstagram, generateSajuShareData } from '@/lib/shareResult';
 
 declare global {
   interface Window {
@@ -73,6 +74,18 @@ export default function SajuPage() {
   const days = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0'));
   const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
   const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
+
+  const handleShareKakao = () => {
+    if (!result) return;
+    const shareData = generateSajuShareData(result.fourPillars, result.personality);
+    shareToKakao(shareData);
+  };
+
+  const handleShareInstagram = () => {
+    if (!result) return;
+    const shareData = generateSajuShareData(result.fourPillars, result.personality);
+    shareToInstagram(shareData);
+  };
 
   const handleSaveImage = async () => {
     if (!resultRef.current) return;
@@ -344,12 +357,15 @@ export default function SajuPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
-              <button onClick={handleSaveImage} className="py-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.95] flex items-center justify-center gap-2" style={{ background: 'oklch(0.20 0.05 270)', color: 'oklch(0.94 0.015 90)', border: '1px solid oklch(1 0 0 / 10%)' }}>
-                <Download size={16} /> 이미지 저장
+            <div className="grid grid-cols-3 gap-2">
+              <button onClick={handleSaveImage} className="py-2 px-2 rounded-lg text-xs font-semibold transition-all active:scale-[0.95] flex items-center justify-center gap-1" style={{ background: 'oklch(0.20 0.05 270)', color: 'oklch(0.94 0.015 90)', border: '1px solid oklch(1 0 0 / 10%)' }}>
+                <Download size={14} /> 저장
               </button>
-              <button onClick={handleKakaoShare} className="py-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.95] flex items-center justify-center gap-2" style={{ background: 'oklch(0.20 0.05 270)', color: 'oklch(0.94 0.015 90)', border: '1px solid oklch(1 0 0 / 10%)' }}>
-                <Share2 size={16} /> 카카오톡 공유
+              <button onClick={handleShareKakao} className="py-2 px-2 rounded-lg text-xs font-semibold transition-all active:scale-[0.95] flex items-center justify-center gap-1" style={{ background: 'oklch(0.20 0.05 270)', color: 'oklch(0.94 0.015 90)', border: '1px solid oklch(1 0 0 / 10%)' }}>
+                <Share2 size={14} /> 카톡
+              </button>
+              <button onClick={handleShareInstagram} className="py-2 px-2 rounded-lg text-xs font-semibold transition-all active:scale-[0.95] flex items-center justify-center gap-1" style={{ background: 'oklch(0.20 0.05 270)', color: 'oklch(0.94 0.015 90)', border: '1px solid oklch(1 0 0 / 10%)' }}>
+                <Share2 size={14} /> 인스타
               </button>
             </div>
 

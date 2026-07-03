@@ -4,6 +4,7 @@
  */
 import React, { useState, useEffect } from 'react';
 import { Sparkles, ChevronRight } from 'lucide-react';
+import { getFortuneDetails } from "@/lib/fortuneDetails";
 import { useLocation } from 'wouter';
 
 interface DailyFortuneWidgetProps {
@@ -11,6 +12,7 @@ interface DailyFortuneWidgetProps {
 }
 
 export default function DailyFortuneWidget({ onViewDetails }: DailyFortuneWidgetProps) {
+  const [fortuneDetails, setFortuneDetails] = useState<any>(null);
   const [, setLocation] = useLocation();
   const [fortune, setFortune] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -28,6 +30,13 @@ export default function DailyFortuneWidget({ onViewDetails }: DailyFortuneWidget
           const latestSaju = sajuRecords[sajuRecords.length - 1];
           const fortuneMessages = generateFortune(latestSaju);
           setFortune(fortuneMessages);
+          
+          // 행운 정보 로드
+          if (latestSaju.result?.fourPillars?.yearString) {
+            const stemChar = latestSaju.result.fourPillars.yearString.charAt(0);
+            const details = getFortuneDetails(stemChar);
+            setFortuneDetails(details);
+          }
         } else {
           setFortune(null);
         }
@@ -89,6 +98,49 @@ export default function DailyFortuneWidget({ onViewDetails }: DailyFortuneWidget
       >
         {fortune}
       </p>
+      {/* Lucky Details */}
+      {fortuneDetails && (
+        <div className="mt-4 pt-4 border-t" style={{ borderColor: "oklch(0.78 0.15 85 / 20%)" }}>
+          <div className="grid grid-cols-2 gap-3 text-xs">
+            {/* Lucky Colors */}
+            <div>
+              <p className="font-semibold mb-1" style={{ color: "oklch(0.78 0.15 85)" }}>🎨 행운의 색</p>
+              <div className="flex gap-1">
+                {fortuneDetails.luckyColors.map((c: any, i: number) => (
+                  <div key={i} className="w-6 h-6 rounded-full border" style={{ background: c.hex, borderColor: "oklch(0.78 0.15 85 / 30%)" }} title={c.name} />
+                ))}
+              </div>
+            </div>
+            {/* Lucky Numbers */}
+            <div>
+              <p className="font-semibold mb-1" style={{ color: "oklch(0.78 0.15 85)" }}>🔢 행운의 숫자</p>
+              <div className="flex gap-1">
+                {fortuneDetails.luckyNumbers.map((n: number, i: number) => (
+                  <span key={i} className="px-2 py-1 rounded bg-purple-600 text-white text-xs">{n}</span>
+                ))}
+              </div>
+            </div>
+            {/* Lucky Items */}
+            <div className="col-span-2">
+              <p className="font-semibold mb-1" style={{ color: "oklch(0.78 0.15 85)" }}>✨ 행운의 아이템</p>
+              <div className="flex flex-wrap gap-1">
+                {fortuneDetails.luckyItems.map((item: any, i: number) => (
+                  <span key={i} className="px-2 py-1 rounded text-xs" style={{ background: "oklch(0.20 0.05 270)", color: "oklch(0.85 0.015 90)" }}>{item.emoji} {item.name}</span>
+                ))}
+              </div>
+            </div>
+            {/* Lucky Direction & Time */}
+            <div>
+              <p className="font-semibold mb-1" style={{ color: "oklch(0.78 0.15 85)" }}>🧭 길한 방향</p>
+              <p style={{ color: "oklch(0.85 0.015 90)" }}>{fortuneDetails.luckyDirection}</p>
+            </div>
+            <div>
+              <p className="font-semibold mb-1" style={{ color: "oklch(0.78 0.15 85)" }}>🕐 길한 시간</p>
+              <p style={{ color: "oklch(0.85 0.015 90)" }}>{fortuneDetails.luckyTime}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex gap-2 text-xs" style={{ color: 'oklch(0.60 0.02 290)' }}>
         <span>🌙 {new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}</span>

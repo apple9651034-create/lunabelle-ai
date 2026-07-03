@@ -3,9 +3,10 @@
  * Manus LLM 기반 실시간 AI 상담 + 상담내역 저장
  */
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Loader2, Save, History, Download, FileText, Image as ImageIcon } from 'lucide-react';
+import { Send, Loader2, Save, History, Download, FileText, Image as ImageIcon, Lightbulb } from "lucide-react";
 import { saveConsultation, getAllConsultations, getConsultationById, formatDate } from '@/lib/consultationHistory';
 import { downloadChatAsText, downloadChatAsImage, downloadChatAsJSON } from '@/lib/downloadChat';
+import { generateSajuQuestions, SuggestedQuestion } from "@/lib/suggestedQuestions";
 
 interface Message {
   id: number;
@@ -43,6 +44,7 @@ export default function ChatInterface() {
       try {
         const result = JSON.parse(stored);
         setSajuResult(result);
+        setSuggestedQuestions(generateSajuQuestions(result));
         sessionStorage.removeItem('sajuResult');
       } catch (e) {
         console.error('사주 결과 로드 실패:', e);
@@ -84,6 +86,7 @@ export default function ChatInterface() {
       ];
 
   const [messages, setMessages] = useState<Message[]>(initialMessages);
+  const [suggestedQuestions, setSuggestedQuestions] = useState<SuggestedQuestion[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -403,6 +406,32 @@ ${sajuResult ? `사용자의 사주: ${sajuResult.fourPillars.yearString} ${saju
             <Download size={14} /> JSON
           </button>
         </div>
+        {/* Suggested Questions */}
+        {suggestedQuestions.length > 0 && messages.length <= 3 && (
+          <div className="mb-3 p-3 rounded-lg" style={{ background: "oklch(0.17 0.04 270)", border: "1px solid oklch(0.78 0.15 85 / 20%)" }}>
+            <div className="flex items-center gap-2 mb-2">
+              <Lightbulb size={14} style={{ color: "oklch(0.78 0.15 85)" }} />
+              <p className="text-xs font-semibold" style={{ color: "oklch(0.78 0.15 85)" }}>추천 질문</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {suggestedQuestions.slice(0, 4).map((q, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => { setInputValue(q.text); }}
+                  className="text-left p-2 rounded-lg text-xs transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  style={{
+                    background: "oklch(0.20 0.05 270)",
+                    color: "oklch(0.85 0.015 90)",
+                    border: "1px solid oklch(0.55 0.25 290 / 20%)"
+                  }}
+                >
+                  <span className="mr-1">{q.emoji}</span>
+                  <span className="line-clamp-2">{q.text}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="flex gap-3">
           <input
