@@ -102,3 +102,10 @@
 - [x] 상담 내보내기 기능 (이미지/PDF 저장) - ConsultationExporter.tsx
 - [x] 결제 성공 애니메이션 (동전 떨어지는 효과) - PaymentSuccessAnimation.tsx
 - [x] 부적 설명 추가 (8가지 부적 의미) - TalismanDescriptions.tsx
+
+## 최종 통합 작업 (완료)
+
+- [x] YukConsultationPage에 상담 내보내기 버튼 추가
+- [x] ChargePage에 PaymentSuccessAnimation 통합
+- [x] WishesPage에 PaymentSuccessAnimation 통합
+- [x] TalismanShop에 부적 설명 렌더링 (description 표시)

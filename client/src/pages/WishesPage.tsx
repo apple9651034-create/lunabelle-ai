@@ -16,6 +16,7 @@ import {
 } from '@/lib/wishInteraction';
 import { processBlessingPayment, getUserCredit } from '@/lib/paymentHandler';
 import InteractionAnimation from '@/components/InteractionAnimation';
+import PaymentSuccessAnimation from '@/components/PaymentSuccessAnimation';
 
 interface Wish {
   id: number;
@@ -56,6 +57,8 @@ export default function WishesPage() {
   const [encouragementMessage, setEncouragementMessage] = useState('');
   const [wishInteractions, setWishInteractions] = useState<Map<number, WishWithInteractions>>(new Map());
   const [userCredit, setUserCredit] = useState(0);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
+  const [lastBlessingAmount, setLastBlessingAmount] = useState(0);
 
   useEffect(() => {
     // 크레딧 로드
@@ -178,9 +181,10 @@ export default function WishesPage() {
         alert(paymentResult.message);
         return;
       }
-      // 결제 완료 알림
+      // 결제 완료 애니메이션 표시
       setUserCredit(paymentResult.newBalance || 0);
-      alert(`✅ 소원 기도가 완료되었습니다!\n동전: ${selectedBlessing}원\n차감 잔앩: ${paymentResult.newBalance}원`);
+      setLastBlessingAmount(selectedBlessing);
+      setShowSuccessAnimation(true);
     }
 
     const expiryDate = new Date();
@@ -264,7 +268,13 @@ export default function WishesPage() {
   const sortedWishes = [...wishes].sort((a, b) => b.blessings - a.blessings);
 
   return (
-    <div className="min-h-screen" style={{ background: 'oklch(0.12 0.03 270)' }}>
+    <>
+      <PaymentSuccessAnimation
+        isVisible={showSuccessAnimation}
+        chargeAmount={lastBlessingAmount}
+        onComplete={() => setShowSuccessAnimation(false)}
+      />
+      <div className="min-h-screen" style={{ background: 'oklch(0.12 0.03 270)' }}>
       {/* Header */}
       <div
         className="px-5 py-4 border-b sticky top-0 z-40 backdrop-blur-md"
@@ -652,5 +662,6 @@ export default function WishesPage() {
         </div>
       )}
     </div>
+    </>
   );
 }

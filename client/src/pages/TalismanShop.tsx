@@ -236,7 +236,7 @@ export default function TalismanShop() {
                 {talisman.name}
               </p>
               <p className="text-[11px] mb-1 leading-snug" style={{ color: 'oklch(0.60 0.02 290)' }}>
-                {talisman.benefit}
+                {talisman.description}
               </p>
               <p className="text-sm font-bold mb-2" style={{ color: 'oklch(0.78 0.15 85)' }}>
                 {talisman.price.toLocaleString()}원

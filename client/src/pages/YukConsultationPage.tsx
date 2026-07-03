@@ -3,11 +3,11 @@
  * 사용자의 질문에 대해 육효를 기반으로 AI 루나가 맞춤형 상담 제공
  */
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, ArrowLeft, Loader2 } from 'lucide-react';
+import { Send, ArrowLeft, Loader2, Download } from 'lucide-react';
 import { useLocation } from 'wouter';
-
 import ChatLoadingWithTips from '@/components/ChatLoadingWithTips';
 import { Streamdown } from 'streamdown';
+import html2canvas from 'html2canvas';
 
 interface Message {
   id: string;
@@ -137,10 +137,33 @@ export default function YukConsultationPage() {
             <p className="text-xs" style={{ color: 'oklch(0.70 0.02 290)' }}>고대의 지혜로 당신의 변화를 읽어드립니다</p>
           </div>
         </div>
+        <button
+          onClick={async () => {
+            const element = document.getElementById('consultation-messages');
+            if (!element) return;
+            try {
+              const canvas = await html2canvas(element, {
+                backgroundColor: '#0a0415',
+                scale: 2,
+              });
+              const link = document.createElement('a');
+              link.href = canvas.toDataURL('image/png');
+              link.download = `yuk-consultation-${Date.now()}.png`;
+              link.click();
+            } catch (error) {
+              console.error('Export failed:', error);
+              alert('Failed to save consultation.');
+            }
+          }}
+          className="p-2 hover:opacity-70 transition-opacity"
+          title="Save consultation"
+        >
+          <Download size={20} style={{ color: 'oklch(0.70 0.18 60)' }} />
+        </button>
       </div>
 
       {/* 메시지 영역 */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div id="consultation-messages" className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((msg) => (
           <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div

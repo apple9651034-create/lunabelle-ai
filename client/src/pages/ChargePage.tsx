@@ -7,6 +7,7 @@ import { useLocation } from 'wouter';
 import { ArrowLeft, Zap, Check, AlertCircle, Loader2 } from 'lucide-react';
 import { usePortonePayment } from '@/lib/usePortonePayment';
 import { trpc } from '@/lib/trpc';
+import PaymentSuccessAnimation from '@/components/PaymentSuccessAnimation';
 
 const CHARGE_PACKAGES = [
   {
@@ -48,6 +49,7 @@ export default function ChargePage() {
   const [selectedPackage, setSelectedPackage] = useState<string>('standard');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   const { requestPayment, isReady } = usePortonePayment();
   const chargeFromPortOne = trpc.credit.chargeFromPortOne.useMutation();
 
@@ -81,9 +83,12 @@ export default function ChargePage() {
           });
 
           if (result.success) {
-            // 성공 메시지
-            alert(`✅ ${selectedPkg.credits}개의 크레딧이 충전되었습니다!`);
-            navigate('/');
+            // 성공 애니메이션 표시
+            setShowSuccessAnimation(true);
+            // 3초 후 홈으로 이동
+            setTimeout(() => {
+              navigate('/');
+            }, 3000);
           } else {
             setError('결제 처리에 실패했습니다.');
           }
@@ -101,7 +106,13 @@ export default function ChargePage() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'oklch(0.10 0.02 270)' }}>
+    <>
+      <PaymentSuccessAnimation
+        isVisible={showSuccessAnimation}
+        chargeAmount={selectedPkg?.credits || 0}
+        onComplete={() => setShowSuccessAnimation(false)}
+      />
+      <div className="min-h-screen" style={{ background: 'oklch(0.10 0.02 270)' }}>
       {/* Header */}
       <div className="sticky top-0 z-50 backdrop-blur-md border-b" style={{
         background: 'oklch(0.12 0.03 270 / 80%)',
@@ -245,5 +256,6 @@ export default function ChargePage() {
         )}
       </div>
     </div>
+    </>
   );
 }
