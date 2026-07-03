@@ -47,3 +47,11 @@
 - [x] 로딩 중 사주/타로 팁 표시 기능 (랜덤 팁 - fortuneTips.ts)
 - [x] 소원 게시판 상호작용 기능 (공감/응원 버튼 - wishInteraction.ts)
 - [x] 소원 게시판 복비 버튼 추가 (이미 구현됨)
+
+
+## 최종 작업 (완료)
+
+- [x] 타로 실시간 AI 채팅 상담 페이지 (TarotConsultationPage.tsx)
+- [x] 육효 실시간 AI 채팅 상담 페이지 (YukConsultationPage.tsx)
+- [x] 소원 게시판 복비 버튼 디버깅 (초기 데이터 추가)
+- [x] 홈페이지 링크 업데이트 (타로/육효 → 실시간 채팅 상담)

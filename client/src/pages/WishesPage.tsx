@@ -54,6 +54,47 @@ export default function WishesPage() {
   const [wishInteractions, setWishInteractions] = useState<Map<number, WishWithInteractions>>(new Map());
 
   useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) {
+      const expiryDate = new Date();
+      expiryDate.setMonth(expiryDate.getMonth() + 1);
+      
+      const testWishes: Wish[] = [
+        {
+          id: 1,
+          content: '올해 안에 좋은 인연을 만나고 싶습니다. 진심 어린 사랑을 찾고 있어요.',
+          category: '연애',
+          likes: 5,
+          liked: false,
+          date: new Date().toISOString().split('T')[0],
+          blessings: 3500,
+          expiresAt: expiryDate.toISOString(),
+        },
+        {
+          id: 2,
+          content: '사업이 잘 되어 경제적 자유를 얻고 싶습니다.',
+          category: '재물',
+          likes: 8,
+          liked: false,
+          date: new Date().toISOString().split('T')[0],
+          blessings: 2000,
+          expiresAt: expiryDate.toISOString(),
+        },
+        {
+          id: 3,
+          content: '건강하고 행복한 가족과 함께 오래 살고 싶습니다.',
+          category: '건강',
+          likes: 12,
+          liked: false,
+          date: new Date().toISOString().split('T')[0],
+          blessings: 1500,
+          expiresAt: expiryDate.toISOString(),
+        },
+      ];
+      
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(testWishes));
+    }
+    
     loadWishes();
     setWishInteractions(loadInteractions());
   }, []);
@@ -62,6 +103,45 @@ export default function WishesPage() {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       let loadedWishes: Wish[] = stored ? JSON.parse(stored) : [];
+
+      // 데이터가 없으면 초기 데이터 생성
+      if (loadedWishes.length === 0) {
+        const expiryDate = new Date();
+        expiryDate.setMonth(expiryDate.getMonth() + 1);
+        
+        loadedWishes = [
+          {
+            id: 1,
+            content: '올해 안에 좋은 인연을 만나고 싶습니다. 진심 어린 사랑을 찾고 있어요.',
+            category: '연애',
+            likes: 5,
+            liked: false,
+            date: new Date().toISOString().split('T')[0],
+            blessings: 3500,
+            expiresAt: expiryDate.toISOString(),
+          },
+          {
+            id: 2,
+            content: '사업이 잘 되어 경제적 자유를 얻고 싶습니다.',
+            category: '재물',
+            likes: 8,
+            liked: false,
+            date: new Date().toISOString().split('T')[0],
+            blessings: 2000,
+            expiresAt: expiryDate.toISOString(),
+          },
+          {
+            id: 3,
+            content: '건강하고 행복한 가족과 함께 오래 살고 싶습니다.',
+            category: '건강',
+            likes: 12,
+            liked: false,
+            date: new Date().toISOString().split('T')[0],
+            blessings: 1500,
+            expiresAt: expiryDate.toISOString(),
+          },
+        ];
+      }
 
       const now = new Date();
       loadedWishes = loadedWishes.filter((wish) => {

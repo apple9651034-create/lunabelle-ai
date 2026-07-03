@@ -242,9 +242,9 @@ export default function HomePage() {
           <div className="space-y-3">
             {[
               { icon: '🌙', title: 'AI 루나 운세 상담', desc: '당신의 사주를 기반으로 실시간 운세 상담을 받으세요', path: '/saju-consultation' },
-              { icon: '🎴', title: '육효 점속', desc: '변화하는 운명의 흐름을 육효로 읽어보세요', path: '/yuk' },
+              { icon: '🎴', title: '육효 상담', desc: '변화하는 운명의 흐름을 육효로 읽어보세요', path: '/yuk-consultation' },
               { icon: '🔮', title: '사주 분석', desc: '생년월일시로 당신의 사주를 분석합니다', path: '/saju' },
-              { icon: '🃏', title: '타로 검속', desc: '타로 카드로 당신의 미래를 예측해보세요', path: '/tarot' },
+              { icon: '🃏', title: '타로 상담', desc: '타로 카드로 당신의 미래를 예측해보세요', path: '/tarot-consultation' },
               { icon: '📅', title: '월간 운세', desc: '이달의 길일과 흉일을 확인하세요', path: '/calendar' },
             ].map((service, idx) => (
               <button

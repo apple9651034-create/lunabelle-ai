@@ -21,6 +21,8 @@ import ConsultationHistoryPage from "./pages/ConsultationHistoryPage";
 import MonthlyFortuneCalendar from "./pages/MonthlyFortuneCalendar";
 import ChargePage from "./pages/ChargePage";
 import SajuConsultationPage from "./pages/SajuConsultationPage";
+import TarotConsultationPage from "./pages/TarotConsultationPage";
+import YukConsultationPage from "./pages/YukConsultationPage";
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
@@ -39,6 +41,8 @@ function Router() {
         <Route path="/calendar" component={MonthlyFortuneCalendar} />
         <Route path="/charge" component={ChargePage} />
         <Route path="/saju-consultation" component={SajuConsultationPage} />
+        <Route path="/tarot-consultation" component={TarotConsultationPage} />
+        <Route path="/yuk-consultation" component={YukConsultationPage} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>
