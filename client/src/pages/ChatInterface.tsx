@@ -9,6 +9,8 @@ import { downloadChatAsText, downloadChatAsImage, downloadChatAsJSON } from '@/l
 import { generateSajuQuestions, SuggestedQuestion } from "@/lib/suggestedQuestions";
 
 import TarotCardImage from "@/components/TarotCardImage";
+import ChargeModal from "@/components/ChargeModal";
+import { deductCharge, initializeCharges } from "@/lib/chargeSystem";
 import { generateTarotReadingForQuestion } from "@/lib/tarotInterpretation";
 interface Message {
   id: number;
@@ -100,10 +102,14 @@ export default function ChatInterface() {
     sajuResult: sajuResult,
   });
 
+  const [showChargeModal, setShowChargeModal] = useState(false);
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  useEffect(() => {
+    initializeCharges();
+  }, []);
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -148,6 +154,11 @@ ${sajuResult ? `사용자의 사주: ${sajuResult.fourPillars.yearString} ${saju
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
+    if (!deductCharge()) {
+      setShowChargeModal(true);
+      setMessages(prev => prev.slice(0, -1));
+      return;
+    }
     // 사용자 메시지 추가
     const userMessage: Message = {
       id: messages.length + 1,
@@ -464,6 +475,7 @@ ${sajuResult ? `사용자의 사주: ${sajuResult.fourPillars.yearString} ${saju
           </button>
         </div>
       </div>
+      <ChargeModal isOpen={showChargeModal} onClose={() => setShowChargeModal(false)} />
     </div>
   );
 }

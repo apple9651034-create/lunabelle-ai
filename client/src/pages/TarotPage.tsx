@@ -2,9 +2,11 @@
  * Design: Mystic Dark Luxury
  * 78장 완전 덱 + 질문 유형별 자동 스프레드
  */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { useLocation } from 'wouter';
+import ChargeModal from "@/components/ChargeModal";
+import { deductCharge, initializeCharges } from "@/lib/chargeSystem";
 import { fullTarotDeck, detectQuestionType, selectSpread, drawCards, TarotCard } from '@/lib/tarotCards';
 import { saveConsultation } from '@/lib/consultationHistory';
 import MysticalLoader from '@/components/MysticalLoader';
@@ -22,6 +24,10 @@ export default function TarotPage() {
 
   const [question, setQuestion] = useState('');
   const [reading, setReading] = useState<TarotReading | null>(null);
+  const [showChargeModal, setShowChargeModal] = useState(false);
+  useEffect(() => {
+    initializeCharges();
+  }, []);
   const [isLoading, setIsLoading] = useState(false);
 
   if (isLoading) {
@@ -31,6 +37,11 @@ export default function TarotPage() {
   const handleDrawTarot = () => {
     if (!question.trim()) {
       alert('질문을 입력해주세요.');
+    if (!deductCharge()) {
+      setShowChargeModal(true);
+      setIsLoading(false);
+      return;
+    }
       return;
     }
 
@@ -236,4 +247,5 @@ export default function TarotPage() {
       </div>
     </div>
   );
+      <ChargeModal isOpen={showChargeModal} onClose={() => setShowChargeModal(false)} />
 }

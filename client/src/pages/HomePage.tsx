@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 /* AI 루나 — HomePage
  * Design: Mystic Dark Luxury — deep navy bg, purple/gold accents, serif headers
  */
@@ -6,8 +7,17 @@ import { useLocation } from 'wouter';
 import { MessageCircle, Wand2, Calendar, ShoppingBag, Heart, Sparkles, Star } from 'lucide-react';
 import DailyFortuneWidget from '@/components/DailyFortuneWidget';
 
+import { getCharges } from "@/lib/chargeSystem";
 export default function HomePage() {
   const [, navigate] = useLocation();
+  const [charges, setCharges] = useState(getCharges());
+  useEffect(() => {
+    const handleChargesUpdate = (e: any) => {
+      setCharges(e.detail.remaining);
+    };
+    window.addEventListener("chargesUpdated", handleChargesUpdate);
+    return () => window.removeEventListener("chargesUpdated", handleChargesUpdate);
+  }, []);
 
   const services = [
     {
@@ -95,7 +105,7 @@ export default function HomePage() {
             <span className="text-lg">⭐</span>
             <div>
               <div className="text-xs font-semibold">남은 충전별</div>
-              <div className="text-sm font-bold">5개</div>
+              <div className="text-sm font-bold">{charges}개</div>
             </div>
           </div>
           <div className="flex items-center gap-3 mb-2">
