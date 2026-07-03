@@ -175,11 +175,22 @@ export default function SajuPage() {
         lunarDateStr = `음력 ${lunarYear}년 ${lunarMonth}월 ${lunarDay}일`;
       }
 
+      // 시간 인덱스(0-11)를 실제 시간값(0-23)으로 변환
+      // 자시(24-02)=0 → 0시, 축시(02-04)=1 → 2시, 인시(04-06)=2 → 4시, ..., 해시(22-24)=11 → 22시
+      let hourValue = 0;
+      if (!unknownTime) {
+        const hourIndex = parseInt(birthHour);
+        if (hourIndex === 0) hourValue = 0; // 자시: 자정
+        else hourValue = hourIndex * 2; // 나머지: 2시간씩
+      } else {
+        hourValue = 12; // 시간 모름: 정오
+      }
+
       const fourPillars = calculateFourPillars({
         year: solarYear,
         month: solarMonth,
         day: solarDay,
-        hour: unknownTime ? 12 : parseInt(birthHour),
+        hour: hourValue,
         minute: unknownTime ? 0 : parseInt(birthMinute),
       });
 
