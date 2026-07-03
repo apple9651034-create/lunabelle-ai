@@ -91,6 +91,13 @@ export default function HomePage() {
         </div>
 
         <div className="relative">
+          <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: "oklch(0.50 0.28 290)", color: "oklch(1 0 0)" }}>
+            <span className="text-lg">⭐</span>
+            <div>
+              <div className="text-xs font-semibold">남은 충전별</div>
+              <div className="text-sm font-bold">5개</div>
+            </div>
+          </div>
           <div className="flex items-center gap-3 mb-2">
             <span className="text-4xl">🌙</span>
             <h1

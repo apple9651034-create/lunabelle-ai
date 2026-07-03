@@ -8,6 +8,7 @@ import { saveConsultation, getAllConsultations, getConsultationById, formatDate 
 import { downloadChatAsText, downloadChatAsImage, downloadChatAsJSON } from '@/lib/downloadChat';
 import { generateSajuQuestions, SuggestedQuestion } from "@/lib/suggestedQuestions";
 
+import TarotCardImage from "@/components/TarotCardImage";
 import { generateTarotReadingForQuestion } from "@/lib/tarotInterpretation";
 interface Message {
   id: number;
