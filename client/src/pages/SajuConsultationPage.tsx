@@ -138,12 +138,13 @@ export default function SajuConsultationPage() {
       {/* 헤더 */}
       <div className="p-4 border-b flex items-center justify-between" style={{ background: 'oklch(0.18 0.08 290)', borderColor: 'oklch(1 0 0 / 10%)' }}>
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate('/')} className="p-2 hover:opacity-70">
-            <ArrowLeft size={20} style={{ color: 'oklch(0.94 0.015 90)' }} />
+          <button onClick={() => navigate("/")} className="p-2 hover:opacity-70">
+            <ArrowLeft size={20} style={{ color: "oklch(0.94 0.015 90)" }} />
           </button>
           <div>
-            <h1 className="font-bold" style={{ color: 'oklch(0.94 0.015 90)' }}>🌙 AI 루나 운세 상담</h1>
-            <p className="text-xs" style={{ color: 'oklch(0.70 0.02 290)' }}>사주 명식: {getSajuMingshik()}</p>
+            <p className="text-xs font-semibold" style={{ color: "oklch(0.70 0.18 60)" }}>{getSajuMingshik()}</p>
+            <h1 className="font-bold" style={{ color: "oklch(0.94 0.015 90)" }}>🌙 AI 루나 운세 상담</h1>
+            <p className="text-xs" style={{ color: "oklch(0.70 0.02 290)" }}>환영합니다</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -203,6 +204,35 @@ export default function SajuConsultationPage() {
           </div>
         ))}
         <div ref={messagesEndRef} />
+      </div>
+
+      {/* 결제 충전소 */}
+      <div className="p-4 border-t" style={{ background: 'oklch(0.18 0.08 290)', borderColor: 'oklch(1 0 0 / 10%)' }}>
+        <div className="mb-4">
+          <h3 className="text-sm font-semibold mb-3" style={{ color: 'oklch(0.94 0.015 90)' }}>💳 크레딧 충전 (20% 이벤트)</h3>
+          <div className="grid grid-cols-2 gap-2">
+            <button className="p-3 rounded-lg text-xs font-semibold transition-opacity hover:opacity-80" style={{ background: 'oklch(0.50 0.28 290)', color: 'oklch(1 0 0)' }}>
+              10,000원 → 12,000원
+            </button>
+            <button className="p-3 rounded-lg text-xs font-semibold transition-opacity hover:opacity-80" style={{ background: 'oklch(0.50 0.28 290)', color: 'oklch(1 0 0)' }}>
+              30,000원 → 36,000원
+            </button>
+            <button className="p-3 rounded-lg text-xs font-semibold transition-opacity hover:opacity-80" style={{ background: 'oklch(0.50 0.28 290)', color: 'oklch(1 0 0)' }}>
+              50,000원 → 60,000원
+            </button>
+            <button className="p-3 rounded-lg text-xs font-semibold transition-opacity hover:opacity-80" style={{ background: 'oklch(0.50 0.28 290)', color: 'oklch(1 0 0)' }}>
+              100,000원 → 120,000원
+            </button>
+          </div>
+        </div>
+        <div className="mb-4 pb-4 border-b" style={{ borderColor: 'oklch(1 0 0 / 10%)' }}>
+          <h3 className="text-sm font-semibold mb-3" style={{ color: 'oklch(0.94 0.015 90)' }}>✨ 서비스 안내</h3>
+          <div className="space-y-2 text-xs" style={{ color: 'oklch(0.70 0.02 290)' }}>
+            <p>🌙 <span style={{ color: 'oklch(0.94 0.015 90)' }}>AI 루나 운세 상담</span> - 사주, 타로, 육효 실시간 상담</p>
+            <p>💝 <span style={{ color: 'oklch(0.94 0.015 90)' }}>소원 게시판</span> - 소원을 나누고 응원받기</p>
+            <p>🎴 <span style={{ color: 'oklch(0.94 0.015 90)' }}>부적 상담소</span> - 맞춤형 부적 추천 및 구매</p>
+          </div>
+        </div>
       </div>
 
       {/* 입력 영역 */}
