@@ -81,6 +81,13 @@
 - [x] 복비 차감 후 잠액 즉시 업데이트 (상단 동전 표시 + 알림)
 
 
+## 실시간 대화형 상담 완성 (v6fb97386)
+
+- [x] SajuConsultationPage - 스트리밍 방식 + 요약 + 재질문
+- [x] TarotConsultationPage - 스트리밍 방식 + 요약 + 재질문
+- [x] YukConsultationPage - 스트리밍 방식 + 요약 + 재질문
+- [x] 달빛님과 루나봇이 대화하듯 상담 진행
+
 ## 결제 시스템 실제 연결 (진행 중)
 
 - [ ] PortOne 결제 완료 후 서버 전송 로직 (ChargePage)
