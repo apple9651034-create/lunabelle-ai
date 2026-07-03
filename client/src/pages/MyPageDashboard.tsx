@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Wallet, History, Heart, TrendingUp } from 'lucide-react';
 import { useLocation } from 'wouter';
-// 불필요한 임포트 제거됨
+import TalismanCollection from '@/components/TalismanCollection';
 
 export default function MyPageDashboard() {
   const [, navigate] = useLocation();
   const [consultationHistory, setConsultationHistory] = useState<any[]>([]);
   const [wishes, setWishes] = useState<any[]>([]);
   const [creditBalance, setCreditBalance] = useState(10000);
+  const [purchasedTalismans, setPurchasedTalismans] = useState<any[]>([]);
 
   // 상담 내역 로드
   useEffect(() => {
@@ -40,6 +41,39 @@ export default function MyPageDashboard() {
       setCreditBalance(parseInt(saved));
     }
   }, []);
+
+  // 구매한 부적 로드
+  useEffect(() => {
+    const saved = localStorage.getItem('purchasedTalismans');
+    if (saved) {
+      try {
+        setPurchasedTalismans(JSON.parse(saved));
+      } catch (e) {
+        console.error('Failed to load purchased talismans:', e);
+      }
+    }
+  }, []);
+
+  const downloadImage = async (imageUrl: string, name: string) => {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${name}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      alert('다운로드 중 오류가 발생했습니다.');
+    }
+  };
+
+  const removeTalisman = (id: number) => {
+    const updated = purchasedTalismans.filter((t: any) => t.id !== id);
+    setPurchasedTalismans(updated);
+    localStorage.setItem('purchasedTalismans', JSON.stringify(updated));
+  };
 
   const totalWishBlessings = wishes.reduce((sum, wish) => sum + (wish.blessing || 0), 0);
   const totalWishes = wishes.length;
@@ -175,6 +209,15 @@ export default function MyPageDashboard() {
               ))}
             </div>
           )}
+        </div>
+
+        {/* Talisman Collection */}
+        <div className="mb-12">
+          <TalismanCollection
+            talismans={purchasedTalismans}
+            onDownload={downloadImage}
+            onRemove={removeTalisman}
+          />
         </div>
 
         {/* Recent Wishes */}
