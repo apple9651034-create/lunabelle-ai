@@ -45,7 +45,7 @@ export default function YukConsultationPage() {
     setPreviousConsultation(previous);
 
     // 초기 인사말
-    let initialContent = `안녕하세요, 저는 AI 루나입니다. 고대의 지혜인 육효의 세계에 오신 것을 환영합니다.\n\n육효는 중국의 고대 점술 체계로, 64개의 괘(卦)로 이루어져 있습니다. 각 괘는 6개의 효(爻)로 구성되며, 변화하는 효(변효)를 통해 미래의 변화를 읽을 수 있습니다.\n\n육효는 자연의 변화와 인간의 운명을 깊이 있게 해석하는 도구입니다. 당신의 질문이나 상황에 대해 말씀해주시면, 육효의 지혜를 통해 현명한 조언을 제공해드리겠습니다.`;
+    let initialContent = `안녕하세요, 저는 AI 루나입니다. 고대의 지혜인 육효의 세계에 오신 것을 환영합니다.\n\n육효는 중국의 고대 점술 체계로, 64개의 괘(卦)로 이루어져 있습니다. 각 괘는 6개의 효(爻)로 구성되며, 변화하는 효(변효)를 통해 미래의 변화를 읽을 수 있습니다.\n\n육효는 자연의 변화와 인간의 운명을 깊이 있게 해석하는 도구입니다. 달빛님의 질문이나 상황에 대해 말씀해주시면, 육효의 지혜를 통해 현명한 조언을 제공해드리겠습니다.`;
 
     // 이전 상담이 있으면 맥락 추가
     if (previous) {
@@ -94,7 +94,7 @@ export default function YukConsultationPage() {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: `육효의 지혜로 당신의 질문을 살펴보겠습니다.\n\n당신이 말씀하신 "${input}"에 대해 깊이 있게 생각해봅시다. 이것은 변화와 성장의 시간입니다.`,
+        content: `육효의 지혜로 달빛님의 질문을 살펴보겠습니다.\n\n달빛님이 말씀하신 "${input}"에 대해 깊이 있게 생각해봅시다. 이것은 변화와 성장의 시간입니다.`,
         timestamp: new Date(),
       };
 
@@ -263,7 +263,7 @@ export default function YukConsultationPage() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-            placeholder="당신의 질문을 입력하세요..."
+            placeholder="달빛님의 질문을 입력하세요..."
             className="flex-1 px-4 py-2 rounded-lg outline-none"
             style={{
               background: 'oklch(0.20 0.06 270)',

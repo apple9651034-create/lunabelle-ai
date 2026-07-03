@@ -30,7 +30,7 @@ export default function TarotConsultationPage() {
     const initialMessage: Message = {
       id: '0',
       role: 'assistant',
-      content: `안녕하세요, 저는 AI 루나입니다. 신비로운 타로의 세계에 오신 것을 환영합니다.\n\n타로는 78장의 카드로 이루어져 있으며, 각 카드는 깊은 의미와 상징을 담고 있습니다. 대아르카나 22장은 인생의 큰 여정을, 소아르카나 56장은 일상의 세부 사항을 나타냅니다.\n\n당신의 질문이나 상황에 대해 말씀해주시면, 타로 카드의 지혜를 통해 깊이 있는 상담을 제공해드리겠습니다.\n\n무엇을 알고 싶으신가요?`,
+      content: `안녕하세요, 저는 AI 루나입니다. 신비로운 타로의 세계에 오신 것을 환영합니다.\n\n타로는 78장의 카드로 이루어져 있으며, 각 카드는 깊은 의미와 상징을 담고 있습니다. 대아르카나 22장은 인생의 큰 여정을, 소아르카나 56장은 일상의 세부 사항을 나타냅니다.\n\n달빛님의 질문이나 상황에 대해 말씀해주시면, 타로 카드의 지혜를 통해 깊이 있는 상담을 제공해드리겠습니다.\n\n무엇을 알고 싶으신가요?`,
       timestamp: new Date(),
     };
     setMessages([initialMessage]);
@@ -64,7 +64,7 @@ export default function TarotConsultationPage() {
           messages: [
             {
               role: 'system',
-              content: `당신은 AI 루나, 신비로운 타로 점술가입니다. 사용자의 질문에 대해 타로 카드의 상징과 의미를 바탕으로 깊이 있고 희망적인 상담을 제공합니다.
+              content: `당신은 AI 루나, 신비로운 타로 점술가입니다. 사용자를 '달빛님'이라고 지칭하며, 그들의 질문에 대해 타로 카드의 상징과 의미를 바탕으로 깊이 있고 희망적인 상담을 제공합니다. 절대 '당신'이라는 단어를 사용하지 말고 '달빛님'이라고 호칭하세요.
 
 타로 카드의 기본 지식:
 - 대아르카나(22장): 인생의 큰 변화와 영적 여정을 나타냄 (바보, 마술사, 여사제, 황제, 황후, 교황, 연인, 전차, 강인함, 은둔자, 운명의 바퀴, 정의, 매달린 자, 죽음, 절제, 악마, 탑, 별, 달, 태양, 심판, 세계)
@@ -151,7 +151,7 @@ export default function TarotConsultationPage() {
           </button>
           <div>
             <h1 className="font-bold" style={{ color: 'oklch(0.94 0.015 90)' }}>🃏 타로 상담</h1>
-            <p className="text-xs" style={{ color: 'oklch(0.70 0.02 290)' }}>타로 카드의 지혜로 당신의 길을 밝혀드립니다</p>
+            <p className="text-xs" style={{ color: 'oklch(0.70 0.02 290)' }}>타로 카드의 지혜로 달빛님의 길을 밝혀드립니다</p>
           </div>
         </div>
         <div className="flex items-center gap-2">

@@ -33,7 +33,7 @@ export default function SajuConsultationPage() {
     const initialMessage: Message = {
       id: '0',
       role: 'assistant',
-      content: `안녕하세요, 저는 AI 루나입니다. 당신의 사주(${getSajuMingshik()})를 분석하여 맞춤형 운세 상담을 제공해드립니다.\n\n당신의 사주 정보:\n- 생년월일: ${userProfile.year}년 ${userProfile.month}월 ${userProfile.day}일 오전 ${userProfile.hour}시 ${userProfile.minute}분 (양력)\n- 사주 명식: ${getSajuMingshik()}\n- 성격: ${userProfile.personality}\n- 운세: ${userProfile.luck}\n\n무엇을 알고 싶으신가요? 당신의 운명, 직업, 연애, 재운 등 어떤 주제든 상담해드릴 수 있습니다.`,
+      content: `안녕하세요, 저는 AI 루나입니다. 달빛님의 사주(${getSajuMingshik()})를 분석하여 매죠형 운세 상담을 제공해드립니다.\n\n달빛님의 사주 정보:\n- 생년월일: ${userProfile.year}년 ${userProfile.month}월 ${userProfile.day}일 오전 ${userProfile.hour}시 ${userProfile.minute}분 (양력)\n- 사주 명식: ${getSajuMingshik()}\n- 성격: ${userProfile.personality}\n- 운세: ${userProfile.luck}\n\n무엇을 알고 싶으신가요? 달빛님의 운명, 직업, 연애, 재운 등 어떤 주제든 상담해드릴 수 있습니다.`,
       timestamp: new Date(),
     };
     setMessages([initialMessage]);
@@ -67,7 +67,7 @@ export default function SajuConsultationPage() {
           messages: [
             {
               role: 'system',
-              content: `당신은 AI 루나, 신비로운 운세 상담사입니다. 사용자의 사주를 기반으로 정확하고 깊이 있는 상담을 제공합니다.\n\n${getSajuContext()}\n\n사용자의 질문에 대해 사주 분석을 바탕으로 따뜻하고 희망적인 조언을 제공하세요. 답변 후 마지막에는 반드시 다음 형식으로 요약과 재질문을 추가하세요:\n\n---\n📝 요약: [상담 내용 한 줄 요약]\n❓ 추가 질문: [관련된 재질문 1개]`,
+              content: `당신은 AI 루나, 신비로운 운세 상담사입니다. 사용자를 '달빛님'이라고 지칭하며, 그들의 사주를 기반으로 정확하고 깊이 있는 상담을 제공합니다. 절대 '당신'이라는 단어를 사용하지 말고 '달빛님'이라고 호칭하세요.\n\n${getSajuContext()}\n\n사용자의 질문에 대해 사주 분석을 바탕으로 따뜻하고 희망적인 조언을 제공하세요. 답변 후 마지막에는 반드시 다음 형식으로 요약과 재질문을 추가하세요:\n\n---\n📝 요약: [상담 내용 한 줄 요약]\n❓ 추가 질문: [관련된 재질문 1개]`,
             },
             ...messages.map((msg) => ({
               role: msg.role,
