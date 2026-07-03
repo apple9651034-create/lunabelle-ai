@@ -79,3 +79,11 @@
 - [x] 채팅창 내부 로딩 애니메이션 + 팁 표시 (ChatLoadingWithTips.tsx)
 - [x] 응원 버튼 애니메이션 (InteractionAnimation 적용)
 - [x] 복비 차감 후 잠액 즉시 업데이트 (상단 동전 표시 + 알림)
+
+
+## 결제 시스템 실제 연결 (진행 중)
+
+- [ ] PortOne 결제 완료 후 서버 전송 로직 (ChargePage)
+- [ ] 서버 API: 결제 검증 및 크레딧 적립 (POST /api/payment/charge)
+- [ ] 충전 페이지 PortOne 결제 시스템 완성
+- [ ] 복비 결제 PortOne 연결 (WishesPage)

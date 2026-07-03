@@ -1,5 +1,5 @@
-import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
+import { COOKIE_NAME } from "../shared/const";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
@@ -47,6 +47,54 @@ const creditRouter = router({
       const { addCredit } = await import("./db");
       await addCredit(ctx.user.id, input.amount, input.type, input.description);
       return { success: true };
+    }),
+
+  // PortOne 결제 검증 및 크레딧 적립
+  chargeFromPortOne: protectedProcedure
+    .input(z.object({
+      paymentId: z.string(),
+      amount: z.number().int().min(100),
+      merchantUid: z.string(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const portOneApiKey = process.env.PORTONE_API_KEY;
+        if (!portOneApiKey) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "PortOne API key not configured" });
+        }
+
+        // PortOne API로 결제 검증
+        const portOneResponse = await fetch(`https://api.portone.io/payments/${input.paymentId}`, {
+          headers: {
+            'Authorization': `Bearer ${portOneApiKey}`,
+          },
+        });
+
+        if (!portOneResponse.ok) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Payment verification failed" });
+        }
+
+        const payment = await portOneResponse.json();
+
+        // 결제 상태 확인
+        if (payment.status !== 'PAID') {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Payment not completed" });
+        }
+
+        // 금액 확인
+        if (payment.amount.value !== input.amount) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Amount mismatch" });
+        }
+
+        // 크레딧 추가
+        const { addCredit } = await import("./db");
+        await addCredit(ctx.user.id, input.amount, 'charge', `PortOne Payment - ${input.paymentId}`);
+
+        return { success: true, message: '충전이 완료되었습니다.' };
+      } catch (error) {
+        console.error('Payment verification error:', error);
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Payment processing failed" });
+      }
     }),
 });
 

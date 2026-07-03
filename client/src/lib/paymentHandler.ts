@@ -115,3 +115,44 @@ export async function processBlessingPayment(
     };
   }
 }
+
+
+/**
+ * PortOne 복비 결제 (크레딧 부족 시 결제창 표시)
+ */
+export async function processBlessingPaymentWithPortOne(
+  blessingAmount: number,
+  wishContent: string,
+  onPaymentSuccess?: (newBalance: number) => void
+): Promise<{ success: boolean; message: string; newBalance?: number; needsPayment?: boolean }> {
+  try {
+    const credit = getUserCredit();
+
+    // 크레딧이 충분하면 로컬 차감
+    if (credit.balance >= blessingAmount) {
+      const result = deductCredit(blessingAmount);
+      if (result.success && onPaymentSuccess) {
+        onPaymentSuccess(result.newBalance);
+      }
+      return {
+        success: true,
+        message: `복비 ${blessingAmount}원으로 소원이 올라갔습니다!`,
+        newBalance: result.newBalance,
+      };
+    }
+
+    // 크레딧 부족 시 PortOne 결제 필요
+    return {
+      success: false,
+      message: '크레딧이 부족합니다. 충전이 필요합니다.',
+      needsPayment: true,
+      newBalance: credit.balance,
+    };
+  } catch (error) {
+    console.error('복비 결제 오류:', error);
+    return {
+      success: false,
+      message: '결제 처리 중 오류가 발생했습니다.',
+    };
+  }
+}
