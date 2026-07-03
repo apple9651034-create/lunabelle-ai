@@ -140,13 +140,16 @@ export default function SajuConsultationPage() {
   return (
     <div className="min-h-screen flex flex-col" style={{ background: 'oklch(0.12 0.03 270)' }}>
       {/* 헤더 */}
+      {/* 사주 명식 - 왼쪽 상단 */}
+      <div className="p-3 border-b" style={{ background: "oklch(0.18 0.08 290)", borderColor: "oklch(1 0 0 / 10%)" }}>
+        <p className="text-xs font-semibold" style={{ color: "oklch(0.70 0.18 60)" }}>📍 {getSajuMingshik()}</p>
+      </div>
       <div className="p-4 border-b flex items-center justify-between" style={{ background: 'oklch(0.18 0.08 290)', borderColor: 'oklch(1 0 0 / 10%)' }}>
         <div className="flex items-center gap-3">
           <button onClick={() => navigate("/")} className="p-2 hover:opacity-70">
             <ArrowLeft size={20} style={{ color: "oklch(0.94 0.015 90)" }} />
           </button>
           <div>
-            <p className="text-xs font-semibold" style={{ color: "oklch(0.70 0.18 60)" }}>{getSajuMingshik()}</p>
             <h1 className="font-bold" style={{ color: "oklch(0.94 0.015 90)" }}>🌙 AI 루나 운세 상담</h1>
             <p className="text-xs" style={{ color: "oklch(0.70 0.02 290)" }}>환영합니다</p>
           </div>
