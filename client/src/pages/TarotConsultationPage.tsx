@@ -6,6 +6,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, ArrowLeft, Loader2 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import MysticalLoadingAnimation from '@/components/MysticalLoadingAnimation';
+import TypingEffect from '@/components/TypingEffect';
 import { Streamdown } from 'streamdown';
 
 interface Message {
@@ -154,7 +155,7 @@ export default function TarotConsultationPage() {
               }}
             >
               {msg.role === 'assistant' ? (
-                <Streamdown>{msg.content}</Streamdown>
+                <TypingEffect text={msg.content} speed={20} />
               ) : (
                 <p className="text-sm">{msg.content}</p>
               )}

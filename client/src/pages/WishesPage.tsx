@@ -14,6 +14,8 @@ import {
   ENCOURAGEMENT_TEMPLATES,
   WishWithInteractions,
 } from '@/lib/wishInteraction';
+import { processBlessingPayment } from '@/lib/paymentHandler';
+import InteractionAnimation from '@/components/InteractionAnimation';
 
 interface Wish {
   id: number;
@@ -162,8 +164,16 @@ export default function WishesPage() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(wishesToSave));
   };
 
-  const handleAddWish = () => {
+  const handleAddWish = async () => {
     if (!newWish.trim()) return;
+
+    if (selectedBlessing && selectedBlessing > 0) {
+      const paymentResult = await processBlessingPayment(selectedBlessing, newWish);
+      if (!paymentResult.success) {
+        alert(paymentResult.message);
+        return;
+      }
+    }
 
     const expiryDate = new Date();
     expiryDate.setMonth(expiryDate.getMonth() + 1);
@@ -452,13 +462,13 @@ export default function WishesPage() {
 
                       <button
                         onClick={() => handleAddEmpathy(wish.id)}
-                        className="flex items-center gap-1.5 text-xs font-semibold transition-all px-2 py-1 rounded-lg"
+                        className="flex items-center gap-1.5 text-xs font-semibold transition-all px-2 py-1 rounded-lg hover:scale-110 active:scale-95"
                         style={{
                           color: interaction.userEmpathized ? 'oklch(0.78 0.15 85)' : 'oklch(0.55 0.02 290)',
                           background: interaction.userEmpathized ? 'oklch(0.78 0.15 85 / 20%)' : 'transparent',
                         }}
                       >
-                        <ThumbsUp size={14} style={{ fill: interaction.userEmpathized ? 'oklch(0.78 0.15 85)' : 'none' }} />
+                        <InteractionAnimation type="empathy" />
                         {interaction.empathyCount}
                       </button>
                     </div>
