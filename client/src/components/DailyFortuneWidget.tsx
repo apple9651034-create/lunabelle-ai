@@ -48,6 +48,19 @@ export default function DailyFortuneWidget({ onViewDetails }: DailyFortuneWidget
     setLoading(false);
   }, []);
 
+  const generateDefaultFortune = (): string => {
+    const today = new Date();
+    const date = today.getDate();
+    const fortuneMessages = [
+      '오늘은 새로운 시작에 좋은 기운이 흐르는 날입니다. 용감하게 한 발을 내딛어 보세요.',
+      '긍정적인 에너지가 가득한 날입니다. 주변 사람들과 좋은 관계를 나누어 보세요.',
+      '이 시간대에는 중요한 결정을 내리기에 좋은 타이밍입니다.',
+      '창의력과 직관력이 높아지는 시간대입니다. 새로운 아이디어를 시도해보세요.',
+      '평온함과 안정이 찾아오는 날입니다. 마음을 정리하고 휴식을 취해보세요.',
+    ];
+    return fortuneMessages[date % fortuneMessages.length];
+  };
+
   const generateFortune = (sajuRecord: any): string => {
     const today = new Date();
     const dayOfWeek = today.getDay();
@@ -69,9 +82,8 @@ export default function DailyFortuneWidget({ onViewDetails }: DailyFortuneWidget
     return null;
   }
 
-  if (!fortune) {
-    return null;
-  }
+  // 사주 정보가 없으면 기본 운세 표시
+  const displayFortune = fortune || generateDefaultFortune();
 
   return (
     <div
@@ -96,7 +108,7 @@ export default function DailyFortuneWidget({ onViewDetails }: DailyFortuneWidget
         className="text-sm leading-relaxed mb-4"
         style={{ color: 'oklch(0.85 0.015 90)' }}
       >
-        {fortune}
+        {displayFortune}
       </p>
       {/* Lucky Details */}
       {fortuneDetails && (

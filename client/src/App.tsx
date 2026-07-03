@@ -18,8 +18,8 @@ import SajuPage from "./pages/SajuPage";
 import SupportPage from "./pages/SupportPage";
 import TarotPage from "./pages/TarotPage";
 import ConsultationHistoryPage from "./pages/ConsultationHistoryPage";
-
 function Router() {
+  // make sure to consider if you need authentication for certain routes
   return (
     <AppLayout>
       <Switch>
