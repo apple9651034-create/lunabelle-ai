@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import { Heart, ShoppingCart, X } from 'lucide-react';
 import TalismanPurchaseButton from './TalismanPurchaseButton';
 import ConsultationCardShare from './ConsultationCardShare';
+import TalismanDiscountTimer from './TalismanDiscountTimer';
 
 interface TalismanRecommendation {
   id: number;
@@ -29,6 +30,7 @@ export default function RecommendedTalisman({
 }: RecommendedTalismanProps) {
   const [liked, setLiked] = useState(false);
   const [showShareCard, setShowShareCard] = useState(false);
+  const [purchaseTime] = useState(new Date().toISOString());
 
   const handleAddToCart = (talisman: TalismanRecommendation) => {
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -198,9 +200,20 @@ export default function RecommendedTalisman({
 
           {/* 가격 및 버튼 */}
           <div className="flex items-center justify-between">
-            <p className="font-bold" style={{ color: 'oklch(0.78 0.15 85)' }}>
-              {recommendation.price.toLocaleString()}원
-            </p>
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <p className="font-bold" style={{ color: 'oklch(0.78 0.15 85)' }}>
+                  {recommendation.price.toLocaleString()}원
+                </p>
+                <span className="text-xs px-2 py-1 rounded-full" style={{
+                  background: 'oklch(0.80 0.15 40 / 20%)',
+                  color: 'oklch(0.80 0.15 40)',
+                }}>
+                  10% 할인
+                </span>
+              </div>
+              <TalismanDiscountTimer purchaseTime={purchaseTime} discountPercentage={10} />
+            </div>
             <div className="flex gap-2">
               <button
                 onClick={() => setLiked(!liked)}
