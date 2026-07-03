@@ -216,12 +216,23 @@ export default function WishesPage() {
     saveWishes(updatedWishes);
   };
 
-  const handleAddBlessing = (wishId: number, amount: number) => {
+  const handleAddBlessing = async (wishId: number, amount: number) => {
+    // 크레딧 차감 시도
+    const paymentResult = await processBlessingPayment(amount, '');
+    if (!paymentResult.success) {
+      alert(paymentResult.message);
+      return;
+    }
+    
+    // 크레딧 차감 성공 시 복비 업데이트
     const updatedWishes = wishes.map((w) =>
       w.id === wishId ? { ...w, blessings: w.blessings + amount } : w
     );
     setWishes(updatedWishes);
     saveWishes(updatedWishes);
+    setUserCredit(paymentResult.newBalance || 0);
+    setLastBlessingAmount(amount);
+    setShowSuccessAnimation(true);
     setShowBlessingModal(false);
     setSelectedWishForBlessing(null);
   };

@@ -55,6 +55,7 @@ const creditRouter = router({
       paymentId: z.string(),
       amount: z.number().int().min(100),
       merchantUid: z.string(),
+      credits: z.number().int().min(1).optional(), // 추가: 단순 금액이 아닌 크레딧 수량
     }))
     .mutation(async ({ ctx, input }) => {
       try {
@@ -86,11 +87,14 @@ const creditRouter = router({
           throw new TRPCError({ code: "BAD_REQUEST", message: "Amount mismatch" });
         }
 
-        // 크레딧 추가
+        // 크레딧 추가 (진짜 단위: 크레딧 수, 단위: 원)
         const { addCredit } = await import("./db");
-        await addCredit(ctx.user.id, input.amount, 'charge', `PortOne Payment - ${input.paymentId}`);
+        const creditAmount = input.credits || Math.floor(input.amount / 1000); // 기본값: 1000원 = 1크레딧
+        await addCredit(ctx.user.id, creditAmount, 'charge', `PortOne Payment - ${input.paymentId}`);
+        
+        return { success: true, message: '충전이 완료되었습니다.', creditsAdded: creditAmount };
 
-        return { success: true, message: '충전이 완료되었습니다.' };
+
       } catch (error) {
         console.error('Payment verification error:', error);
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Payment processing failed" });

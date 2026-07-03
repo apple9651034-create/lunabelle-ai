@@ -88,12 +88,12 @@
 - [x] YukConsultationPage - 스트리밍 방식 + 요약 + 재질문
 - [x] 달빛님과 루나봇이 대화하듯 상담 진행
 
-## 결제 시스템 실제 연결 (진행 중)
+## 결제 시스템 실제 연결 (완료)
 
-- [ ] PortOne 결제 완료 후 서버 전송 로직 (ChargePage)
-- [ ] 서버 API: 결제 검증 및 크레딧 적립 (POST /api/payment/charge)
-- [ ] 충전 페이지 PortOne 결제 시스템 완성
-- [ ] 복비 결제 PortOne 연결 (WishesPage)
+- [x] PortOne 결제 완료 후 서버 전송 로직 (ChargePage)
+- [x] 서버 API: 결제 검증 및 크레딧 적립 (POST /api/payment/charge)
+- [x] 충전 페이지 PortOne 결제 시스템 완성
+- [x] 복비 결제 PortOne 연결 (WishesPage)
 
 
 ## 신규 기능 (완료)
@@ -109,3 +109,10 @@
 - [x] ChargePage에 PaymentSuccessAnimation 통합
 - [x] WishesPage에 PaymentSuccessAnimation 통합
 - [x] TalismanShop에 부적 설명 렌더링 (description 표시)
+
+
+## 긴급 버그 수정 (진행 중)
+
+- [x] PortOne 결제 크레딧 매핑 수정 (KRW 대신 단위: 크레딧 수)
+- [x] ChargePage - credits 파라미터 추가
+- [x] WishesPage - 기존 소원 복비 로직 수정 (크레딧 차감 기능 추가)

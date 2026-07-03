@@ -80,6 +80,7 @@ export default function ChargePage() {
             paymentId: impUid,
             amount: selectedPkg.price,
             merchantUid: merchantUid,
+            credits: selectedPkg.credits,
           });
 
           if (result.success) {
