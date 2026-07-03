@@ -8,6 +8,8 @@ import { useLocation } from 'wouter';
 import ChatLoadingWithTips from '@/components/ChatLoadingWithTips';
 import ConsultationShareButtons from '@/components/ConsultationShareButtons';
 import PreviousConsultationContext from '@/components/PreviousConsultationContext';
+import RecommendedTalisman from '@/components/RecommendedTalisman';
+import EmotionAnimation from '@/components/EmotionAnimation';
 import { Streamdown } from 'streamdown';
 import html2canvas from 'html2canvas';
 import {
@@ -32,6 +34,8 @@ export default function YukConsultationPage() {
   const [previousConsultation, setPreviousConsultation] = useState<any>(null);
   const [consultationId, setConsultationId] = useState(nanoid());
   const [mainConcern, setMainConcern] = useState('');
+  const [showRecommendation, setShowRecommendation] = useState(false);
+  const [showEmotionAnimation, setShowEmotionAnimation] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -168,15 +172,19 @@ export default function YukConsultationPage() {
 
       {/* 이전 상담 컨텍스트 */}
       {previousConsultation && (
-        <div className="px-4 pt-4">
+        <div className="px-4 pt-4" onMouseEnter={() => setShowEmotionAnimation(true)}>
           <PreviousConsultationContext
             consultation={previousConsultation}
             onContinue={() => {
               setInput(`지난번 상담 내용: ${previousConsultation.mainConcern}에 대해 계속 상담해주세요.`);
+              setShowEmotionAnimation(true);
             }}
           />
         </div>
       )}
+
+      {/* 감정 표현 애니메이션 */}
+      <EmotionAnimation isVisible={showEmotionAnimation} emotion="welcoming" />
 
       {/* 채팅 영역 */}
       <div id="consultation-content" className="flex-1 px-4 py-6 space-y-4 max-w-2xl mx-auto pb-32">
@@ -212,6 +220,31 @@ export default function YukConsultationPage() {
         ))}
 
         {isLoading && <ChatLoadingWithTips />}
+
+        {messages.length > 5 && !showRecommendation && (
+          <div className="flex justify-center my-4">
+            <button
+              onClick={() => setShowRecommendation(true)}
+              className="px-4 py-2 rounded-lg font-bold text-sm transition-all active:scale-[0.97]"
+              style={{
+                background: 'oklch(0.78 0.15 85 / 20%)',
+                color: 'oklch(0.78 0.15 85)',
+                border: '1px solid oklch(0.78 0.15 85 / 40%)',
+              }}
+            >
+              ✨ 루나의 매죠형 부적 추천 보기
+            </button>
+          </div>
+        )}
+
+        {showRecommendation && (
+          <div className="my-6 max-w-2xl mx-auto">
+            <RecommendedTalisman
+              consultationContent={messages.map((m) => m.content).join(' ')}
+              consultationType="yuk"
+            />
+          </div>
+        )}
 
         <div ref={messagesEndRef} />
       </div>

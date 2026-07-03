@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Wallet, History, Heart, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Wallet, History, Heart, TrendingUp, BookOpen } from 'lucide-react';
 import { useLocation } from 'wouter';
 import TalismanCollection from '@/components/TalismanCollection';
+import ConsultationDiary from '@/components/ConsultationDiary';
 
 export default function MyPageDashboard() {
   const [, navigate] = useLocation();
@@ -9,6 +10,7 @@ export default function MyPageDashboard() {
   const [wishes, setWishes] = useState<any[]>([]);
   const [creditBalance, setCreditBalance] = useState(10000);
   const [purchasedTalismans, setPurchasedTalismans] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'overview' | 'diary' | 'talismans' | 'wishes'>('overview');
 
   // 상담 내역 로드
   useEffect(() => {
@@ -169,6 +171,54 @@ export default function MyPageDashboard() {
           </div>
         </div>
 
+        {/* Tab Navigation */}
+        <div className="flex gap-2 mb-8 border-b overflow-x-auto" style={{ borderColor: 'oklch(0.78 0.15 85 / 20%)' }}>
+          <button
+            onClick={() => setActiveTab('overview')}
+            className="px-4 py-3 font-bold text-sm border-b-2 transition-colors whitespace-nowrap"
+            style={{
+              borderColor: activeTab === 'overview' ? 'oklch(0.78 0.15 85)' : 'transparent',
+              color: activeTab === 'overview' ? 'oklch(0.78 0.15 85)' : 'oklch(0.60 0.02 290)',
+            }}
+          >
+            📊 대시보드
+          </button>
+          <button
+            onClick={() => setActiveTab('diary')}
+            className="px-4 py-3 font-bold text-sm border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap"
+            style={{
+              borderColor: activeTab === 'diary' ? 'oklch(0.78 0.15 85)' : 'transparent',
+              color: activeTab === 'diary' ? 'oklch(0.78 0.15 85)' : 'oklch(0.60 0.02 290)',
+            }}
+          >
+            <BookOpen size={16} />
+            나의 상담일지
+          </button>
+          <button
+            onClick={() => setActiveTab('talismans')}
+            className="px-4 py-3 font-bold text-sm border-b-2 transition-colors whitespace-nowrap"
+            style={{
+              borderColor: activeTab === 'talismans' ? 'oklch(0.78 0.15 85)' : 'transparent',
+              color: activeTab === 'talismans' ? 'oklch(0.78 0.15 85)' : 'oklch(0.60 0.02 290)',
+            }}
+          >
+            🔮 부적 보관함
+          </button>
+          <button
+            onClick={() => setActiveTab('wishes')}
+            className="px-4 py-3 font-bold text-sm border-b-2 transition-colors whitespace-nowrap"
+            style={{
+              borderColor: activeTab === 'wishes' ? 'oklch(0.78 0.15 85)' : 'transparent',
+              color: activeTab === 'wishes' ? 'oklch(0.78 0.15 85)' : 'oklch(0.60 0.02 290)',
+            }}
+          >
+            💝 소원
+          </button>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'overview' && (
+          <>
         {/* Consultation History */}
         <div className="mb-12">
           <h3 className="text-xl font-bold mb-6" style={{ color: 'oklch(0.94 0.015 90)' }}>
@@ -211,20 +261,33 @@ export default function MyPageDashboard() {
           )}
         </div>
 
-        {/* Talisman Collection */}
-        <div className="mb-12">
-          <TalismanCollection
-            talismans={purchasedTalismans}
-            onDownload={downloadImage}
-            onRemove={removeTalisman}
-          />
-        </div>
+          </>
+        )}
 
-        {/* Recent Wishes */}
-        <div>
-          <h3 className="text-xl font-bold mb-6" style={{ color: 'oklch(0.94 0.015 90)' }}>
-            💝 최근 올린 소원
-          </h3>
+        {activeTab === 'diary' && (
+          <div className="mb-12">
+            <h3 className="text-xl font-bold mb-6" style={{ color: 'oklch(0.94 0.015 90)' }}>
+              📖 나의 상담일지
+            </h3>
+            <ConsultationDiary />
+          </div>
+        )}
+
+        {activeTab === 'talismans' && (
+          <div className="mb-12">
+            <TalismanCollection
+              talismans={purchasedTalismans}
+              onDownload={downloadImage}
+              onRemove={removeTalisman}
+            />
+          </div>
+        )}
+
+        {activeTab === 'wishes' && (
+          <div>
+            <h3 className="text-xl font-bold mb-6" style={{ color: 'oklch(0.94 0.015 90)' }}>
+              💝 올린 소원
+            </h3>
           {wishes.length === 0 ? (
             <div className="p-8 rounded-xl text-center" style={{
               background: 'oklch(0.15 0.05 270)',
@@ -235,7 +298,7 @@ export default function MyPageDashboard() {
             </div>
           ) : (
             <div className="space-y-3">
-              {wishes.slice(0, 5).map((wish, idx) => (
+              {wishes.map((wish, idx) => (
                 <div key={idx} className="p-4 rounded-lg border" style={{
                   background: 'oklch(0.15 0.05 270)',
                   borderColor: 'oklch(0.78 0.15 85 / 20%)',
@@ -260,7 +323,8 @@ export default function MyPageDashboard() {
               ))}
             </div>
           )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
