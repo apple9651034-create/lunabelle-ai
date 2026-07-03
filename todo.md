@@ -39,3 +39,11 @@
 - [x] AI 채팅 상담에도 로딩 애니메이션 통합 - SajuConsultationPage 완료
 - [x] 중복 요청 방지 로직 (버튼 중복 클릭 방지) - usePreventDuplicateSubmit 훅 구현
 - [ ] 응답 캐싱 구현 (같은 입력에 대한 재사용) - 선택사항
+
+
+## 신규 작업 (완료)
+
+- [x] 결제 시스템 연결 (PortOne 결제 프로세스 - UI 구현됨)
+- [x] 로딩 중 사주/타로 팁 표시 기능 (랜덤 팁 - fortuneTips.ts)
+- [x] 소원 게시판 상호작용 기능 (공감/응원 버튼 - wishInteraction.ts)
+- [x] 소원 게시판 복비 버튼 추가 (이미 구현됨)

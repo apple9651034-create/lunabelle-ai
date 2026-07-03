@@ -1,10 +1,19 @@
 /* AI 루나 — WishesPage.tsx
  * Design: Mystic Dark Luxury
- * 소원 게시판 + 복비 기능 (한 달 자동 리셋)
+ * 소원 게시판 + 복비 기능 + 상호작용 (공감/응원)
  */
 import React, { useState, useEffect } from 'react';
-import { Heart, Send, Trash2, ArrowLeft } from 'lucide-react';
+import { Heart, Send, Trash2, ArrowLeft, MessageCircle, ThumbsUp } from 'lucide-react';
 import { useLocation } from 'wouter';
+import {
+  loadInteractions,
+  addEmpathy,
+  addEncouragement,
+  getWishInteractions,
+  getRecentEncouragements,
+  ENCOURAGEMENT_TEMPLATES,
+  WishWithInteractions,
+} from '@/lib/wishInteraction';
 
 interface Wish {
   id: number;
@@ -13,8 +22,8 @@ interface Wish {
   likes: number;
   liked: boolean;
   date: string;
-  blessings: number; // 복비 누적액
-  expiresAt: string; // 한 달 후 만료 날짜
+  blessings: number;
+  expiresAt: string;
 }
 
 interface BlessingOption {
@@ -39,20 +48,23 @@ export default function WishesPage() {
   const [selectedCategory, setSelectedCategory] = useState('기타');
   const [selectedWishForBlessing, setSelectedWishForBlessing] = useState<number | null>(null);
   const [showBlessingModal, setShowBlessingModal] = useState(false);
+  const [showEncouragementModal, setShowEncouragementModal] = useState(false);
+  const [selectedWishForEncouragement, setSelectedWishForEncouragement] = useState<number | null>(null);
+  const [encouragementMessage, setEncouragementMessage] = useState('');
+  const [wishInteractions, setWishInteractions] = useState<Map<number, WishWithInteractions>>(new Map());
 
-  // 초기 로드 및 한 달 지난 소원 자동 삭제
   useEffect(() => {
     loadWishes();
+    setWishInteractions(loadInteractions());
   }, []);
 
   const loadWishes = () => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       let loadedWishes: Wish[] = stored ? JSON.parse(stored) : [];
-      
-      // 한 달 지난 소원 자동 삭제
+
       const now = new Date();
-      loadedWishes = loadedWishes.filter(wish => {
+      loadedWishes = loadedWishes.filter((wish) => {
         const expiryDate = new Date(wish.expiresAt);
         return expiryDate > now;
       });
@@ -72,7 +84,6 @@ export default function WishesPage() {
   const handleAddWish = () => {
     if (!newWish.trim()) return;
 
-    // 한 달 후 만료 날짜 계산
     const expiryDate = new Date();
     expiryDate.setMonth(expiryDate.getMonth() + 1);
 
@@ -111,6 +122,23 @@ export default function WishesPage() {
     setSelectedWishForBlessing(null);
   };
 
+  const handleAddEmpathy = (wishId: number) => {
+    const updated = addEmpathy(wishId);
+    setWishInteractions(new Map(wishInteractions).set(wishId, updated));
+  };
+
+  const handleAddEncouragement = (wishId: number) => {
+    if (!encouragementMessage.trim() && Math.random() > 0.5) {
+      setEncouragementMessage(ENCOURAGEMENT_TEMPLATES[Math.floor(Math.random() * ENCOURAGEMENT_TEMPLATES.length)]);
+    }
+
+    const updated = addEncouragement(wishId, encouragementMessage || undefined);
+    setWishInteractions(new Map(wishInteractions).set(wishId, updated));
+    setShowEncouragementModal(false);
+    setEncouragementMessage('');
+    setSelectedWishForEncouragement(null);
+  };
+
   const handleDeleteWish = (id: number) => {
     if (confirm('이 소원을 삭제하시겠습니까?')) {
       const updatedWishes = wishes.filter((w) => w.id !== id);
@@ -133,7 +161,6 @@ export default function WishesPage() {
     borderRadius: '1rem',
   };
 
-  // 복비 높은 순으로 정렬
   const sortedWishes = [...wishes].sort((a, b) => b.blessings - a.blessings);
 
   return (
@@ -214,14 +241,20 @@ export default function WishesPage() {
         </div>
 
         {/* Info */}
-        <div className="p-4 rounded-xl text-xs" style={{
-          background: 'oklch(0.15 0.05 270)',
-          border: '1px solid oklch(0.78 0.15 85 / 20%)',
-          color: 'oklch(0.70 0.02 290)',
-        }}>
-          <p className="mb-1">💫 <strong>소원 게시판 안내</strong></p>
+        <div
+          className="p-4 rounded-xl text-xs"
+          style={{
+            background: 'oklch(0.15 0.05 270)',
+            border: '1px solid oklch(0.78 0.15 85 / 20%)',
+            color: 'oklch(0.70 0.02 290)',
+          }}
+        >
+          <p className="mb-1">
+            💫 <strong>소원 게시판 안내</strong>
+          </p>
           <p>• 소원은 한 달간 게시됩니다 (자동 리셋)</p>
           <p>• 복비로 다른 사람의 소원을 응원할 수 있습니다</p>
+          <p>• 공감 버튼으로 따뜻한 마음을 전하세요</p>
           <p>• 복비가 높은 소원이 상단에 표시됩니다</p>
         </div>
 
@@ -230,84 +263,144 @@ export default function WishesPage() {
           {sortedWishes.length === 0 ? (
             <div className="p-8 text-center" style={cardStyle}>
               <p className="text-lg mb-2">🙏</p>
-              <p style={{ color: 'oklch(0.70 0.02 290)' }}>
-                아직 소원이 없습니다
-              </p>
+              <p style={{ color: 'oklch(0.70 0.02 290)' }}>아직 소원이 없습니다</p>
             </div>
           ) : (
-            sortedWishes.map((wish) => (
-              <div key={wish.id} className="p-4 rounded-xl transition-all" style={{
-                ...cardStyle,
-                background: wish.blessings > 0 
-                  ? 'linear-gradient(135deg, oklch(0.20 0.08 290 / 50%), oklch(0.17 0.06 270 / 50%))'
-                  : cardStyle.background,
-              }}>
-                <div className="flex items-start justify-between gap-3 mb-2">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0"
-                      style={{ background: 'oklch(0.55 0.25 290 / 20%)', color: 'oklch(0.78 0.15 85)' }}
-                    >
-                      {categoryEmoji[wish.category]} {wish.category}
-                    </span>
-                    {wish.blessings > 0 && (
+            sortedWishes.map((wish) => {
+              const interaction = wishInteractions.get(wish.id) || {
+                wishId: wish.id,
+                empathyCount: 0,
+                encouragementCount: 0,
+                interactions: [],
+                userEmpathized: false,
+                userEncouraged: false,
+              };
+              const recentEncouragements = getRecentEncouragements(wish.id, 2);
+
+              return (
+                <div
+                  key={wish.id}
+                  className="p-4 rounded-xl transition-all"
+                  style={{
+                    ...cardStyle,
+                    background:
+                      wish.blessings > 0
+                        ? 'linear-gradient(135deg, oklch(0.20 0.08 290 / 50%), oklch(0.17 0.06 270 / 50%))'
+                        : cardStyle.background,
+                  }}
+                >
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div className="flex items-center gap-2">
                       <span
                         className="text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0"
-                        style={{ background: 'oklch(0.70 0.20 60 / 20%)', color: 'oklch(0.70 0.18 60)' }}
+                        style={{ background: 'oklch(0.55 0.25 290 / 20%)', color: 'oklch(0.78 0.15 85)' }}
                       >
-                        💝 {wish.blessings.toLocaleString()}원
+                        {categoryEmoji[wish.category]} {wish.category}
                       </span>
-                    )}
+                      {wish.blessings > 0 && (
+                        <span
+                          className="text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0"
+                          style={{ background: 'oklch(0.70 0.20 60 / 20%)', color: 'oklch(0.70 0.18 60)' }}
+                        >
+                          💝 {wish.blessings.toLocaleString()}원
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[11px]" style={{ color: 'oklch(0.50 0.02 290)' }}>
+                      {wish.date}
+                    </span>
                   </div>
-                  <span className="text-[11px]" style={{ color: 'oklch(0.50 0.02 290)' }}>{wish.date}</span>
+
+                  <p className="text-sm leading-relaxed mb-3" style={{ color: 'oklch(0.85 0.015 90)' }}>
+                    {wish.content}
+                  </p>
+
+                  {/* Recent Encouragements */}
+                  {recentEncouragements.length > 0 && (
+                    <div className="mb-3 p-2 rounded-lg" style={{ background: 'oklch(0.15 0.04 270)' }}>
+                      <p className="text-[11px] font-semibold mb-1" style={{ color: 'oklch(0.78 0.15 85)' }}>
+                        💬 응원 메시지
+                      </p>
+                      {recentEncouragements.map((enc) => (
+                        <p key={enc.id} className="text-[11px] mb-1" style={{ color: 'oklch(0.75 0.015 90)' }}>
+                          "{enc.message}"
+                        </p>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Actions */}
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleLike(wish.id)}
+                        className="flex items-center gap-1.5 text-xs font-semibold transition-all px-2 py-1 rounded-lg"
+                        style={{
+                          color: wish.liked ? 'oklch(0.65 0.22 15)' : 'oklch(0.55 0.02 290)',
+                          background: wish.liked ? 'oklch(0.65 0.22 15 / 15%)' : 'transparent',
+                        }}
+                      >
+                        <Heart size={14} style={{ fill: wish.liked ? 'oklch(0.65 0.22 15)' : 'none' }} />
+                        {wish.likes}
+                      </button>
+
+                      <button
+                        onClick={() => handleAddEmpathy(wish.id)}
+                        className="flex items-center gap-1.5 text-xs font-semibold transition-all px-2 py-1 rounded-lg"
+                        style={{
+                          color: interaction.userEmpathized ? 'oklch(0.78 0.15 85)' : 'oklch(0.55 0.02 290)',
+                          background: interaction.userEmpathized ? 'oklch(0.78 0.15 85 / 20%)' : 'transparent',
+                        }}
+                      >
+                        <ThumbsUp size={14} style={{ fill: interaction.userEmpathized ? 'oklch(0.78 0.15 85)' : 'none' }} />
+                        {interaction.empathyCount}
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          setSelectedWishForEncouragement(wish.id);
+                          setShowEncouragementModal(true);
+                        }}
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1"
+                        style={{
+                          background: 'oklch(0.55 0.25 290 / 20%)',
+                          color: 'oklch(0.78 0.15 85)',
+                          border: '1px solid oklch(0.55 0.25 290 / 30%)',
+                        }}
+                      >
+                        <MessageCircle size={12} />
+                        응원 ({interaction.encouragementCount})
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setSelectedWishForBlessing(wish.id);
+                          setShowBlessingModal(true);
+                        }}
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                        style={{
+                          background: 'oklch(0.70 0.18 60 / 20%)',
+                          color: 'oklch(0.70 0.18 60)',
+                          border: '1px solid oklch(0.70 0.18 60 / 30%)',
+                        }}
+                      >
+                        💝 복비
+                      </button>
+
+                      <button
+                        onClick={() => handleDeleteWish(wish.id)}
+                        className="p-1.5 hover:bg-red-500/20 rounded-lg transition-colors"
+                        style={{ color: 'oklch(0.60 0.20 0)' }}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
                 </div>
-
-                <p className="text-sm leading-relaxed mb-3" style={{ color: 'oklch(0.85 0.015 90)' }}>
-                  {wish.content}
-                </p>
-
-                {/* Actions */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => handleLike(wish.id)}
-                      className="flex items-center gap-1.5 text-xs font-semibold transition-all"
-                      style={{ color: wish.liked ? 'oklch(0.65 0.22 15)' : 'oklch(0.55 0.02 290)' }}
-                    >
-                      <Heart
-                        size={14}
-                        style={{ fill: wish.liked ? 'oklch(0.65 0.22 15)' : 'none' }}
-                      />
-                      {wish.likes}
-                    </button>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => {
-                        setSelectedWishForBlessing(wish.id);
-                        setShowBlessingModal(true);
-                      }}
-                      className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-                      style={{
-                        background: 'oklch(0.70 0.18 60 / 20%)',
-                        color: 'oklch(0.70 0.18 60)',
-                        border: '1px solid oklch(0.70 0.18 60 / 30%)',
-                      }}
-                    >
-                      💝 복비
-                    </button>
-                    <button
-                      onClick={() => handleDeleteWish(wish.id)}
-                      className="p-1.5 hover:bg-red-500/20 rounded-lg transition-colors"
-                      style={{ color: 'oklch(0.60 0.20 0)' }}
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
@@ -317,7 +410,9 @@ export default function WishesPage() {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end z-50">
           <div className="w-full rounded-t-3xl p-6 space-y-4" style={{ background: 'oklch(0.15 0.04 270)' }}>
             <div className="text-center mb-4">
-              <p className="text-sm" style={{ color: 'oklch(0.70 0.02 290)' }}>복비를 선택하세요</p>
+              <p className="text-sm" style={{ color: 'oklch(0.70 0.02 290)' }}>
+                복비를 선택하세요
+              </p>
               <p className="text-xs mt-1" style={{ color: 'oklch(0.60 0.02 290)' }}>높은 금액순으로 상단에 표시됩니다</p>
             </div>
 
@@ -350,8 +445,80 @@ export default function WishesPage() {
                 border: '1px solid oklch(1 0 0 / 15%)',
               }}
             >
-              취소
+              닫기
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Encouragement Modal */}
+      {showEncouragementModal && selectedWishForEncouragement && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end z-50">
+          <div className="w-full rounded-t-3xl p-6 space-y-4" style={{ background: 'oklch(0.15 0.04 270)' }}>
+            <div className="text-center mb-4">
+              <p className="text-sm" style={{ color: 'oklch(0.70 0.02 290)' }}>응원 메시지를 남겨주세요</p>
+              <p className="text-xs mt-1" style={{ color: 'oklch(0.60 0.02 290)' }}>따뜻한 말씀이 큰 힘이 됩니다</p>
+            </div>
+
+            <textarea
+              value={encouragementMessage}
+              onChange={(e) => setEncouragementMessage(e.target.value)}
+              placeholder="응원 메시지를 입력하세요 (선택사항)..."
+              rows={3}
+              className="w-full px-4 py-3 rounded-xl text-sm focus:outline-none transition-all resize-none"
+              style={{
+                background: 'oklch(0.20 0.05 270)',
+                color: 'oklch(0.94 0.015 90)',
+                border: '1px solid oklch(1 0 0 / 15%)',
+              }}
+            />
+
+            <div className="grid grid-cols-2 gap-2">
+              {ENCOURAGEMENT_TEMPLATES.slice(0, 4).map((template, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setEncouragementMessage(template)}
+                  className="py-2 px-2 rounded-lg text-xs transition-all text-center"
+                  style={{
+                    background: 'oklch(0.20 0.05 270)',
+                    color: 'oklch(0.78 0.15 85)',
+                    border: '1px solid oklch(0.55 0.25 290 / 30%)',
+                  }}
+                >
+                  {template}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleAddEncouragement(selectedWishForEncouragement)}
+                className="flex-1 py-3 rounded-xl font-bold transition-all active:scale-[0.95]"
+                style={{
+                  background: 'linear-gradient(135deg, oklch(0.50 0.28 290), oklch(0.45 0.25 310))',
+                  color: 'oklch(1 0 0)',
+                  boxShadow: '0 4px 15px oklch(0.55 0.25 290 / 30%)',
+                }}
+              >
+                응원하기
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowEncouragementModal(false);
+                  setEncouragementMessage('');
+                  setSelectedWishForEncouragement(null);
+                }}
+                className="flex-1 py-3 rounded-xl font-semibold transition-all"
+                style={{
+                  background: 'oklch(0.20 0.05 270)',
+                  color: 'oklch(0.70 0.02 290)',
+                  border: '1px solid oklch(1 0 0 / 15%)',
+                }}
+              >
+                취소
+              </button>
+            </div>
           </div>
         </div>
       )}

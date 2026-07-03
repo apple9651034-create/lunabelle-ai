@@ -1,12 +1,14 @@
 /* AI 루나 — MysticalLoadingAnimation.tsx
  * Design: Mystic Dark Luxury
- * 신비로운 분위기의 로딩 애니메이션 + 진행 상태 메시지
+ * 신비로운 분위기의 로딩 애니메이션 + 진행 상태 메시지 + 팁 표시
  */
 import React, { useState, useEffect } from 'react';
+import { getRandomTip } from '@/lib/fortuneTips';
 
 interface MysticalLoadingAnimationProps {
   isLoading: boolean;
   stage?: 'analyzing' | 'divining' | 'interpreting' | 'completing';
+  category?: 'saju' | 'tarot';
 }
 
 const LOADING_MESSAGES = {
@@ -36,9 +38,10 @@ const LOADING_MESSAGES = {
   ],
 };
 
-export default function MysticalLoadingAnimation({ isLoading, stage = 'analyzing' }: MysticalLoadingAnimationProps) {
+export default function MysticalLoadingAnimation({ isLoading, stage = 'analyzing', category }: MysticalLoadingAnimationProps) {
   const [messageIndex, setMessageIndex] = useState(0);
   const [particleCount, setParticleCount] = useState(0);
+  const [tip, setTip] = useState(getRandomTip(category));
 
   useEffect(() => {
     if (!isLoading) return;
@@ -60,13 +63,23 @@ export default function MysticalLoadingAnimation({ isLoading, stage = 'analyzing
     return () => clearInterval(particleInterval);
   }, [isLoading]);
 
+  useEffect(() => {
+    if (!isLoading) return;
+
+    const tipInterval = setInterval(() => {
+      setTip(getRandomTip(category));
+    }, 5000);
+
+    return () => clearInterval(tipInterval);
+  }, [isLoading, category]);
+
   if (!isLoading) return null;
 
   const currentMessage = LOADING_MESSAGES[stage][messageIndex];
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50">
-      <div className="text-center space-y-8">
+      <div className="text-center space-y-8 max-w-md px-4">
         {/* Mystical Orb Animation */}
         <div className="relative w-32 h-32 mx-auto">
           {/* Outer Ring */}
@@ -159,6 +172,22 @@ export default function MysticalLoadingAnimation({ isLoading, stage = 'analyzing
               }}
             />
           </div>
+        </div>
+
+        {/* Tip Display */}
+        <div
+          className="p-4 rounded-lg border"
+          style={{
+            background: 'oklch(0.17 0.04 270)',
+            border: '1px solid oklch(0.55 0.25 290 / 40%)',
+          }}
+        >
+          <p className="text-xs font-semibold mb-2" style={{ color: 'oklch(0.78 0.15 85)' }}>
+            💡 {tip.title}
+          </p>
+          <p className="text-xs leading-relaxed" style={{ color: 'oklch(0.85 0.015 90)' }}>
+            {tip.content}
+          </p>
         </div>
 
         {/* Stage Indicator */}

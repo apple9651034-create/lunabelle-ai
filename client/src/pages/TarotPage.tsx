@@ -27,7 +27,7 @@ export default function TarotPage() {
   const [loadingStage, setLoadingStage] = useState<'analyzing' | 'divining' | 'interpreting' | 'completing'>('analyzing');
 
   if (isLoading) {
-    return <MysticalLoadingAnimation isLoading={isLoading} stage={loadingStage} />;
+    return <MysticalLoadingAnimation isLoading={isLoading} stage={loadingStage} category="tarot" />;
   }
 
   const handleDrawTarot = () => {

@@ -73,7 +73,7 @@ export default function SajuPage() {
   const { handleSubmit: handleAnalyzeWithDuplicateCheck } = usePreventDuplicateSubmit({ cooldownMs: 1500 });
 
   if (isLoading) {
-    return <MysticalLoadingAnimation isLoading={isLoading} stage={loadingStage} />;
+    return <MysticalLoadingAnimation isLoading={isLoading} stage={loadingStage} category="saju" />;
   }
 
   const years = Array.from({ length: 100 }, (_, i) => String(2026 - i));

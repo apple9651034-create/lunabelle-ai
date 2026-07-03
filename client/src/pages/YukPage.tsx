@@ -113,7 +113,7 @@ export default function YukPage() {
   };
 
   if (isLoading) {
-    return <MysticalLoadingAnimation isLoading={isLoading} stage={loadingStage} />;
+    return <MysticalLoadingAnimation isLoading={isLoading} stage={loadingStage} category="saju" />;
   }
 
   return (
