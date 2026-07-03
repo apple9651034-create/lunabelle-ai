@@ -19,6 +19,7 @@ import SupportPage from "./pages/SupportPage";
 import TarotPage from "./pages/TarotPage";
 import ConsultationHistoryPage from "./pages/ConsultationHistoryPage";
 import MonthlyFortuneCalendar from "./pages/MonthlyFortuneCalendar";
+import ChargePage from "./pages/ChargePage";
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
@@ -35,6 +36,7 @@ function Router() {
         <Route path="/tarot" component={TarotPage} />
         <Route path="/history" component={ConsultationHistoryPage} />
         <Route path="/calendar" component={MonthlyFortuneCalendar} />
+        <Route path="/charge" component={ChargePage} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>

@@ -4,13 +4,23 @@
  */
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { MessageCircle, Wand2, Calendar, ShoppingBag, Heart, Sparkles, Star, ChevronRight, Moon } from 'lucide-react';
+import { MessageCircle, Wand2, Calendar, ShoppingBag, Heart, Sparkles, Star, ChevronRight, Moon, Edit2 } from 'lucide-react';
 import DailyFortuneWidget from '@/components/DailyFortuneWidget';
+
+interface SajuProfile {
+  year: string;
+  month: string;
+  day: string;
+  hour: string;
+  gender: string;
+  name?: string;
+}
 
 export default function HomePage() {
   const [, navigate] = useLocation();
   const [hoveredService, setHoveredService] = useState<string | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [sajuProfile, setSajuProfile] = useState<SajuProfile | null>(null);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -18,6 +28,18 @@ export default function HomePage() {
     };
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // 저장된 사주 정보 로드
+  useEffect(() => {
+    const savedSaju = localStorage.getItem('userSajuProfile');
+    if (savedSaju) {
+      try {
+        setSajuProfile(JSON.parse(savedSaju));
+      } catch (e) {
+        console.error('사주 정보 로드 실패:', e);
+      }
+    }
   }, []);
 
   const services = [
@@ -50,6 +72,16 @@ export default function HomePage() {
       gradient: 'from-indigo-600 to-purple-700',
       glow: 'oklch(0.48 0.22 270 / 25%)',
       accent: 'oklch(0.48 0.22 270)',
+    },
+    {
+      path: '/charge',
+      icon: ShoppingBag,
+      title: '크레딧 충전',
+      emoji: '💳',
+      description: '크레딧을 충전하여 더 많은 상담을 받아보세요',
+      gradient: 'from-amber-600 to-orange-600',
+      glow: 'oklch(0.70 0.18 60 / 25%)',
+      accent: 'oklch(0.70 0.18 60)',
     },
     {
       path: '/shop',
@@ -144,6 +176,47 @@ export default function HomePage() {
               </div>
             </div>
           </div>
+
+          {/* User Saju Profile */}
+          {sajuProfile && (
+            <div className="mb-12 p-6 rounded-2xl border" style={{
+              background: 'oklch(0.18 0.08 290)',
+              borderColor: 'oklch(0.78 0.15 85 / 30%)',
+              boxShadow: '0 0 30px oklch(0.55 0.25 290 / 15%)',
+            }}>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <h2 className="text-sm font-semibold mb-3 tracking-widest uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>
+                    📿 나의 사주
+                  </h2>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p style={{ color: 'oklch(0.60 0.02 290)' }}>생년월일</p>
+                      <p className="font-bold" style={{ color: 'oklch(0.94 0.015 90)' }}>
+                        {sajuProfile.year}년 {sajuProfile.month}월 {sajuProfile.day}일
+                      </p>
+                    </div>
+                    <div>
+                      <p style={{ color: 'oklch(0.60 0.02 290)' }}>태어난 시간</p>
+                      <p className="font-bold" style={{ color: 'oklch(0.94 0.015 90)' }}>
+                        {sajuProfile.hour}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => navigate('/saju')}
+                  className="p-2 rounded-lg transition-all hover:opacity-80"
+                  style={{
+                    background: 'oklch(0.50 0.28 290)',
+                    color: 'oklch(1 0 0)',
+                  }}
+                >
+                  <Edit2 size={18} />
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Welcome message */}
           <div className="mb-12 p-6 rounded-2xl border" style={{
