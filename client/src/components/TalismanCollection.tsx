@@ -2,8 +2,9 @@
  * 마이페이지 부적 보관함 컴포넌트
  * 구매한 부적 목록을 표시하고 관리
  */
-import React from 'react';
+import React, { useState } from 'react';
 import { Download, Trash2 } from 'lucide-react';
+import TalismanReview, { TalismanReviewData } from './TalismanReview';
 
 interface PurchasedTalisman {
   id: number;
@@ -19,11 +20,34 @@ interface TalismanCollectionProps {
   onRemove: (id: number) => void;
 }
 
+interface TalismanWithReview extends PurchasedTalisman {
+  reviews?: TalismanReviewData[];
+}
+
 export default function TalismanCollection({
   talismans,
   onDownload,
   onRemove,
 }: TalismanCollectionProps) {
+  const [reviews, setReviews] = useState<TalismanReviewData[]>([]);
+
+  const handleAddReview = (review: TalismanReviewData) => {
+    const existingIndex = reviews.findIndex((r) => r.talismanId === review.talismanId);
+    if (existingIndex >= 0) {
+      const updated = [...reviews];
+      updated[existingIndex] = review;
+      setReviews(updated);
+    } else {
+      setReviews([...reviews, review]);
+    }
+    localStorage.setItem('talismanReviews', JSON.stringify(reviews));
+  };
+
+  const handleDeleteReview = (reviewId: string) => {
+    const updated = reviews.filter((r) => r.id !== reviewId);
+    setReviews(updated);
+    localStorage.setItem('talismanReviews', JSON.stringify(updated));
+  };
   if (talismans.length === 0) {
     return (
       <div className="text-center py-12">
@@ -72,29 +96,39 @@ export default function TalismanCollection({
               </p>
 
               {/* 버튼 */}
-              <div className="flex gap-2">
-                <button
-                  onClick={() => onDownload(talisman.image, talisman.name)}
-                  className="flex-1 py-1.5 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 transition-all active:scale-[0.97]"
-                  style={{
-                    background: 'oklch(0.78 0.15 85 / 15%)',
-                    color: 'oklch(0.78 0.15 85)',
-                    border: '1px solid oklch(0.78 0.15 85 / 30%)',
-                  }}
-                >
-                  <Download size={10} />
-                  다운로드
-                </button>
-                <button
-                  onClick={() => onRemove(talisman.id)}
-                  className="px-2 py-1.5 rounded-lg transition-all active:scale-[0.97]"
-                  style={{
-                    background: 'oklch(0.65 0.22 15 / 15%)',
-                    color: 'oklch(0.65 0.22 15)',
-                  }}
-                >
-                  <Trash2 size={10} />
-                </button>
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => onDownload(talisman.image, talisman.name)}
+                    className="flex-1 py-1.5 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 transition-all active:scale-[0.97]"
+                    style={{
+                      background: 'oklch(0.78 0.15 85 / 15%)',
+                      color: 'oklch(0.78 0.15 85)',
+                      border: '1px solid oklch(0.78 0.15 85 / 30%)',
+                    }}
+                  >
+                    <Download size={10} />
+                    다운로드
+                  </button>
+                  <button
+                    onClick={() => onRemove(talisman.id)}
+                    className="px-2 py-1.5 rounded-lg transition-all active:scale-[0.97]"
+                    style={{
+                      background: 'oklch(0.65 0.22 15 / 15%)',
+                      color: 'oklch(0.65 0.22 15)',
+                    }}
+                  >
+                    <Trash2 size={10} />
+                  </button>
+                </div>
+                {/* 리뷰 컴포넌트 */}
+                <TalismanReview
+                  talismanId={talisman.id}
+                  talismanName={talisman.name}
+                  reviews={reviews}
+                  onAddReview={handleAddReview}
+                  onDeleteReview={handleDeleteReview}
+                />
               </div>
             </div>
           </div>

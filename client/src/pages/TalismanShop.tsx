@@ -6,6 +6,7 @@ import { ShoppingCart, Plus, Minus, ArrowLeft, Heart, Download, X, Info } from '
 import { useLocation } from 'wouter';
 import { TalismanDescription } from '@/components/TalismanDescriptions';
 import TalismanDetailModal from '@/components/TalismanDetailModal';
+import TalismanDownloadAnimation from '@/components/TalismanDownloadAnimation';
 import { getTalismanDetail } from '@/lib/talismanDetails';
 
 interface Talisman {
@@ -41,6 +42,7 @@ export default function TalismanShop() {
   const [purchasedItems, setPurchasedItems] = useState<number[]>([]);
   const [selectedTalismanId, setSelectedTalismanId] = useState<number | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showDownloadAnimation, setShowDownloadAnimation] = useState(false);
 
   const toggleLike = (id: number) => {
     setTalismans((prev) => prev.map((t) => t.id === id ? { ...t, liked: !t.liked } : t));
@@ -87,6 +89,7 @@ export default function TalismanShop() {
 
   const downloadImage = async (imageUrl: string, name: string) => {
     try {
+      setShowDownloadAnimation(true);
       const response = await fetch(imageUrl);
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
@@ -97,6 +100,7 @@ export default function TalismanShop() {
       URL.revokeObjectURL(url);
     } catch {
       alert('다운로드 중 오류가 발생했습니다.');
+      setShowDownloadAnimation(false);
     }
   };
 
@@ -310,6 +314,12 @@ export default function TalismanShop() {
         talisman={selectedTalismanId ? getTalismanDetail(selectedTalismanId) || null : null}
         isOpen={showDetailModal}
         onClose={() => setShowDetailModal(false)}
+      />
+
+      {/* 다운로드 애니메이션 */}
+      <TalismanDownloadAnimation
+        isVisible={showDownloadAnimation}
+        onComplete={() => setShowDownloadAnimation(false)}
       />
     </div>
   );
