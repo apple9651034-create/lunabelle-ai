@@ -111,7 +111,7 @@
 - [x] TalismanShop에 부적 설명 렌더링 (description 표시)
 
 
-## 긴급 버그 수정 (진행 중)
+## 긴급 버그 수정 (완료)
 
 - [x] PortOne 결제 크레딧 매핑 수정 (KRW 대신 단위: 크레딧 수)
 - [x] ChargePage - credits 파라미터 추가
