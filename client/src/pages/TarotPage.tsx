@@ -7,6 +7,7 @@ import { Loader2, ArrowLeft } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { fullTarotDeck, detectQuestionType, selectSpread, drawCards, TarotCard } from '@/lib/tarotCards';
 import { saveConsultation } from '@/lib/consultationHistory';
+import MysticalLoader from '@/components/MysticalLoader';
 
 interface TarotReading {
   question: string;
@@ -22,6 +23,10 @@ export default function TarotPage() {
   const [question, setQuestion] = useState('');
   const [reading, setReading] = useState<TarotReading | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  if (isLoading) {
+    return <MysticalLoader type="tarot" />;
+  }
 
   const handleDrawTarot = () => {
     if (!question.trim()) {

@@ -4,9 +4,11 @@
  * 양력/음력 선택 + 윤달 옵션 + 이미지 저장/카카오톡 공유
  */
 import React, { useState, useRef } from 'react';
-import { Loader2, Download, Share2 } from 'lucide-react';
+import { Loader2, Download, Share2, ArrowLeft } from 'lucide-react';
+import { useLocation } from 'wouter';
 import { calculateFourPillars, solarToLunar, lunarToSolar } from 'manseryeok';
 import html2canvas from 'html2canvas';
+import MysticalLoader from '@/components/MysticalLoader';
 
 declare global {
   interface Window {
@@ -48,6 +50,7 @@ interface SajuResult {
 }
 
 export default function SajuPage() {
+  const [, setLocation] = useLocation();
   const [calendarType, setCalendarType] = useState<'solar' | 'lunar'>('solar');
   const [isLeapMonth, setIsLeapMonth] = useState(false);
   const [birthYear, setBirthYear] = useState('');
@@ -60,6 +63,10 @@ export default function SajuPage() {
   const [result, setResult] = useState<SajuResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
+
+  if (isLoading) {
+    return <MysticalLoader type="saju" />;
+  }
 
   const years = Array.from({ length: 100 }, (_, i) => String(2026 - i));
   const months = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));

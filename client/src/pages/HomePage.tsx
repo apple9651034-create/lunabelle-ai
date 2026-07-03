@@ -4,6 +4,7 @@
 import React from 'react';
 import { useLocation } from 'wouter';
 import { MessageCircle, Wand2, Calendar, ShoppingBag, Heart, Sparkles, Star } from 'lucide-react';
+import DailyFortuneWidget from '@/components/DailyFortuneWidget';
 
 export default function HomePage() {
   const [, navigate] = useLocation();
@@ -132,6 +133,8 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+        {/* Daily Fortune Widget */}
+        <DailyFortuneWidget />
 
         {/* Services */}
         <div>

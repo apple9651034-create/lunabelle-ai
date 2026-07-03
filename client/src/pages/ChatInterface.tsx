@@ -3,8 +3,9 @@
  * Manus LLM 기반 실시간 AI 상담 + 상담내역 저장
  */
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Loader2, Save, History } from 'lucide-react';
+import { Send, Loader2, Save, History, Download, FileText, Image as ImageIcon } from 'lucide-react';
 import { saveConsultation, getAllConsultations, getConsultationById, formatDate } from '@/lib/consultationHistory';
+import { downloadChatAsText, downloadChatAsImage, downloadChatAsJSON } from '@/lib/downloadChat';
 
 interface Message {
   id: number;
@@ -236,6 +237,23 @@ ${sajuResult ? `사용자의 사주: ${sajuResult.fourPillars.yearString} ${saju
     }
   };
 
+  const handleDownloadChat = (format: string) => {
+    const chatMessages = messages.map(m => ({
+      role: m.type === 'ai' ? 'assistant' : 'user',
+      content: m.content,
+      timestamp: m.timestamp,
+    }));
+
+    const timestamp = new Date().toISOString().split('T')[0];
+    if (format === 'text') {
+      downloadChatAsText(chatMessages as any, `AI루나_상담기록_${timestamp}.txt`);
+    } else if (format === 'image') {
+      downloadChatAsImage(chatMessages as any, `AI루나_상담기록_${timestamp}.png`);
+    } else if (format === 'json') {
+      downloadChatAsJSON(chatMessages as any, `AI루나_상담기록_${timestamp}.json`);
+    }
+  };
+
   const cardStyle = {
     background: 'oklch(0.17 0.04 270)',
     border: '1px solid oklch(1 0 0 / 10%)',
@@ -347,6 +365,42 @@ ${sajuResult ? `사용자의 사주: ${sajuResult.fourPillars.yearString} ${saju
             }}
           >
             <Save size={16} /> 상담 저장
+          </button>
+        </div>
+
+        <div className="flex gap-2 mb-3">
+          <button
+            onClick={() => handleDownloadChat('text')}
+            className="flex-1 py-2 rounded-lg font-semibold text-xs transition-all active:scale-[0.97] flex items-center justify-center gap-1"
+            style={{
+              background: 'oklch(0.17 0.04 270)',
+              color: 'oklch(0.78 0.15 85)',
+              border: '1px solid oklch(1 0 0 / 15%)',
+            }}
+          >
+            <FileText size={14} /> 텍스트
+          </button>
+          <button
+            onClick={() => handleDownloadChat('image')}
+            className="flex-1 py-2 rounded-lg font-semibold text-xs transition-all active:scale-[0.97] flex items-center justify-center gap-1"
+            style={{
+              background: 'oklch(0.17 0.04 270)',
+              color: 'oklch(0.78 0.15 85)',
+              border: '1px solid oklch(1 0 0 / 15%)',
+            }}
+          >
+            <ImageIcon size={14} /> 이미지
+          </button>
+          <button
+            onClick={() => handleDownloadChat('json')}
+            className="flex-1 py-2 rounded-lg font-semibold text-xs transition-all active:scale-[0.97] flex items-center justify-center gap-1"
+            style={{
+              background: 'oklch(0.17 0.04 270)',
+              color: 'oklch(0.78 0.15 85)',
+              border: '1px solid oklch(1 0 0 / 15%)',
+            }}
+          >
+            <Download size={14} /> JSON
           </button>
         </div>
 
