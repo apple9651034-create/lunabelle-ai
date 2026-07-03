@@ -3,6 +3,7 @@ import { ArrowLeft, Wallet, History, Heart, TrendingUp, BookOpen } from 'lucide-
 import { useLocation } from 'wouter';
 import TalismanCollection from '@/components/TalismanCollection';
 import ConsultationDiary from '@/components/ConsultationDiary';
+import { ReadingResultTracking } from '@/components/ReadingResultTracking';
 
 export default function MyPageDashboard() {
   const [, navigate] = useLocation();
@@ -10,7 +11,7 @@ export default function MyPageDashboard() {
   const [wishes, setWishes] = useState<any[]>([]);
   const [creditBalance, setCreditBalance] = useState(10000);
   const [purchasedTalismans, setPurchasedTalismans] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'diary' | 'talismans' | 'wishes'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'diary' | 'talismans' | 'wishes' | 'results'>('overview');
 
   // 상담 내역 로드
   useEffect(() => {
@@ -214,6 +215,16 @@ export default function MyPageDashboard() {
           >
             💝 소원
           </button>
+          <button
+            onClick={() => setActiveTab('results')}
+            className="px-4 py-3 font-bold text-sm border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap"
+            style={{
+              borderColor: activeTab === 'results' ? 'oklch(0.78 0.15 85)' : 'transparent',
+              color: activeTab === 'results' ? 'oklch(0.78 0.15 85)' : 'oklch(0.60 0.02 290)',
+            }}
+          >
+            ✨ 리딩 결과
+          </button>
         </div>
 
         {/* Tab Content */}
@@ -280,6 +291,15 @@ export default function MyPageDashboard() {
               onDownload={downloadImage}
               onRemove={removeTalisman}
             />
+          </div>
+        )}
+
+        {activeTab === 'results' && (
+          <div className="mb-12">
+            <h3 className="text-xl font-bold mb-6" style={{ color: 'oklch(0.94 0.015 90)' }}>
+              ✨ 리딩 결과 추적
+            </h3>
+            <ReadingResultTracking />
           </div>
         )}
 
