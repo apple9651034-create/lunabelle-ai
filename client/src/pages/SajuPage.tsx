@@ -10,6 +10,7 @@ import { calculateFourPillars, solarToLunar, lunarToSolar } from 'manseryeok';
 import html2canvas from 'html2canvas';
 import MysticalLoader from '@/components/MysticalLoader';
 import { shareToKakao, shareToInstagram, generateSajuShareData } from '@/lib/shareResult';
+import { getFortuneDetails } from '@/lib/fortuneDetails';
 
 declare global {
   interface Window {
@@ -48,6 +49,7 @@ interface SajuResult {
   luck: string;
   solarDate: string;
   lunarDate: string;
+  fortuneDetails?: any;
 }
 
 export default function SajuPage() {
@@ -195,27 +197,40 @@ export default function SajuPage() {
       });
 
       const dayElement = fourPillars.dayElement.stem;
+      const fortuneDetails = getFortuneDetails(dayElement);
+      
       const personalities: Record<string, string> = {
-        '목': '창의적이고 진취적인 성향을 가지고 있습니다. 새로운 것을 좋아하고 리더십이 강하며, 성장과 발전을 추구합니다.',
-        '화': '열정적이고 활발한 성격입니다. 사교성이 뛰어나고 표현력이 좋으며, 예술적 감각이 있습니다.',
-        '토': '안정적이고 신뢰감을 주는 성격입니다. 포용력이 넓고 중재 능력이 뛰어나며, 꾸준하고 성실합니다.',
-        '금': '결단력이 있고 의지가 강합니다. 정의감이 뛰어나고 원칙을 중시하며, 깔끔하고 체계적입니다.',
-        '수': '지혜롭고 유연한 사고를 가지고 있습니다. 적응력이 뛰어나고 관찰력이 좋으며, 깊은 사색을 즐깁니다.',
+        '갑': '갑목(甲木)은 숲의 큰 나무로, 창의적이고 진취적인 성향을 가지고 있습니다. 새로운 것을 좋아하고 리더십이 강하며, 성장과 발전을 추구합니다. 고집이 있을 수 있으니 유연성을 기르세요.',
+        '을': '을목(乙木)은 풀과 덩굴로, 부드럽고 섬세한 감성을 지녔습니다. 예술적 감각이 뛰어나고 감정이 풍부하며, 타인의 감정을 잘 이해합니다. 자신감을 키우는 것이 중요합니다.',
+        '병': '병화(丙火)는 태양의 불로, 열정적이고 활발한 성격입니다. 사교성이 뛰어나고 표현력이 좋으며, 예술적 감각이 있습니다. 충동적인 경향이 있으니 신중함을 기르세요.',
+        '정': '정화(丁火)는 촛불의 불로, 따뜻하고 섬세한 성격입니다. 직관력이 뛰어나고 감정 표현이 풍부하며, 타인을 배려하는 마음이 깊습니다. 자신의 감정 관리가 필요합니다.',
+        '무': '무토(戊土)는 산의 흙으로, 안정적이고 신뢰감을 주는 성격입니다. 포용력이 넓고 중재 능력이 뛰어나며, 꾸준하고 성실합니다. 변화에 대응하는 능력을 키우세요.',
+        '기': '기토(己土)는 밭의 흙으로, 섬세하고 배려심 많은 성격입니다. 세심한 관찰력과 분석력이 뛰어나며, 타인을 돌보는 것을 좋아합니다. 자신을 더 소중히 여기세요.',
+        '경': '경금(庚金)은 광산의 금속으로, 결단력이 있고 의지가 강합니다. 정의감이 뛰어나고 원칙을 중시하며, 깔끔하고 체계적입니다. 경직된 태도를 유연하게 조절하세요.',
+        '신': '신금(辛金)은 보석의 금속으로, 섬세하고 정교한 성격입니다. 미적 감각이 뛰어나고 세밀한 작업을 잘하며, 우아함을 추구합니다. 자신감을 더 가져도 좋습니다.',
+        '임': '임수(壬水)는 강의 물로, 지혜롭고 유연한 사고를 가지고 있습니다. 적응력이 뛰어나고 관찰력이 좋으며, 깊은 사색을 즐깁니다. 결단력을 기르는 것이 중요합니다.',
+        '계': '계수(癸水)는 이슬의 물로, 섬세하고 감정이 풍부한 성격입니다. 직관력이 뛰어나고 신비로운 매력이 있으며, 타인의 마음을 잘 읽습니다. 자신의 의견을 더 표현하세요.',
       };
       const lucks: Record<string, string> = {
-        '목': '올해는 성장과 확장의 기운이 강합니다. 새로운 프로젝트에 도전하기 좋은 시기입니다.',
-        '화': '올해는 인간관계가 활발해지고 인기가 상승합니다. 자기 표현에 적극적으로 나서세요.',
-        '토': '올해는 안정과 축적의 시기입니다. 기반을 다지고 내실을 강화하는 데 집중하세요.',
-        '금': '올해는 결실을 맺는 해입니다. 그동안의 노력이 성과로 나타나는 시기입니다.',
-        '수': '올해는 지혜와 통찰의 해입니다. 내면의 성장에 집중하고 미래를 준비하세요.',
+        '갑': '올해는 성장과 확장의 기운이 강합니다. 새로운 프로젝트에 도전하기 좋은 시기입니다. 특히 상반기에 좋은 기회가 찾아올 것입니다.',
+        '을': '올해는 섬세함이 빛나는 해입니다. 예술이나 창의적인 활동에 집중하면 좋은 결과를 얻을 수 있습니다.',
+        '병': '올해는 인간관계가 활발해지고 인기가 상승합니다. 자기 표현에 적극적으로 나서세요. 사교 활동이 성공으로 이어질 것입니다.',
+        '정': '올해는 감정의 안정과 내적 성장의 시기입니다. 명상이나 자기계발에 집중하면 좋습니다.',
+        '토': '올해는 안정과 축적의 시기입니다. 기반을 다지고 내실을 강화하는 데 집중하세요. 재정 운이 좋습니다.',
+        '기': '올해는 세심함과 배려가 빛나는 해입니다. 주변 사람들을 돌보는 활동이 좋은 평판을 얻을 것입니다.',
+        '경': '올해는 결실을 맺는 해입니다. 그동안의 노력이 성과로 나타나는 시기입니다. 목표 달성에 집중하세요.',
+        '신': '올해는 미적 감각과 정교함이 강조되는 해입니다. 품질 있는 일에 집중하면 좋은 평가를 받을 것입니다.',
+        '임': '올해는 지혜와 통찰의 해입니다. 내면의 성장에 집중하고 미래를 준비하세요. 학습과 연구에 좋은 시기입니다.',
+        '계': '올해는 신비로운 매력이 빛나는 해입니다. 직관을 믿고 따르면 좋은 결과를 얻을 수 있습니다.',
       };
 
       setResult({
         fourPillars,
-        personality: personalities[dayElement] || personalities['목'],
-        luck: lucks[dayElement] || lucks['목'],
+        personality: personalities[dayElement] || personalities['갑'],
+        luck: lucks[dayElement] || lucks['갑'],
         solarDate: solarDateStr,
         lunarDate: lunarDateStr,
+        fortuneDetails,
       });
     } catch (error) {
       console.error('사주 계산 오류:', error);
@@ -361,10 +376,10 @@ export default function SajuPage() {
             <div ref={resultRef} className="p-5 rounded-xl" style={{ background: 'oklch(0.17 0.04 270)', border: '1px solid oklch(1 0 0 / 10%)' }}>
               <h3 className="text-sm font-bold mb-4 tracking-wide uppercase text-center" style={{ color: 'oklch(0.78 0.15 85)' }}>📊 사주 분석 결과</h3>
               <div className="space-y-3 text-xs" style={{ color: 'oklch(0.85 0.015 90)' }}>
-                <p><strong>입력 날짜:</strong> {result.solarDate} / {result.lunarDate}</p>
-                <p><strong>사주 명식:</strong> {result.fourPillars.yearString} {result.fourPillars.monthString} {result.fourPillars.dayString}{result.fourPillars.hourString ? ' ' + result.fourPillars.hourString : ''}</p>
-                <p><strong>성격:</strong> {result.personality}</p>
-                <p><strong>운세:</strong> {result.luck}</p>
+                <p>입력 날짜: {result.solarDate} / {result.lunarDate}</p>
+                <p>사주 명식: {result.fourPillars.yearString} {result.fourPillars.monthString} {result.fourPillars.dayString}{result.fourPillars.hourString ? ' ' + result.fourPillars.hourString : ''}</p>
+                <p>성격: {result.personality}</p>
+                <p>운세: {result.luck}</p>
               </div>
             </div>
 
