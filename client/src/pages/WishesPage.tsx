@@ -1,8 +1,10 @@
-/* AI 루나 — WishesPage
+/* AI 루나 — WishesPage.tsx
  * Design: Mystic Dark Luxury
+ * 소원 게시판 + 복비 기능 (한 달 자동 리셋)
  */
-import React, { useState } from 'react';
-import { Heart, Send } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Heart, Send, Trash2, ArrowLeft } from 'lucide-react';
+import { useLocation } from 'wouter';
 
 interface Wish {
   id: number;
@@ -11,21 +13,69 @@ interface Wish {
   likes: number;
   liked: boolean;
   date: string;
+  blessings: number; // 복비 누적액
+  expiresAt: string; // 한 달 후 만료 날짜
+}
+
+interface BlessingOption {
+  amount: number;
+  label: string;
 }
 
 const CATEGORIES = ['연애', '재물', '건강', '학업', '기타'];
+const BLESSING_OPTIONS: BlessingOption[] = [
+  { amount: 3000, label: '3,000원' },
+  { amount: 1000, label: '1,000원' },
+  { amount: 500, label: '500원' },
+  { amount: 100, label: '100원' },
+];
+
+const STORAGE_KEY = 'ai-luna-wishes';
 
 export default function WishesPage() {
-  const [wishes, setWishes] = useState<Wish[]>([
-    { id: 1, content: '올해 꼭 좋은 인연을 만나게 해주세요. 진심으로 사랑할 수 있는 사람을 만나고 싶습니다.', category: '연애', likes: 24, liked: false, date: '2026-06-20' },
-    { id: 2, content: '사업이 잘 되어서 가족들과 행복하게 살 수 있으면 좋겠습니다. 열심히 하겠습니다!', category: '재물', likes: 18, liked: false, date: '2026-06-21' },
-    { id: 3, content: '건강하게 오래오래 살고 싶습니다. 가족 모두 건강하길 바랍니다.', category: '건강', likes: 31, liked: false, date: '2026-06-22' },
-  ]);
+  const [, navigate] = useLocation();
+  const [wishes, setWishes] = useState<Wish[]>([]);
   const [newWish, setNewWish] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('기타');
+  const [selectedWishForBlessing, setSelectedWishForBlessing] = useState<number | null>(null);
+  const [showBlessingModal, setShowBlessingModal] = useState(false);
+
+  // 초기 로드 및 한 달 지난 소원 자동 삭제
+  useEffect(() => {
+    loadWishes();
+  }, []);
+
+  const loadWishes = () => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      let loadedWishes: Wish[] = stored ? JSON.parse(stored) : [];
+      
+      // 한 달 지난 소원 자동 삭제
+      const now = new Date();
+      loadedWishes = loadedWishes.filter(wish => {
+        const expiryDate = new Date(wish.expiresAt);
+        return expiryDate > now;
+      });
+
+      setWishes(loadedWishes);
+      saveWishes(loadedWishes);
+    } catch (e) {
+      console.error('소원 로드 실패:', e);
+      setWishes([]);
+    }
+  };
+
+  const saveWishes = (wishesToSave: Wish[]) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(wishesToSave));
+  };
 
   const handleAddWish = () => {
     if (!newWish.trim()) return;
+
+    // 한 달 후 만료 날짜 계산
+    const expiryDate = new Date();
+    expiryDate.setMonth(expiryDate.getMonth() + 1);
+
     const wish: Wish = {
       id: Date.now(),
       content: newWish,
@@ -33,21 +83,48 @@ export default function WishesPage() {
       likes: 0,
       liked: false,
       date: new Date().toISOString().split('T')[0],
+      blessings: 0,
+      expiresAt: expiryDate.toISOString(),
     };
-    setWishes((prev) => [wish, ...prev]);
+
+    const updatedWishes = [wish, ...wishes];
+    setWishes(updatedWishes);
+    saveWishes(updatedWishes);
     setNewWish('');
   };
 
   const handleLike = (id: number) => {
-    setWishes((prev) =>
-      prev.map((w) =>
-        w.id === id ? { ...w, liked: !w.liked, likes: w.liked ? w.likes - 1 : w.likes + 1 } : w
-      )
+    const updatedWishes = wishes.map((w) =>
+      w.id === id ? { ...w, liked: !w.liked, likes: w.liked ? w.likes - 1 : w.likes + 1 } : w
     );
+    setWishes(updatedWishes);
+    saveWishes(updatedWishes);
+  };
+
+  const handleAddBlessing = (wishId: number, amount: number) => {
+    const updatedWishes = wishes.map((w) =>
+      w.id === wishId ? { ...w, blessings: w.blessings + amount } : w
+    );
+    setWishes(updatedWishes);
+    saveWishes(updatedWishes);
+    setShowBlessingModal(false);
+    setSelectedWishForBlessing(null);
+  };
+
+  const handleDeleteWish = (id: number) => {
+    if (confirm('이 소원을 삭제하시겠습니까?')) {
+      const updatedWishes = wishes.filter((w) => w.id !== id);
+      setWishes(updatedWishes);
+      saveWishes(updatedWishes);
+    }
   };
 
   const categoryEmoji: Record<string, string> = {
-    연애: '💕', 재물: '💰', 건강: '🏥', 학업: '📚', 기타: '✨',
+    연애: '💕',
+    재물: '💰',
+    건강: '🏥',
+    학업: '📚',
+    기타: '✨',
   };
 
   const cardStyle = {
@@ -56,23 +133,31 @@ export default function WishesPage() {
     borderRadius: '1rem',
   };
 
+  // 복비 높은 순으로 정렬
+  const sortedWishes = [...wishes].sort((a, b) => b.blessings - a.blessings);
+
   return (
     <div className="min-h-screen" style={{ background: 'oklch(0.12 0.03 270)' }}>
       {/* Header */}
       <div
-        className="px-5 py-4 border-b"
+        className="px-5 py-4 border-b sticky top-0 z-40 backdrop-blur-md"
         style={{
-          background: 'linear-gradient(160deg, oklch(0.18 0.08 290) 0%, oklch(0.14 0.04 270) 100%)',
+          background: 'linear-gradient(160deg, oklch(0.18 0.08 290 / 90%) 0%, oklch(0.14 0.04 270 / 90%) 100%)',
           borderColor: 'oklch(1 0 0 / 10%)',
         }}
       >
         <div className="flex items-center gap-3">
-          <span className="text-2xl">💫</span>
+          <button
+            onClick={() => navigate('/')}
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+          >
+            <ArrowLeft size={20} style={{ color: 'oklch(0.78 0.15 85)' }} />
+          </button>
           <div>
             <h1 className="text-xl font-bold" style={{ color: 'oklch(0.94 0.015 90)', fontFamily: "'Noto Serif KR', serif" }}>
               소원 게시판
             </h1>
-            <p className="text-xs" style={{ color: 'oklch(0.78 0.15 85)' }}>소원을 빌고 서로 응원해요</p>
+            <p className="text-xs" style={{ color: 'oklch(0.78 0.15 85)' }}>소원을 빌고 복비로 응원해요</p>
           </div>
         </div>
       </div>
@@ -128,37 +213,148 @@ export default function WishesPage() {
           </button>
         </div>
 
+        {/* Info */}
+        <div className="p-4 rounded-xl text-xs" style={{
+          background: 'oklch(0.15 0.05 270)',
+          border: '1px solid oklch(0.78 0.15 85 / 20%)',
+          color: 'oklch(0.70 0.02 290)',
+        }}>
+          <p className="mb-1">💫 <strong>소원 게시판 안내</strong></p>
+          <p>• 소원은 한 달간 게시됩니다 (자동 리셋)</p>
+          <p>• 복비로 다른 사람의 소원을 응원할 수 있습니다</p>
+          <p>• 복비가 높은 소원이 상단에 표시됩니다</p>
+        </div>
+
         {/* List */}
         <div className="space-y-3">
-          {wishes.map((wish) => (
-            <div key={wish.id} className="p-4" style={cardStyle}>
-              <div className="flex items-start justify-between gap-3 mb-2">
-                <span
-                  className="text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0"
-                  style={{ background: 'oklch(0.55 0.25 290 / 20%)', color: 'oklch(0.78 0.15 85)' }}
-                >
-                  {categoryEmoji[wish.category]} {wish.category}
-                </span>
-                <span className="text-[11px]" style={{ color: 'oklch(0.50 0.02 290)' }}>{wish.date}</span>
-              </div>
-              <p className="text-sm leading-relaxed mb-3" style={{ color: 'oklch(0.85 0.015 90)' }}>
-                {wish.content}
+          {sortedWishes.length === 0 ? (
+            <div className="p-8 text-center" style={cardStyle}>
+              <p className="text-lg mb-2">🙏</p>
+              <p style={{ color: 'oklch(0.70 0.02 290)' }}>
+                아직 소원이 없습니다
               </p>
-              <button
-                onClick={() => handleLike(wish.id)}
-                className="flex items-center gap-1.5 text-xs font-semibold transition-all"
-                style={{ color: wish.liked ? 'oklch(0.65 0.22 15)' : 'oklch(0.55 0.02 290)' }}
-              >
-                <Heart
-                  size={14}
-                  style={{ fill: wish.liked ? 'oklch(0.65 0.22 15)' : 'none' }}
-                />
-                {wish.likes}
-              </button>
             </div>
-          ))}
+          ) : (
+            sortedWishes.map((wish) => (
+              <div key={wish.id} className="p-4 rounded-xl transition-all" style={{
+                ...cardStyle,
+                background: wish.blessings > 0 
+                  ? 'linear-gradient(135deg, oklch(0.20 0.08 290 / 50%), oklch(0.17 0.06 270 / 50%))'
+                  : cardStyle.background,
+              }}>
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0"
+                      style={{ background: 'oklch(0.55 0.25 290 / 20%)', color: 'oklch(0.78 0.15 85)' }}
+                    >
+                      {categoryEmoji[wish.category]} {wish.category}
+                    </span>
+                    {wish.blessings > 0 && (
+                      <span
+                        className="text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0"
+                        style={{ background: 'oklch(0.70 0.20 60 / 20%)', color: 'oklch(0.70 0.18 60)' }}
+                      >
+                        💝 {wish.blessings.toLocaleString()}원
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[11px]" style={{ color: 'oklch(0.50 0.02 290)' }}>{wish.date}</span>
+                </div>
+
+                <p className="text-sm leading-relaxed mb-3" style={{ color: 'oklch(0.85 0.015 90)' }}>
+                  {wish.content}
+                </p>
+
+                {/* Actions */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => handleLike(wish.id)}
+                      className="flex items-center gap-1.5 text-xs font-semibold transition-all"
+                      style={{ color: wish.liked ? 'oklch(0.65 0.22 15)' : 'oklch(0.55 0.02 290)' }}
+                    >
+                      <Heart
+                        size={14}
+                        style={{ fill: wish.liked ? 'oklch(0.65 0.22 15)' : 'none' }}
+                      />
+                      {wish.likes}
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        setSelectedWishForBlessing(wish.id);
+                        setShowBlessingModal(true);
+                      }}
+                      className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                      style={{
+                        background: 'oklch(0.70 0.18 60 / 20%)',
+                        color: 'oklch(0.70 0.18 60)',
+                        border: '1px solid oklch(0.70 0.18 60 / 30%)',
+                      }}
+                    >
+                      💝 복비
+                    </button>
+                    <button
+                      onClick={() => handleDeleteWish(wish.id)}
+                      className="p-1.5 hover:bg-red-500/20 rounded-lg transition-colors"
+                      style={{ color: 'oklch(0.60 0.20 0)' }}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
+
+      {/* Blessing Modal */}
+      {showBlessingModal && selectedWishForBlessing && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end z-50">
+          <div className="w-full rounded-t-3xl p-6 space-y-4" style={{ background: 'oklch(0.15 0.04 270)' }}>
+            <div className="text-center mb-4">
+              <p className="text-sm" style={{ color: 'oklch(0.70 0.02 290)' }}>복비를 선택하세요</p>
+              <p className="text-xs mt-1" style={{ color: 'oklch(0.60 0.02 290)' }}>높은 금액순으로 상단에 표시됩니다</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {BLESSING_OPTIONS.map((option) => (
+                <button
+                  key={option.amount}
+                  onClick={() => handleAddBlessing(selectedWishForBlessing, option.amount)}
+                  className="py-4 rounded-xl font-bold transition-all active:scale-[0.95]"
+                  style={{
+                    background: 'linear-gradient(135deg, oklch(0.50 0.28 290), oklch(0.45 0.25 310))',
+                    color: 'oklch(1 0 0)',
+                    boxShadow: '0 4px 15px oklch(0.55 0.25 290 / 30%)',
+                  }}
+                >
+                  💝 {option.label}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => {
+                setShowBlessingModal(false);
+                setSelectedWishForBlessing(null);
+              }}
+              className="w-full py-3 rounded-xl font-semibold transition-all"
+              style={{
+                background: 'oklch(0.20 0.05 270)',
+                color: 'oklch(0.70 0.02 290)',
+                border: '1px solid oklch(1 0 0 / 15%)',
+              }}
+            >
+              취소
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

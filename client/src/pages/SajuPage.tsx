@@ -9,6 +9,7 @@ import { useLocation } from 'wouter';
 import { calculateFourPillars, solarToLunar, lunarToSolar } from 'manseryeok';
 import html2canvas from 'html2canvas';
 import MysticalLoader from '@/components/MysticalLoader';
+import MysticalLoadingAnimation from '@/components/MysticalLoadingAnimation';
 import { shareToKakao, shareToInstagram, generateSajuShareData } from '@/lib/shareResult';
 import { getFortuneDetails } from '@/lib/fortuneDetails';
 import { deductCharge, getCharges, isChargesEmpty } from '@/lib/chargeSystem';
@@ -66,10 +67,11 @@ export default function SajuPage() {
   const [gender, setGender] = useState('');
   const [result, setResult] = useState<SajuResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingStage, setLoadingStage] = useState<'analyzing' | 'divining' | 'interpreting' | 'completing'>('analyzing');
   const resultRef = useRef<HTMLDivElement>(null);
 
   if (isLoading) {
-    return <MysticalLoader type="saju" />;
+    return <MysticalLoadingAnimation isLoading={isLoading} stage={loadingStage} />;
   }
 
   const years = Array.from({ length: 100 }, (_, i) => String(2026 - i));
@@ -157,6 +159,7 @@ export default function SajuPage() {
     }
 
     setIsLoading(true);
+    setLoadingStage('analyzing');
 
     try {
       let solarYear = parseInt(birthYear);
@@ -203,8 +206,10 @@ export default function SajuPage() {
         minute: unknownTime ? 0 : parseInt(birthMinute),
       });
 
+      setLoadingStage('divining');
       const dayElement = fourPillars.dayElement.stem;
       const fortuneDetails = getFortuneDetails(dayElement);
+      setLoadingStage('interpreting');
       
       const personalities: Record<string, string> = {
         '갑': '갑목(甲木)은 숲의 큰 나무로, 창의적이고 진취적인 성향을 가지고 있습니다. 새로운 것을 좋아하고 리더십이 강하며, 성장과 발전을 추구합니다. 고집이 있을 수 있으니 유연성을 기르세요.',
@@ -257,19 +262,25 @@ export default function SajuPage() {
       };
       localStorage.setItem('userSajuProfile', JSON.stringify(sajuProfile));
 
-      setResult({
-        fourPillars,
-        personality: personalities[dayElement] || personalities['갑'],
-        luck: lucks[dayElement] || lucks['갑'],
-        solarDate: solarDateStr,
-        lunarDate: lunarDateStr,
-        fortuneDetails,
-      });
+      setLoadingStage('completing');
+      
+      setTimeout(() => {
+        setResult({
+          fourPillars,
+          personality: personalities[dayElement] || personalities['갑'],
+          luck: lucks[dayElement] || lucks['갑'],
+          solarDate: solarDateStr,
+          lunarDate: lunarDateStr,
+          fortuneDetails,
+        });
+        setIsLoading(false);
+        setLoadingStage('analyzing');
+      }, 800);
     } catch (error) {
       console.error('사주 계산 오류:', error);
       alert('사주 계산 중 오류가 발생했습니다.');
-    } finally {
       setIsLoading(false);
+      setLoadingStage('analyzing');
     }
   };
 
