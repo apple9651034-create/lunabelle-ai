@@ -4,6 +4,7 @@
 import React, { useState } from 'react';
 import { ShoppingCart, Plus, Minus, ArrowLeft, Heart, Download, X } from 'lucide-react';
 import { useLocation } from 'wouter';
+import { TalismanDescription } from '@/components/TalismanDescriptions';
 
 interface Talisman {
   id: number;
