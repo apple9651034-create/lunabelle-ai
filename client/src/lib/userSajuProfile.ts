@@ -34,11 +34,11 @@ export const DEFAULT_USER_SAJU: UserSajuProfile = {
   gender: 'M',
   fourPillars: {
     yearString: '정사',
-    monthString: '경신',
-    dayString: '임오',
+    monthString: '정미',
+    dayString: '정축',
     hourString: '갑진',
   },
-  personality: '임수일생 - 지혜롭고 유연한 성격',
+  personality: '정화일생 - 예민하고 열정적인 성격',
   luck: '2026년 병오년(丙午年) - 변화와 도약의 해',
 };
 
