@@ -72,7 +72,7 @@ export default function SajuPage() {
   const years = Array.from({ length: 100 }, (_, i) => String(2026 - i));
   const months = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
   const days = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0'));
-  const hours = ["자시(24-02)", "인시(02-04)", "묘시(04-06)", "진시(06-08)", "사시(08-10)", "오시(10-12)", "미시(12-14)", "신시(14-16)", "유시(16-18)", "술시(18-20)", "해시(20-22)", "자시(22-24)"];
+  const hours = ["자시(24-02)", "축시(02-04)", "인시(04-06)", "묘시(06-08)", "진시(08-10)", "사시(10-12)", "오시(12-14)", "미시(14-16)", "신시(16-18)", "유시(18-20)", "술시(20-22)", "해시(22-24)"];
   const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
 
   const handleShareKakao = () => {

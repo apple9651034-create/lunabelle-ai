@@ -37,22 +37,36 @@ async function startServer() {
   registerStorageProxy(app);
   registerOAuthRoutes(app);
 
-  // AI 채팅 API
+  // AI 채팅 API - 견고한 구현
   app.post('/api/chat', async (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    
     try {
       const { messages } = req.body;
+      
+      // 입력 검증
       if (!messages || !Array.isArray(messages)) {
+        console.error('[Chat API] Invalid messages format:', messages);
         return res.status(400).json({ error: 'Invalid messages format' });
       }
 
-      const forgeUrl = process.env.BUILT_IN_FORGE_API_URL;
+      if (messages.length === 0) {
+        return res.status(400).json({ error: 'Messages array cannot be empty' });
+      }
+
+      // 환경 변수 확인
+      const forgeUrl = process.env.BUILT_IN_FORGE_API_URL?.replace(/\/+$/, '');
       const forgeKey = process.env.BUILT_IN_FORGE_API_KEY;
 
       if (!forgeUrl || !forgeKey) {
+        console.error('[Chat API] LLM not configured. URL:', forgeUrl ? 'exists' : 'missing', 'Key:', forgeKey ? 'exists' : 'missing');
         return res.status(500).json({ error: 'LLM API not configured' });
       }
 
-      const response = await fetch(`${forgeUrl}/v1/chat/completions`, {
+      console.log('[Chat API] Calling LLM with', messages.length, 'messages');
+
+      // LLM API 호출
+      const llmResponse = await fetch(`${forgeUrl}/v1/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -66,17 +80,25 @@ async function startServer() {
         }),
       });
 
-      if (!response.ok) {
-        const error = await response.text();
-        console.error('LLM API error:', error);
-        return res.status(502).json({ error: 'LLM API error' });
+      if (!llmResponse.ok) {
+        const errorText = await llmResponse.text();
+        console.error('[Chat API] LLM error:', llmResponse.status, errorText);
+        return res.status(502).json({ error: 'LLM API error', details: errorText });
       }
 
-      const data = await response.json();
+      const data = await llmResponse.json();
+      console.log('[Chat API] LLM response received');
+      
+      // 응답 형식 검증
+      if (!data.choices || !Array.isArray(data.choices) || data.choices.length === 0) {
+        console.error('[Chat API] Invalid response format:', data);
+        return res.status(502).json({ error: 'Invalid LLM response format' });
+      }
+
       return res.json(data);
     } catch (error) {
-      console.error('Chat API error:', error);
-      return res.status(500).json({ error: 'Internal server error' });
+      console.error('[Chat API] Error:', error instanceof Error ? error.message : error);
+      return res.status(500).json({ error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' });
     }
   });
 
