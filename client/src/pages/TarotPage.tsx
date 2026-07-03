@@ -166,12 +166,22 @@ export default function TarotPage() {
                 {reading.cards.map((card, idx) => (
                   <div
                     key={idx}
-                    className="p-3 rounded-lg text-center"
+                    className="p-3 rounded-lg text-center transition-all hover:scale-105"
                     style={{
                       background: 'oklch(0.20 0.05 270)',
                       border: `2px solid ${getTarotCardColor(card)}`,
                     }}
                   >
+                    {/* 카드 이미지 */}
+                    {card.image && (
+                      <div className="mb-2 rounded-lg overflow-hidden border border-white/10">
+                        <img
+                          src={card.image}
+                          alt={card.name}
+                          className="w-full h-32 object-cover"
+                        />
+                      </div>
+                    )}
                     <p className="text-xs font-semibold mb-1" style={{ color: getTarotCardColor(card) }}>
                       {reading.spreadName.includes('켈틱') ? ['현재', '도전', '목표', '근처', '태도', '외부', '희망', '의견', '결과', '조언'][idx] : ['과거', '현재', '미래', '신체', '정신', '영혼', '현재', '도전', '조언', '결과'][idx]}
                     </p>

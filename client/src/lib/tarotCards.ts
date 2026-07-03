@@ -11,6 +11,7 @@ export interface TarotCard {
   meaning: string;
   reversed: string;
   keywords: string[];
+  image?: string;
 }
 
 export interface TarotSpread {
