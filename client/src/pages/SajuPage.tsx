@@ -239,6 +239,24 @@ export default function SajuPage() {
         return;
       }
 
+      // localStorage에 사주 정보 저장 (메인 페이지에서 표시)
+      const sajuProfile = {
+        year: birthYear,
+        month: birthMonth,
+        day: birthDay,
+        hour: hours[parseInt(birthHour)],
+        gender,
+        fourPillars: {
+          yearString: fourPillars.yearString,
+          monthString: fourPillars.monthString,
+          dayString: fourPillars.dayString,
+          hourString: fourPillars.hourString,
+        },
+        personality: personalities[dayElement] || personalities['갑'],
+        luck: lucks[dayElement] || lucks['갑'],
+      };
+      localStorage.setItem('userSajuProfile', JSON.stringify(sajuProfile));
+
       setResult({
         fourPillars,
         personality: personalities[dayElement] || personalities['갑'],

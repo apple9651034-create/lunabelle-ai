@@ -1,10 +1,10 @@
 /* AI 루나 — HomePage.tsx
- * Design: Holographic Mystique - 신비로운 홀로그래픽 스타일
- * 사용자를 매료시키는 인터랙티브 요소와 시각적 깊이
+ * Design: Mystic Dark Luxury — dark theme default
+ * 메인 페이지: 오늘의 운세, 사주 명식, 서비스 카드
  */
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { MessageCircle, Wand2, Calendar, ShoppingBag, Heart, Sparkles, Star, ChevronRight, Moon, Edit2 } from 'lucide-react';
+import { Edit2 } from 'lucide-react';
 import DailyFortuneWidget from '@/components/DailyFortuneWidget';
 
 interface SajuProfile {
@@ -13,356 +13,261 @@ interface SajuProfile {
   day: string;
   hour: string;
   gender: string;
-  name?: string;
+  fourPillars?: {
+    yearString: string;
+    monthString: string;
+    dayString: string;
+    hourString: string;
+  };
+  personality?: string;
+  luck?: string;
 }
+
+const PILLAR_MEANINGS: Record<string, Record<string, string>> = {
+  yearString: {
+    '갑': '갑목(甲木) - 큰 나무, 리더십과 진취성',
+    '을': '을목(乙木) - 작은 나무, 섬세함과 예술성',
+    '병': '병화(丙火) - 태양의 불, 열정과 활발함',
+    '정': '정화(丁火) - 촛불의 불, 따뜻함과 섬세함',
+    '무': '무토(戊土) - 산의 흙, 안정성과 신뢰',
+    '기': '기토(己土) - 밭의 흙, 배려심과 세심함',
+    '경': '경금(庚金) - 광산의 금속, 결단력과 정의감',
+    '신': '신금(辛金) - 보석의 금속, 정교함과 우아함',
+    '임': '임수(壬水) - 강의 물, 지혜와 유연성',
+    '계': '계수(癸水) - 이슬의 물, 감정과 직관',
+  },
+  monthString: {
+    '갑': '갑목 - 봄의 시작, 새로운 기운',
+    '을': '을목 - 봄의 성장, 발전의 기운',
+    '병': '병화 - 여름의 활력, 번성의 기운',
+    '정': '정화 - 여름의 온화, 조화의 기운',
+    '무': '무토 - 계절의 전환, 변화의 기운',
+    '기': '기토 - 계절의 전환, 안정의 기운',
+    '경': '경금 - 가을의 수확, 결실의 기운',
+    '신': '신금 - 가을의 정교, 정제의 기운',
+    '임': '임수 - 겨울의 흐름, 저장의 기운',
+    '계': '계수 - 겨울의 고요, 휴식의 기운',
+  },
+  dayString: {
+    '갑': '갑일생 - 주도적이고 창의적인 성격',
+    '을': '을일생 - 섬세하고 감정이 풍부한 성격',
+    '병': '병일생 - 활발하고 표현력 좋은 성격',
+    '정': '정일생 - 따뜻하고 직관적인 성격',
+    '무': '무일생 - 안정적이고 신뢰할 수 있는 성격',
+    '기': '기일생 - 배려심 많고 세심한 성격',
+    '경': '경일생 - 결단력 있고 원칙적인 성격',
+    '신': '신일생 - 정교하고 우아한 성격',
+    '임': '임일생 - 지혜롭고 유연한 성격',
+    '계': '계일생 - 감정 풍부하고 직관적인 성격',
+  },
+  hourString: {
+    '갑': '갑시생 - 아침의 새로운 기운',
+    '을': '을시생 - 이른 아침의 부드러운 기운',
+    '병': '병시생 - 오전의 활발한 기운',
+    '정': '정시생 - 오전의 따뜻한 기운',
+    '무': '무시생 - 정오의 안정적인 기운',
+    '기': '기시생 - 정오의 배려로운 기운',
+    '경': '경시생 - 오후의 결단적인 기운',
+    '신': '신시생 - 오후의 정교한 기운',
+    '임': '임시생 - 저녁의 지혜로운 기운',
+    '계': '계시생 - 밤의 신비로운 기운',
+  },
+};
 
 export default function HomePage() {
   const [, navigate] = useLocation();
-  const [hoveredService, setHoveredService] = useState<string | null>(null);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [sajuProfile, setSajuProfile] = useState<SajuProfile | null>(null);
+  const [selectedPillar, setSelectedPillar] = useState<{ type: keyof typeof PILLAR_MEANINGS; char: string } | null>(null);
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
-  // 저장된 사주 정보 로드
-  useEffect(() => {
-    const savedSaju = localStorage.getItem('userSajuProfile');
-    if (savedSaju) {
+    const stored = localStorage.getItem('userSajuProfile');
+    if (stored) {
       try {
-        setSajuProfile(JSON.parse(savedSaju));
-      } catch (e) {
-        console.error('사주 정보 로드 실패:', e);
+        setSajuProfile(JSON.parse(stored));
+      } catch (error) {
+        console.error('사주 정보 로드 오류:', error);
       }
     }
   }, []);
 
-  const services = [
-    {
-      path: '/chat',
-      icon: MessageCircle,
-      title: 'AI 루나 채팅',
-      emoji: '🌙',
-      description: '실시간으로 AI 루나와 대화하며 당신의 운명을 알아보세요',
-      gradient: 'from-purple-600 to-violet-700',
-      glow: 'oklch(0.55 0.25 290 / 25%)',
-      accent: 'oklch(0.55 0.25 290)',
-    },
-    {
-      path: '/yuk',
-      icon: Wand2,
-      title: '육효 점술',
-      emoji: '☯️',
-      description: '변화의 흐름을 육효로 분석하고 깊은 조언을 얻어보세요',
-      gradient: 'from-blue-600 to-indigo-700',
-      glow: 'oklch(0.50 0.22 250 / 25%)',
-      accent: 'oklch(0.50 0.22 250)',
-    },
-    {
-      path: '/saju',
-      icon: Calendar,
-      title: '사주 분석',
-      emoji: '🔮',
-      description: '생년월일로 당신의 운명과 타고난 성격을 분석해보세요',
-      gradient: 'from-indigo-600 to-purple-700',
-      glow: 'oklch(0.48 0.22 270 / 25%)',
-      accent: 'oklch(0.48 0.22 270)',
-    },
-    {
-      path: '/charge',
-      icon: ShoppingBag,
-      title: '크레딧 충전',
-      emoji: '💳',
-      description: '크레딧을 충전하여 더 많은 상담을 받아보세요',
-      gradient: 'from-amber-600 to-orange-600',
-      glow: 'oklch(0.70 0.18 60 / 25%)',
-      accent: 'oklch(0.70 0.18 60)',
-    },
-    {
-      path: '/shop',
-      icon: ShoppingBag,
-      title: '부적 상점',
-      emoji: '🏮',
-      description: '영적 보호와 행운을 위한 전통 한국 부적을 만나보세요',
-      gradient: 'from-amber-600 to-orange-600',
-      glow: 'oklch(0.70 0.18 60 / 25%)',
-      accent: 'oklch(0.70 0.18 60)',
-    },
-    {
-      path: '/wishes',
-      icon: Heart,
-      title: '소원 게시판',
-      emoji: '💫',
-      description: '다른 사용자들과 소원을 공유하고 서로 응원해보세요',
-      gradient: 'from-pink-600 to-rose-600',
-      glow: 'oklch(0.60 0.22 0 / 25%)',
-      accent: 'oklch(0.60 0.22 0)',
-    },
-    {
-      path: '/calendar',
-      icon: Calendar,
-      title: '월간 운세',
-      emoji: '📅',
-      description: '월별 길일과 흉일을 한눈에 보고 최적의 날짜를 선택하세요',
-      gradient: 'from-teal-600 to-cyan-600',
-      glow: 'oklch(0.55 0.20 180 / 25%)',
-      accent: 'oklch(0.55 0.20 180)',
-    },
-  ];
-
-  const features = [
-    { icon: '✨', title: '정확한 해석', desc: '전통 지식과 현대적 관점의 결합' },
-    { icon: '🎯', title: '맞춤형 상담', desc: '당신의 상황에 맞는 개인화된 조언' },
-    { icon: '📊', title: '상담 기록', desc: '모든 상담 내역을 저장하고 분석' },
-    { icon: '🌟', title: '커뮤니티', desc: '다른 사용자들과 경험 공유' },
-  ];
+  const pillarLabels = { yearString: '년주', monthString: '월주', dayString: '일주', hourString: '시주' };
 
   return (
-    <div className="min-h-screen overflow-hidden" style={{ background: 'oklch(0.10 0.02 270)' }}>
-      {/* Animated background grid */}
-      <div className="fixed inset-0 pointer-events-none opacity-20">
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'radial-gradient(circle at 20% 50%, oklch(0.50 0.25 290 / 10%) 0%, transparent 50%), radial-gradient(circle at 80% 80%, oklch(0.45 0.20 310 / 10%) 0%, transparent 50%)',
-          animation: 'pulse 8s ease-in-out infinite',
-        }} />
+    <div className="min-h-screen" style={{ background: 'oklch(0.12 0.03 270)' }}>
+      {/* 별 애니메이션 배경 */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        {[...Array(30)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 rounded-full"
+            style={{
+              background: `oklch(0.78 0.15 85 / ${Math.random() * 0.5 + 0.3})`,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animation: `float ${3 + Math.random() * 4}s ease-in-out infinite`,
+              animationDelay: `${Math.random() * 2}s`,
+            }}
+          />
+        ))}
       </div>
 
-      <div className="relative z-10">
-        {/* Hero Section */}
-        <div className="relative px-6 pt-12 pb-16">
-          {/* Floating stars */}
-          <div className="absolute inset-0 pointer-events-none select-none">
-            {[...Array(8)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute animate-pulse"
-                style={{
-                  width: Math.random() * 4 + 2 + 'px',
-                  height: Math.random() * 4 + 2 + 'px',
-                  background: 'oklch(0.78 0.15 85)',
-                  borderRadius: '50%',
-                  left: Math.random() * 100 + '%',
-                  top: Math.random() * 30 + '%',
-                  opacity: Math.random() * 0.5 + 0.3,
-                  animationDuration: (Math.random() * 3 + 2) + 's',
-                }}
-              />
-            ))}
-          </div>
-
-          {/* Header */}
-          <div className="relative flex items-center justify-between mb-12">
+      {/* 헤더 */}
+      <div className="px-5 py-6 border-b relative z-10" style={{ background: 'linear-gradient(160deg, oklch(0.18 0.08 290) 0%, oklch(0.14 0.04 270) 100%)', borderColor: 'oklch(1 0 0 / 10%)' }}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">🌙</span>
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <Moon size={32} style={{ color: 'oklch(0.78 0.15 85)' }} />
-                <h1 className="text-4xl font-bold" style={{ color: 'oklch(0.97 0.005 90)', fontFamily: "'Noto Serif KR', serif" }}>
-                  AI 루나
-                </h1>
-              </div>
-              <p className="text-sm" style={{ color: 'oklch(0.70 0.02 290)' }}>당신의 운명을 예측하는 신비로운 경험</p>
-            </div>
-            <div className="px-4 py-2 rounded-full" style={{ background: 'oklch(0.50 0.28 290)', color: 'oklch(1 0 0)' }}>
-              <div className="flex items-center gap-2">
-                <span className="text-lg">⭐</span>
-                <div>
-                  <div className="text-xs font-semibold">남은 충전별</div>
-                  <div className="text-sm font-bold">5개</div>
-                </div>
-              </div>
+              <h1 className="text-2xl font-bold" style={{ color: 'oklch(0.94 0.015 90)', fontFamily: "'Noto Serif KR', serif" }}>AI 루나</h1>
+              <p className="text-xs" style={{ color: 'oklch(0.78 0.15 85)' }}>당신의 운명을 예측하는 신비로운 경험</p>
             </div>
           </div>
-
-          {/* User Saju Profile */}
-          {sajuProfile && (
-            <div className="mb-12 p-6 rounded-2xl border" style={{
-              background: 'oklch(0.18 0.08 290)',
-              borderColor: 'oklch(0.78 0.15 85 / 30%)',
-              boxShadow: '0 0 30px oklch(0.55 0.25 290 / 15%)',
-            }}>
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <h2 className="text-sm font-semibold mb-3 tracking-widest uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>
-                    📿 나의 사주
-                  </h2>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <p style={{ color: 'oklch(0.60 0.02 290)' }}>생년월일</p>
-                      <p className="font-bold" style={{ color: 'oklch(0.94 0.015 90)' }}>
-                        {sajuProfile.year}년 {sajuProfile.month}월 {sajuProfile.day}일
-                      </p>
-                    </div>
-                    <div>
-                      <p style={{ color: 'oklch(0.60 0.02 290)' }}>태어난 시간</p>
-                      <p className="font-bold" style={{ color: 'oklch(0.94 0.015 90)' }}>
-                        {sajuProfile.hour}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => navigate('/saju')}
-                  className="p-2 rounded-lg transition-all hover:opacity-80"
-                  style={{
-                    background: 'oklch(0.50 0.28 290)',
-                    color: 'oklch(1 0 0)',
-                  }}
-                >
-                  <Edit2 size={18} />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Welcome message */}
-          <div className="mb-12 p-6 rounded-2xl border" style={{
-            background: 'oklch(0.15 0.05 270)',
-            borderColor: 'oklch(0.78 0.15 85 / 20%)',
-            boxShadow: '0 0 30px oklch(0.55 0.25 290 / 10%)',
-          }}>
-            <div className="flex gap-4">
-              <Sparkles size={24} style={{ color: 'oklch(0.78 0.15 85)', flexShrink: 0 }} />
-              <div>
-                <h2 className="text-lg font-bold mb-2" style={{ color: 'oklch(0.94 0.015 90)', fontFamily: "'Noto Serif KR', serif" }}>
-                  환영합니다
-                </h2>
-                <p className="text-sm leading-relaxed" style={{ color: 'oklch(0.70 0.02 290)' }}>
-                  AI 루나는 타로, 사주, 육효를 통해 당신의 운명을 예측해주는 신비로운 앱입니다.
-                  아래 서비스를 통해 당신의 미래를 알아보고, 최적의 선택을 하세요.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Daily Fortune Widget */}
-        <div className="px-6 mb-12">
-          <DailyFortuneWidget />
-        </div>
-
-        {/* Services Grid */}
-        <div className="px-6 mb-12">
-          <h3 className="text-sm font-semibold mb-6 tracking-widest uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>
-            ✨ 서비스
-          </h3>
-          <div className="grid grid-cols-1 gap-4">
-            {services.map((service) => {
-              const Icon = service.icon;
-              const isHovered = hoveredService === service.path;
-              return (
-                <button
-                  key={service.path}
-                  onClick={() => navigate(service.path)}
-                  onMouseEnter={() => setHoveredService(service.path)}
-                  onMouseLeave={() => setHoveredService(null)}
-                  className="relative rounded-2xl p-5 text-left transition-all duration-300 border group overflow-hidden"
-                  style={{
-                    background: isHovered ? 'oklch(0.20 0.06 270)' : 'oklch(0.15 0.04 270)',
-                    borderColor: isHovered ? service.accent + ' / 40%' : 'oklch(1 0 0 / 8%)',
-                    boxShadow: isHovered ? `0 0 30px ${service.glow}` : 'none',
-                    transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
-                  }}
-                >
-                  {/* Holographic effect */}
-                  {isHovered && (
-                    <div className="absolute inset-0 opacity-20" style={{
-                      background: `linear-gradient(45deg, ${service.accent}, transparent)`,
-                    }} />
-                  )}
-
-                  <div className="relative flex items-start gap-4">
-                    <div
-                      className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300"
-                      style={{
-                        background: `linear-gradient(135deg, ${service.accent}, ${service.accent}dd)`,
-                        boxShadow: isHovered ? `0 0 20px ${service.glow}` : 'none',
-                      }}
-                    >
-                      <span className="text-2xl">{service.emoji}</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-sm mb-1" style={{ color: 'oklch(0.94 0.015 90)', fontFamily: "'Noto Serif KR', serif" }}>
-                        {service.title}
-                      </p>
-                      <p className="text-xs leading-relaxed" style={{ color: 'oklch(0.60 0.02 290)' }}>
-                        {service.description}
-                      </p>
-                    </div>
-                    <ChevronRight
-                      size={20}
-                      className="flex-shrink-0 transition-all duration-300"
-                      style={{
-                        color: service.accent,
-                        transform: isHovered ? 'translateX(4px)' : 'translateX(0)',
-                      }}
-                    />
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Features Section */}
-        <div className="px-6 mb-12">
-          <h3 className="text-sm font-semibold mb-6 tracking-widest uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>
-            🌟 AI 루나의 특징
-          </h3>
-          <div
-            className="rounded-2xl p-6 border"
-            style={{
-              background: 'oklch(0.15 0.05 270)',
-              borderColor: 'oklch(1 0 0 / 8%)',
-              boxShadow: '0 0 20px oklch(0.55 0.25 290 / 5%)',
-            }}
-          >
-            <div className="grid grid-cols-2 gap-4">
-              {features.map((f, i) => (
-                <div key={i} className="flex gap-3 items-start p-3 rounded-lg" style={{ background: 'oklch(0.12 0.03 270)' }}>
-                  <span className="text-2xl flex-shrink-0">{f.icon}</span>
-                  <div>
-                    <p className="text-xs font-semibold" style={{ color: 'oklch(0.94 0.015 90)' }}>{f.title}</p>
-                    <p className="text-[11px] leading-relaxed" style={{ color: 'oklch(0.60 0.02 290)' }}>{f.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* CTA Section */}
-        <div className="px-6 pb-12">
           <button
-            onClick={() => navigate('/chat')}
-            className="w-full py-5 rounded-2xl font-bold text-sm tracking-wide transition-all duration-300 active:scale-[0.97] flex items-center justify-center gap-3"
+            onClick={() => navigate('/charge')}
+            className="px-4 py-2 rounded-full font-semibold text-sm transition-all hover:scale-105"
             style={{
-              background: 'linear-gradient(135deg, oklch(0.55 0.28 290), oklch(0.50 0.25 310))',
-              color: 'oklch(0.97 0.005 90)',
-              boxShadow: '0 8px 30px oklch(0.55 0.25 290 / 40%)',
-              fontFamily: "'Noto Serif KR', serif",
+              background: 'linear-gradient(135deg, oklch(0.78 0.15 85), oklch(0.70 0.20 290))',
+              color: 'oklch(0.12 0.03 270)',
             }}
           >
-            <Moon size={20} />
-            루나에게 지금 물어보기
+            ⭐ 충전별 구매
           </button>
         </div>
       </div>
 
+      {/* 메인 콘텐츠 */}
+      <div className="p-5 space-y-6 relative z-10">
+        {/* 환영 메시지 */}
+        <div className="p-6 rounded-2xl border" style={{
+          background: 'oklch(0.17 0.04 270)',
+          border: '1px solid oklch(1 0 0 / 10%)',
+          boxShadow: '0 0 30px oklch(0.55 0.25 290 / 15%)',
+        }}>
+          <div className="flex items-start gap-3">
+            <span className="text-3xl">✨</span>
+            <div>
+              <h2 className="text-lg font-bold mb-2" style={{ color: 'oklch(0.94 0.015 90)' }}>환영합니다</h2>
+              <p style={{ color: 'oklch(0.70 0.02 290)' }} className="text-sm leading-relaxed">
+                AI 루나는 타로, 사주, 육효를 통해 당신의 운명을 예측하는 신비로운 경험입니다. 아래 서비스를 통해 당신의 미래를 알아보고, 직적 선택을 하세요.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* 오늘의 운세 */}
+        <DailyFortuneWidget />
+
+        {/* 사주 명식 */}
+        {sajuProfile && (
+          <div className="mb-12 p-6 rounded-2xl border" style={{
+            background: 'oklch(0.18 0.08 290)',
+            borderColor: 'oklch(0.78 0.15 85 / 30%)',
+            boxShadow: '0 0 30px oklch(0.55 0.25 290 / 15%)',
+          }}>
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <h2 className="text-sm font-semibold mb-3 tracking-widest uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>
+                  📿 나의 사주
+                </h2>
+                <div className="grid grid-cols-2 gap-3 text-sm mb-4">
+                  <div>
+                    <p style={{ color: 'oklch(0.60 0.02 290)' }}>생년월일</p>
+                    <p className="font-bold" style={{ color: 'oklch(0.94 0.015 90)' }}>
+                      {sajuProfile.year}년 {sajuProfile.month}월 {sajuProfile.day}일
+                    </p>
+                  </div>
+                  <div>
+                    <p style={{ color: 'oklch(0.60 0.02 290)' }}>태어난 시간</p>
+                    <p className="font-bold" style={{ color: 'oklch(0.94 0.015 90)' }}>
+                      {sajuProfile.hour}
+                    </p>
+                  </div>
+                </div>
+
+                {/* 사주 명식 글자 */}
+                {sajuProfile.fourPillars && (
+                  <div>
+                    <p style={{ color: 'oklch(0.60 0.02 290)' }} className="text-xs mb-2 font-semibold">사주 명식</p>
+                    <div className="flex gap-2 text-lg font-bold" style={{ fontFamily: "'Noto Serif KR', serif" }}>
+                      {sajuProfile.fourPillars && [
+                        { type: 'yearString' as const, char: sajuProfile.fourPillars.yearString },
+                        { type: 'monthString' as const, char: sajuProfile.fourPillars.monthString },
+                        { type: 'dayString' as const, char: sajuProfile.fourPillars.dayString },
+                        { type: 'hourString' as const, char: sajuProfile.fourPillars.hourString },
+                      ].map(({ type, char }) => (
+                        <div key={type} className="relative group">
+                          <button
+                            onClick={() => setSelectedPillar({ type, char })}
+                            className="px-3 py-2 rounded-lg transition-all hover:scale-110"
+                            style={{
+                              background: 'oklch(0.30 0.10 290)',
+                              color: 'oklch(0.94 0.015 90)',
+                              border: '1px solid oklch(0.78 0.15 85 / 30%)',
+                            }}
+                          >
+                            {char}
+                          </button>
+                          {/* 호버 툴팁 */}
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-black rounded-lg p-3 text-xs whitespace-nowrap text-white z-50 w-max" style={{ background: 'oklch(0.15 0.05 290)', border: '1px solid oklch(0.78 0.15 85 / 30%)' }}>
+                            <div className="font-bold mb-1">{pillarLabels[type]}: {char}</div>
+                            <div style={{ color: 'oklch(0.78 0.15 85)' }}>{PILLAR_MEANINGS[type][char] || '의미 정보 없음'}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <button
+                onClick={() => navigate('/saju')}
+                className="p-2 rounded-lg transition-all hover:opacity-80"
+                style={{
+                  background: 'oklch(0.50 0.28 290)',
+                  color: 'oklch(1 0 0)',
+                }}
+              >
+                <Edit2 size={18} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 서비스 카드 */}
+        <div>
+          <h3 className="text-sm font-semibold mb-3 tracking-widest uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>✨ 서비스</h3>
+          <div className="space-y-3">
+            {[
+              { icon: '🌙', title: 'AI 루나 채팅', desc: '실시간으로 AI 루나와 대화하며 당신의 운명을 알아보세요', path: '/chat' },
+              { icon: '🎴', title: '육효 점속', desc: '변화하는 운명의 흐름을 육효로 읽어보세요', path: '/yuk' },
+              { icon: '🔮', title: '사주 분석', desc: '생년월일시로 당신의 사주를 분석합니다', path: '/saju' },
+              { icon: '🃏', title: '타로 검속', desc: '타로 카드로 당신의 미래를 예측해보세요', path: '/tarot' },
+              { icon: '📅', title: '월간 운세', desc: '이달의 길일과 흉일을 확인하세요', path: '/calendar' },
+            ].map((service, idx) => (
+              <button
+                key={idx}
+                onClick={() => navigate(service.path)}
+                className="w-full p-4 rounded-xl text-left transition-all hover:scale-105 hover:shadow-lg"
+                style={{
+                  background: 'oklch(0.20 0.05 270)',
+                  border: '1px solid oklch(1 0 0 / 10%)',
+                }}
+              >
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">{service.icon}</span>
+                  <div>
+                    <h4 className="font-semibold" style={{ color: 'oklch(0.94 0.015 90)' }}>{service.title}</h4>
+                    <p className="text-xs mt-1" style={{ color: 'oklch(0.70 0.02 290)' }}>{service.desc}</p>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-        .luna-shimmer {
-          animation: shimmer 3s ease-in-out infinite;
-        }
-        @keyframes shimmer {
-          0%, 100% { opacity: 0.3; }
-          50% { opacity: 1; }
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); opacity: 0.3; }
+          50% { transform: translateY(-20px); opacity: 0.6; }
         }
       `}</style>
     </div>
