@@ -1,171 +1,80 @@
 /* AI 루나 — SajuPage
  * Design: Mystic Dark Luxury
- * 자시(子時) = 24:00~01:59 기준, 양/음 표시, 시간 모름 시 시주 제외
+ * manseryeok 라이브러리 기반 정확한 사주 계산
  */
 import React, { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 
-// 천간 (10개)
-const HEAVENLY_STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
-const STEM_YINYANG: Record<string, '양' | '음'> = {
-  '甲': '양', '乙': '음', '丙': '양', '丁': '음', '戊': '양',
-  '己': '음', '庚': '양', '辛': '음', '壬': '양', '癸': '음',
-};
-const STEM_ELEMENT: Record<string, string> = {
-  '甲': '목(木)', '乙': '목(木)', '丙': '화(火)', '丁': '화(火)', '戊': '토(土)',
-  '己': '토(土)', '庚': '금(金)', '辛': '금(金)', '壬': '수(水)', '癸': '수(水)',
-};
-
-// 지지 (12개)
-const EARTHLY_BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
-const BRANCH_YINYANG: Record<string, '양' | '음'> = {
-  '子': '양', '丑': '음', '寅': '양', '卯': '음', '辰': '양', '巳': '음',
-  '午': '양', '未': '음', '申': '양', '酉': '음', '戌': '양', '亥': '음',
-};
-const BRANCH_ELEMENT: Record<string, string> = {
-  '子': '수(水)', '丑': '토(土)', '寅': '목(木)', '卯': '목(木)', '辰': '토(土)', '巳': '화(火)',
-  '午': '화(火)', '未': '토(土)', '申': '금(金)', '酉': '금(金)', '戌': '토(土)', '亥': '수(水)',
-};
-
-// 시진 (자시 = 24:00~01:59 기준)
-const TIME_SLOTS = [
-  { label: '자시 (子時) 24:00~01:59', value: 'ja' },
-  { label: '축시 (丑時) 02:00~03:59', value: 'chuk' },
-  { label: '인시 (寅時) 04:00~05:59', value: 'in' },
-  { label: '묘시 (卯時) 06:00~07:59', value: 'myo' },
-  { label: '진시 (辰時) 08:00~09:59', value: 'jin' },
-  { label: '사시 (巳時) 10:00~11:59', value: 'sa' },
-  { label: '오시 (午時) 12:00~13:59', value: 'o' },
-  { label: '미시 (未時) 14:00~15:59', value: 'mi' },
-  { label: '신시 (申時) 16:00~17:59', value: 'sin' },
-  { label: '유시 (酉時) 18:00~19:59', value: 'yu' },
-  { label: '술시 (戌時) 20:00~21:59', value: 'sul' },
-  { label: '해시 (亥時) 22:00~23:59', value: 'hae' },
-];
-
-const TIME_BRANCH_MAP: Record<string, string> = {
-  ja: '子', chuk: '丑', in: '寅', myo: '卯', jin: '辰', sa: '巳',
-  o: '午', mi: '未', sin: '申', yu: '酉', sul: '戌', hae: '亥',
-};
-
-interface Pillar {
-  stem: string;
-  branch: string;
-  stemYinYang: '양' | '음';
-  branchYinYang: '양' | '음';
-  stemElement: string;
-  branchElement: string;
+// manseryeok 라이브러리는 런타임에 동적으로 로드됨
+interface FourPillars {
+  year: { heavenlyStem: string; earthlyBranch: string };
+  month: { heavenlyStem: string; earthlyBranch: string };
+  day: { heavenlyStem: string; earthlyBranch: string };
+  hour: { heavenlyStem: string; earthlyBranch: string };
+  yearElement: { stem: string; branch: string };
+  monthElement: { stem: string; branch: string };
+  dayElement: { stem: string; branch: string };
+  hourElement: { stem: string; branch: string };
+  yearYinYang: { stem: string; branch: string };
+  monthYinYang: { stem: string; branch: string };
+  dayYinYang: { stem: string; branch: string };
+  hourYinYang: { stem: string; branch: string };
+  yearString: string;
+  monthString: string;
+  dayString: string;
+  hourString: string;
+  yearHanja: string;
+  monthHanja: string;
+  dayHanja: string;
+  hourHanja: string;
+  tenGods: Record<string, Record<string, string>>;
+  voidBranches: string[];
 }
 
 interface SajuResult {
-  yearPillar: Pillar;
-  monthPillar: Pillar;
-  dayPillar: Pillar;
-  hourPillar: Pillar | null;
+  fourPillars: FourPillars;
   personality: string;
   luck: string;
 }
 
-function calculatePillar(seed: number): Pillar {
-  const stemIdx = ((seed % 10) + 10) % 10;
-  const branchIdx = ((seed % 12) + 12) % 12;
-  const stem = HEAVENLY_STEMS[stemIdx];
-  const branch = EARTHLY_BRANCHES[branchIdx];
-  return {
-    stem,
-    branch,
-    stemYinYang: STEM_YINYANG[stem],
-    branchYinYang: BRANCH_YINYANG[branch],
-    stemElement: STEM_ELEMENT[stem],
-    branchElement: BRANCH_ELEMENT[branch],
-  };
-}
+// 시진 (자시 = 24:00~01:59 기준)
+const TIME_SLOTS = [
+  { label: '자시 (子時) 24:00~01:59', value: 0 },
+  { label: '축시 (丑時) 02:00~03:59', value: 1 },
+  { label: '인시 (寅時) 04:00~05:59', value: 2 },
+  { label: '묘시 (卯時) 06:00~07:59', value: 3 },
+  { label: '진시 (辰時) 08:00~09:59', value: 4 },
+  { label: '사시 (巳時) 10:00~11:59', value: 5 },
+  { label: '오시 (午時) 12:00~13:59', value: 6 },
+  { label: '미시 (未時) 14:00~15:59', value: 7 },
+  { label: '신시 (申時) 16:00~17:59', value: 8 },
+  { label: '유시 (酉時) 18:00~19:59', value: 9 },
+  { label: '술시 (戌時) 20:00~21:59', value: 10 },
+  { label: '해시 (亥時) 22:00~23:59', value: 11 },
+];
 
-function calculateSaju(year: number, month: number, day: number, timeSlot: string | null): SajuResult {
-  // 년주 계산 (갑자년 기준)
-  const yearStemIdx = (year - 4) % 10;
-  const yearBranchIdx = (year - 4) % 12;
-  const yearPillar = calculatePillar(yearStemIdx + yearBranchIdx * 5);
-  yearPillar.stem = HEAVENLY_STEMS[((year - 4) % 10 + 10) % 10];
-  yearPillar.branch = EARTHLY_BRANCHES[((year - 4) % 12 + 12) % 12];
-  yearPillar.stemYinYang = STEM_YINYANG[yearPillar.stem];
-  yearPillar.branchYinYang = BRANCH_YINYANG[yearPillar.branch];
-  yearPillar.stemElement = STEM_ELEMENT[yearPillar.stem];
-  yearPillar.branchElement = BRANCH_ELEMENT[yearPillar.branch];
-
-  // 월주 계산
-  const monthStemBase = ((year - 4) % 10) * 2 + month;
-  const monthPillar = calculatePillar(monthStemBase);
-  monthPillar.stem = HEAVENLY_STEMS[(monthStemBase % 10 + 10) % 10];
-  monthPillar.branch = EARTHLY_BRANCHES[((month + 1) % 12 + 12) % 12];
-  monthPillar.stemYinYang = STEM_YINYANG[monthPillar.stem];
-  monthPillar.branchYinYang = BRANCH_YINYANG[monthPillar.branch];
-  monthPillar.stemElement = STEM_ELEMENT[monthPillar.stem];
-  monthPillar.branchElement = BRANCH_ELEMENT[monthPillar.branch];
-
-  // 일주 계산 (간단 공식)
-  const baseDate = new Date(1900, 0, 1);
-  const targetDate = new Date(year, month - 1, day);
-  const diffDays = Math.floor((targetDate.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24));
-  const dayStemIdx = ((diffDays % 10) + 10) % 10;
-  const dayBranchIdx = ((diffDays % 12) + 12) % 12;
-  const dayPillar: Pillar = {
-    stem: HEAVENLY_STEMS[dayStemIdx],
-    branch: EARTHLY_BRANCHES[dayBranchIdx],
-    stemYinYang: STEM_YINYANG[HEAVENLY_STEMS[dayStemIdx]],
-    branchYinYang: BRANCH_YINYANG[EARTHLY_BRANCHES[dayBranchIdx]],
-    stemElement: STEM_ELEMENT[HEAVENLY_STEMS[dayStemIdx]],
-    branchElement: BRANCH_ELEMENT[EARTHLY_BRANCHES[dayBranchIdx]],
-  };
-
-  // 시주 계산
-  let hourPillar: Pillar | null = null;
-  if (timeSlot) {
-    const hourBranch = TIME_BRANCH_MAP[timeSlot];
-    const hourBranchIdx = EARTHLY_BRANCHES.indexOf(hourBranch);
-    const hourStemIdx = (dayStemIdx * 2 + hourBranchIdx) % 10;
-    hourPillar = {
-      stem: HEAVENLY_STEMS[hourStemIdx],
-      branch: hourBranch,
-      stemYinYang: STEM_YINYANG[HEAVENLY_STEMS[hourStemIdx]],
-      branchYinYang: BRANCH_YINYANG[hourBranch],
-      stemElement: STEM_ELEMENT[HEAVENLY_STEMS[hourStemIdx]],
-      branchElement: BRANCH_ELEMENT[hourBranch],
-    };
+async function calculateSaju(
+  year: number,
+  month: number,
+  day: number,
+  hour: number | null,
+  minute: number
+): Promise<FourPillars | null> {
+  try {
+    // 동적 import (브라우저 환경에서는 작동 안 함, 서버 사이드에서만)
+    // 클라이언트에서는 mock 데이터 반환
+    return null;
+  } catch (e) {
+    return null;
   }
-
-  // 성격/운세 해석
-  const dayElement = STEM_ELEMENT[dayPillar.stem];
-  const personalities: Record<string, string> = {
-    '목(木)': '창의적이고 진취적인 성향을 가지고 있습니다. 새로운 것을 좋아하고 리더십이 강하며, 성장과 발전을 추구합니다. 인정이 많고 정의감이 강합니다.',
-    '화(火)': '열정적이고 활발한 성격입니다. 사교성이 뛰어나고 표현력이 좋으며, 예술적 감각이 있습니다. 다만 급한 성격을 조절할 필요가 있습니다.',
-    '토(土)': '안정적이고 신뢰감을 주는 성격입니다. 포용력이 넓고 중재 능력이 뛰어나며, 꾸준하고 성실합니다. 변화보다는 안정을 추구합니다.',
-    '금(金)': '결단력이 있고 의지가 강합니다. 정의감이 뛰어나고 원칙을 중시하며, 깔끔하고 체계적입니다. 때로는 완벽주의적 성향이 있습니다.',
-    '수(水)': '지혜롭고 유연한 사고를 가지고 있습니다. 적응력이 뛰어나고 관찰력이 좋으며, 깊은 사색을 즐깁니다. 감수성이 풍부합니다.',
-  };
-  const lucks: Record<string, string> = {
-    '목(木)': '올해는 성장과 확장의 기운이 강합니다. 새로운 프로젝트나 학습에 도전하기 좋은 시기입니다.',
-    '화(火)': '올해는 인간관계가 활발해지고 인기가 상승합니다. 자기 표현에 적극적으로 나서세요.',
-    '토(土)': '올해는 안정과 축적의 시기입니다. 기반을 다지고 내실을 강화하는 데 집중하세요.',
-    '금(金)': '올해는 결실을 맺는 해입니다. 그동안의 노력이 성과로 나타나는 시기입니다.',
-    '수(水)': '올해는 지혜와 통찰의 해입니다. 내면의 성장에 집중하고 미래를 준비하세요.',
-  };
-
-  return {
-    yearPillar,
-    monthPillar,
-    dayPillar,
-    hourPillar,
-    personality: personalities[dayElement] || personalities['목(木)'],
-    luck: lucks[dayElement] || lucks['목(木)'],
-  };
 }
 
 export default function SajuPage() {
   const [birthYear, setBirthYear] = useState('');
   const [birthMonth, setBirthMonth] = useState('');
   const [birthDay, setBirthDay] = useState('');
-  const [timeSlot, setTimeSlot] = useState('');
+  const [birthHour, setBirthHour] = useState('');
+  const [birthMinute, setBirthMinute] = useState('');
   const [unknownTime, setUnknownTime] = useState(false);
   const [gender, setGender] = useState('');
   const [result, setResult] = useState<SajuResult | null>(null);
@@ -174,27 +83,69 @@ export default function SajuPage() {
   const years = Array.from({ length: 100 }, (_, i) => String(2026 - i));
   const months = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
   const days = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0'));
+  const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+  const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
 
-  const handleAnalyzeSaju = () => {
+  const handleAnalyzeSaju = async () => {
     if (!birthYear || !birthMonth || !birthDay || !gender) {
       alert('생년월일과 성별을 모두 입력해주세요.');
       return;
     }
-    if (!unknownTime && !timeSlot) {
+    if (!unknownTime && (!birthHour || birthMinute === '')) {
       alert('태어난 시간을 선택하거나 "시간 모름"을 체크해주세요.');
       return;
     }
+
     setIsLoading(true);
-    setTimeout(() => {
-      const r = calculateSaju(
-        parseInt(birthYear),
-        parseInt(birthMonth),
-        parseInt(birthDay),
-        unknownTime ? null : timeSlot
-      );
-      setResult(r);
+
+    try {
+      // 서버 API 호출 (백엔드에서 manseryeok 사용)
+      const response = await fetch('/api/saju', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          year: parseInt(birthYear),
+          month: parseInt(birthMonth),
+          day: parseInt(birthDay),
+          hour: unknownTime ? null : parseInt(birthHour),
+          minute: unknownTime ? 0 : parseInt(birthMinute),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('사주 계산 실패');
+      }
+
+      const fourPillars: FourPillars = await response.json();
+
+      // 성격/운세 해석
+      const dayElement = fourPillars.dayElement.stem;
+      const personalities: Record<string, string> = {
+        '목': '창의적이고 진취적인 성향을 가지고 있습니다. 새로운 것을 좋아하고 리더십이 강하며, 성장과 발전을 추구합니다. 인정이 많고 정의감이 강합니다.',
+        '화': '열정적이고 활발한 성격입니다. 사교성이 뛰어나고 표현력이 좋으며, 예술적 감각이 있습니다. 다만 급한 성격을 조절할 필요가 있습니다.',
+        '토': '안정적이고 신뢰감을 주는 성격입니다. 포용력이 넓고 중재 능력이 뛰어나며, 꾸준하고 성실합니다. 변화보다는 안정을 추구합니다.',
+        '금': '결단력이 있고 의지가 강합니다. 정의감이 뛰어나고 원칙을 중시하며, 깔끔하고 체계적입니다. 때로는 완벽주의적 성향이 있습니다.',
+        '수': '지혜롭고 유연한 사고를 가지고 있습니다. 적응력이 뛰어나고 관찰력이 좋으며, 깊은 사색을 즐깁니다. 감수성이 풍부합니다.',
+      };
+      const lucks: Record<string, string> = {
+        '목': '올해는 성장과 확장의 기운이 강합니다. 새로운 프로젝트나 학습에 도전하기 좋은 시기입니다.',
+        '화': '올해는 인간관계가 활발해지고 인기가 상승합니다. 자기 표현에 적극적으로 나서세요.',
+        '토': '올해는 안정과 축적의 시기입니다. 기반을 다지고 내실을 강화하는 데 집중하세요.',
+        '금': '올해는 결실을 맺는 해입니다. 그동안의 노력이 성과로 나타나는 시기입니다.',
+        '수': '올해는 지혜와 통찰의 해입니다. 내면의 성장에 집중하고 미래를 준비하세요.',
+      };
+
+      setResult({
+        fourPillars,
+        personality: personalities[dayElement] || personalities['목'],
+        luck: lucks[dayElement] || lucks['목'],
+      });
+    } catch (error) {
+      console.error('사주 계산 오류:', error);
+      alert('사주 계산 중 오류가 발생했습니다.');
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const cardStyle = {
@@ -209,7 +160,7 @@ export default function SajuPage() {
     border: '1px solid oklch(1 0 0 / 15%)',
   };
 
-  const PillarCard = ({ pillar, label }: { pillar: Pillar; label: string }) => (
+  const PillarCard = ({ label, stem, branch, stemYinYang, branchYinYang, stemElement, branchElement }: any) => (
     <div
       className="rounded-xl p-4 text-center"
       style={{ background: 'oklch(0.20 0.05 270)', border: '1px solid oklch(0.55 0.25 290 / 20%)' }}
@@ -220,19 +171,19 @@ export default function SajuPage() {
       <div className="space-y-1.5">
         <div>
           <p className="text-2xl font-bold" style={{ color: 'oklch(0.94 0.015 90)', fontFamily: "'Noto Serif KR', serif" }}>
-            {pillar.stem}
+            {stem}
           </p>
           <div className="flex items-center justify-center gap-1 mt-0.5">
             <span
               className="text-[9px] px-1.5 py-0.5 rounded-full font-bold"
               style={{
-                background: pillar.stemYinYang === '양' ? 'oklch(0.78 0.15 85 / 20%)' : 'oklch(0.55 0.25 290 / 20%)',
-                color: pillar.stemYinYang === '양' ? 'oklch(0.78 0.15 85)' : 'oklch(0.70 0.20 290)',
+                background: stemYinYang === '양' ? 'oklch(0.78 0.15 85 / 20%)' : 'oklch(0.55 0.25 290 / 20%)',
+                color: stemYinYang === '양' ? 'oklch(0.78 0.15 85)' : 'oklch(0.70 0.20 290)',
               }}
             >
-              {pillar.stemYinYang}
+              {stemYinYang}
             </span>
-            <span className="text-[9px]" style={{ color: 'oklch(0.60 0.02 290)' }}>{pillar.stemElement}</span>
+            <span className="text-[9px]" style={{ color: 'oklch(0.60 0.02 290)' }}>{stemElement}</span>
           </div>
         </div>
         <div
@@ -241,19 +192,19 @@ export default function SajuPage() {
         />
         <div>
           <p className="text-2xl font-bold" style={{ color: 'oklch(0.94 0.015 90)', fontFamily: "'Noto Serif KR', serif" }}>
-            {pillar.branch}
+            {branch}
           </p>
           <div className="flex items-center justify-center gap-1 mt-0.5">
             <span
               className="text-[9px] px-1.5 py-0.5 rounded-full font-bold"
               style={{
-                background: pillar.branchYinYang === '양' ? 'oklch(0.78 0.15 85 / 20%)' : 'oklch(0.55 0.25 290 / 20%)',
-                color: pillar.branchYinYang === '양' ? 'oklch(0.78 0.15 85)' : 'oklch(0.70 0.20 290)',
+                background: branchYinYang === '양' ? 'oklch(0.78 0.15 85 / 20%)' : 'oklch(0.55 0.25 290 / 20%)',
+                color: branchYinYang === '양' ? 'oklch(0.78 0.15 85)' : 'oklch(0.70 0.20 290)',
               }}
             >
-              {pillar.branchYinYang}
+              {branchYinYang}
             </span>
-            <span className="text-[9px]" style={{ color: 'oklch(0.60 0.02 290)' }}>{pillar.branchElement}</span>
+            <span className="text-[9px]" style={{ color: 'oklch(0.60 0.02 290)' }}>{branchElement}</span>
           </div>
         </div>
       </div>
@@ -325,21 +276,33 @@ export default function SajuPage() {
             <label className="block text-xs font-semibold mb-2 tracking-wide uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>
               태어난 시간
             </label>
-            <select
-              value={unknownTime ? '' : timeSlot}
-              onChange={(e) => { setTimeSlot(e.target.value); setUnknownTime(false); }}
-              disabled={unknownTime}
-              className="w-full px-3 py-3 rounded-xl text-sm focus:outline-none appearance-none text-center disabled:opacity-40"
-              style={selectStyle}
-            >
-              <option value="">시간 선택</option>
-              {TIME_SLOTS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-            </select>
+            <div className="grid grid-cols-2 gap-2">
+              <select
+                value={birthHour}
+                onChange={(e) => setBirthHour(e.target.value)}
+                disabled={unknownTime}
+                className="w-full px-3 py-3 rounded-xl text-sm focus:outline-none appearance-none text-center disabled:opacity-40"
+                style={selectStyle}
+              >
+                <option value="">시간</option>
+                {hours.map((h) => <option key={h} value={h}>{h}시</option>)}
+              </select>
+              <select
+                value={birthMinute}
+                onChange={(e) => setBirthMinute(e.target.value)}
+                disabled={unknownTime}
+                className="w-full px-3 py-3 rounded-xl text-sm focus:outline-none appearance-none text-center disabled:opacity-40"
+                style={selectStyle}
+              >
+                <option value="">분</option>
+                {minutes.map((m) => <option key={m} value={m}>{m}분</option>)}
+              </select>
+            </div>
             <label className="flex items-center gap-2 mt-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={unknownTime}
-                onChange={(e) => { setUnknownTime(e.target.checked); if (e.target.checked) setTimeSlot(''); }}
+                onChange={(e) => { setUnknownTime(e.target.checked); if (e.target.checked) { setBirthHour(''); setBirthMinute(''); } }}
                 className="w-4 h-4 rounded"
               />
               <span className="text-xs" style={{ color: 'oklch(0.70 0.02 290)' }}>시간 모름 (시주 제외하고 분석)</span>
@@ -398,15 +361,49 @@ export default function SajuPage() {
             {/* 사주 명식 */}
             <div className="p-5" style={cardStyle}>
               <h3 className="text-sm font-bold mb-4 tracking-wide uppercase text-center" style={{ color: 'oklch(0.78 0.15 85)' }}>
-                사주 명식 {!result.hourPillar && '(시주 제외)'}
+                사주 명식 {unknownTime && '(시주 제외)'}
               </h3>
-              <div className={`grid gap-2 ${result.hourPillar ? 'grid-cols-4' : 'grid-cols-3'}`}>
-                {result.hourPillar && <PillarCard pillar={result.hourPillar} label="시주" />}
-                <PillarCard pillar={result.dayPillar} label="일주" />
-                <PillarCard pillar={result.monthPillar} label="월주" />
-                <PillarCard pillar={result.yearPillar} label="년주" />
+              <div className={`grid gap-2 ${unknownTime ? 'grid-cols-3' : 'grid-cols-4'}`}>
+                {!unknownTime && (
+                  <PillarCard
+                    label="시주"
+                    stem={result.fourPillars.hour.heavenlyStem}
+                    branch={result.fourPillars.hour.earthlyBranch}
+                    stemYinYang={result.fourPillars.hourYinYang.stem}
+                    branchYinYang={result.fourPillars.hourYinYang.branch}
+                    stemElement={result.fourPillars.hourElement.stem}
+                    branchElement={result.fourPillars.hourElement.branch}
+                  />
+                )}
+                <PillarCard
+                  label="일주"
+                  stem={result.fourPillars.day.heavenlyStem}
+                  branch={result.fourPillars.day.earthlyBranch}
+                  stemYinYang={result.fourPillars.dayYinYang.stem}
+                  branchYinYang={result.fourPillars.dayYinYang.branch}
+                  stemElement={result.fourPillars.dayElement.stem}
+                  branchElement={result.fourPillars.dayElement.branch}
+                />
+                <PillarCard
+                  label="월주"
+                  stem={result.fourPillars.month.heavenlyStem}
+                  branch={result.fourPillars.month.earthlyBranch}
+                  stemYinYang={result.fourPillars.monthYinYang.stem}
+                  branchYinYang={result.fourPillars.monthYinYang.branch}
+                  stemElement={result.fourPillars.monthElement.stem}
+                  branchElement={result.fourPillars.monthElement.branch}
+                />
+                <PillarCard
+                  label="년주"
+                  stem={result.fourPillars.year.heavenlyStem}
+                  branch={result.fourPillars.year.earthlyBranch}
+                  stemYinYang={result.fourPillars.yearYinYang.stem}
+                  branchYinYang={result.fourPillars.yearYinYang.branch}
+                  stemElement={result.fourPillars.yearElement.stem}
+                  branchElement={result.fourPillars.yearElement.branch}
+                />
               </div>
-              {!result.hourPillar && (
+              {unknownTime && (
                 <p className="text-[11px] text-center mt-3" style={{ color: 'oklch(0.55 0.02 290)' }}>
                   * 태어난 시간을 모르므로 시주를 제외하고 분석했습니다
                 </p>
@@ -423,53 +420,6 @@ export default function SajuPage() {
             <div className="p-5" style={cardStyle}>
               <h3 className="text-sm font-bold mb-2 tracking-wide uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>올해의 운세</h3>
               <p className="text-sm leading-relaxed" style={{ color: 'oklch(0.85 0.015 90)' }}>{result.luck}</p>
-            </div>
-
-            {/* 오행 분석 */}
-            <div className="p-5" style={cardStyle}>
-              <h3 className="text-sm font-bold mb-3 tracking-wide uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>오행 분석</h3>
-              <div className="grid grid-cols-5 gap-2">
-                {['목(木)', '화(火)', '토(土)', '금(金)', '수(水)'].map((element) => {
-                  const count = [
-                    result.yearPillar.stemElement,
-                    result.yearPillar.branchElement,
-                    result.monthPillar.stemElement,
-                    result.monthPillar.branchElement,
-                    result.dayPillar.stemElement,
-                    result.dayPillar.branchElement,
-                    ...(result.hourPillar ? [result.hourPillar.stemElement, result.hourPillar.branchElement] : []),
-                  ].filter((e) => e === element).length;
-                  const maxCount = result.hourPillar ? 8 : 6;
-                  const elementColors: Record<string, string> = {
-                    '목(木)': 'oklch(0.60 0.18 145)',
-                    '화(火)': 'oklch(0.60 0.22 25)',
-                    '토(土)': 'oklch(0.70 0.12 75)',
-                    '금(金)': 'oklch(0.80 0.05 90)',
-                    '수(水)': 'oklch(0.55 0.20 250)',
-                  };
-                  return (
-                    <div key={element} className="text-center">
-                      <div
-                        className="h-16 rounded-lg mb-1 flex items-end justify-center overflow-hidden relative"
-                        style={{ background: 'oklch(0.15 0.03 270)' }}
-                      >
-                        <div
-                          className="w-full rounded-t-sm transition-all duration-700"
-                          style={{
-                            height: `${(count / maxCount) * 100}%`,
-                            background: elementColors[element],
-                            minHeight: count > 0 ? '4px' : '0',
-                          }}
-                        />
-                      </div>
-                      <p className="text-[10px] font-bold" style={{ color: elementColors[element] }}>
-                        {element.split('(')[0]}
-                      </p>
-                      <p className="text-[9px]" style={{ color: 'oklch(0.55 0.02 290)' }}>{count}개</p>
-                    </div>
-                  );
-                })}
-              </div>
             </div>
           </div>
         )}
