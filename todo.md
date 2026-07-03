@@ -189,3 +189,11 @@
 - [x] 공유 카드에 QR코드/링크 추가 (ConsultationCardWithQR.tsx)
 - [x] 부적 할인 24시간 카운트다운 타이머 (TalismanDiscountTimer.tsx)
 - [x] 리딩 결과 추적 시스템 (ReadingResultTracking.tsx)
+
+
+## 리딩 적중률 통계 화면 (완료)
+
+- [x] 전체 타로 상담 적중률 (%) 계산
+- [x] 타로별 적중률 분석 (각 카드별 정확도)
+- [x] 시간대별 적중 추이 차트
+- [x] 마이페이지에 통계 화면 통합

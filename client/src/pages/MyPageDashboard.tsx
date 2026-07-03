@@ -4,6 +4,7 @@ import { useLocation } from 'wouter';
 import TalismanCollection from '@/components/TalismanCollection';
 import ConsultationDiary from '@/components/ConsultationDiary';
 import { ReadingResultTracking } from '@/components/ReadingResultTracking';
+import ReadingAccuracyStats from '@/components/ReadingAccuracyStats';
 
 export default function MyPageDashboard() {
   const [, navigate] = useLocation();
@@ -11,7 +12,7 @@ export default function MyPageDashboard() {
   const [wishes, setWishes] = useState<any[]>([]);
   const [creditBalance, setCreditBalance] = useState(10000);
   const [purchasedTalismans, setPurchasedTalismans] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'diary' | 'talismans' | 'wishes' | 'results'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'diary' | 'talismans' | 'wishes' | 'results' | 'stats'>('overview');
 
   // 상담 내역 로드
   useEffect(() => {
@@ -225,6 +226,16 @@ export default function MyPageDashboard() {
           >
             ✨ 리딩 결과
           </button>
+          <button
+            onClick={() => setActiveTab('stats')}
+            className="px-4 py-3 font-bold text-sm border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap"
+            style={{
+              borderColor: activeTab === 'stats' ? 'oklch(0.78 0.15 85)' : 'transparent',
+              color: activeTab === 'stats' ? 'oklch(0.78 0.15 85)' : 'oklch(0.60 0.02 290)',
+            }}
+          >
+            📊 적중률 통계
+          </button>
         </div>
 
         {/* Tab Content */}
@@ -300,6 +311,15 @@ export default function MyPageDashboard() {
               ✨ 리딩 결과 추적
             </h3>
             <ReadingResultTracking />
+          </div>
+        )}
+
+        {activeTab === 'stats' && (
+          <div className="mb-12">
+            <h3 className="text-xl font-bold mb-6" style={{ color: 'oklch(0.94 0.015 90)' }}>
+              📊 루나의 적중률 통계
+            </h3>
+            <ReadingAccuracyStats />
           </div>
         )}
 
