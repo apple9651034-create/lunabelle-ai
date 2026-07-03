@@ -6,6 +6,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, ArrowLeft, Loader2, Download } from 'lucide-react';
 import { useLocation } from 'wouter';
 import ChatLoadingWithTips from '@/components/ChatLoadingWithTips';
+import ConsultationShareButtons from '@/components/ConsultationShareButtons';
 import { Streamdown } from 'streamdown';
 import html2canvas from 'html2canvas';
 
@@ -137,29 +138,32 @@ export default function YukConsultationPage() {
             <p className="text-xs" style={{ color: 'oklch(0.70 0.02 290)' }}>고대의 지혜로 당신의 변화를 읽어드립니다</p>
           </div>
         </div>
-        <button
-          onClick={async () => {
-            const element = document.getElementById('consultation-messages');
-            if (!element) return;
-            try {
-              const canvas = await html2canvas(element, {
-                backgroundColor: '#0a0415',
-                scale: 2,
-              });
-              const link = document.createElement('a');
-              link.href = canvas.toDataURL('image/png');
-              link.download = `yuk-consultation-${Date.now()}.png`;
-              link.click();
-            } catch (error) {
-              console.error('Export failed:', error);
-              alert('Failed to save consultation.');
-            }
-          }}
-          className="p-2 hover:opacity-70 transition-opacity"
-          title="Save consultation"
-        >
-          <Download size={20} style={{ color: 'oklch(0.70 0.18 60)' }} />
-        </button>
+        <div className="flex items-center gap-2">
+          <ConsultationShareButtons consultationType="육효" messages={messages} />
+          <button
+            onClick={async () => {
+              const element = document.getElementById('consultation-messages');
+              if (!element) return;
+              try {
+                const canvas = await html2canvas(element, {
+                  backgroundColor: '#0a0415',
+                  scale: 2,
+                });
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = `yuk-consultation-${Date.now()}.png`;
+                link.click();
+              } catch (error) {
+                console.error('Export failed:', error);
+                alert('Failed to save consultation.');
+              }
+            }}
+            className="p-2 hover:opacity-70 transition-opacity"
+            title="Save consultation"
+          >
+            <Download size={20} style={{ color: 'oklch(0.70 0.18 60)' }} />
+          </button>
+        </div>
       </div>
 
       {/* 메시지 영역 */}

@@ -6,6 +6,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, ArrowLeft, Loader2, Download } from 'lucide-react';
 import { useLocation } from 'wouter';
 import ChatLoadingWithTips from '@/components/ChatLoadingWithTips';
+import ConsultationShareButtons from '@/components/ConsultationShareButtons';
 import { Streamdown } from 'streamdown';
 import html2canvas from 'html2canvas';
 
@@ -134,6 +135,9 @@ export default function TarotConsultationPage() {
             <h1 className="font-bold" style={{ color: 'oklch(0.94 0.015 90)' }}>🃏 타로 상담</h1>
             <p className="text-xs" style={{ color: 'oklch(0.70 0.02 290)' }}>타로 카드의 지혜로 당신의 길을 밝혀드립니다</p>
           </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <ConsultationShareButtons consultationType="타로" messages={messages} />
         </div>
       </div>
 

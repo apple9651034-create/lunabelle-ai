@@ -7,6 +7,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, ArrowLeft, Loader2, Download } from 'lucide-react';
 import { useLocation } from 'wouter';
 import ChatLoadingWithTips from '@/components/ChatLoadingWithTips';
+import ConsultationShareButtons from '@/components/ConsultationShareButtons';
 import { getUserSajuProfile, getSajuContext, getSajuMingshik } from '@/lib/userSajuProfile';
 import { Streamdown } from 'streamdown';
 import html2canvas from 'html2canvas';
@@ -129,29 +130,32 @@ export default function SajuConsultationPage() {
             <p className="text-xs" style={{ color: 'oklch(0.70 0.02 290)' }}>사주 명식: {getSajuMingshik()}</p>
           </div>
         </div>
-        <button
-          onClick={async () => {
-            const element = document.getElementById('consultation-messages');
-            if (!element) return;
-            try {
-              const canvas = await html2canvas(element, {
-                backgroundColor: '#0a0415',
-                scale: 2,
-              });
-              const link = document.createElement('a');
-              link.href = canvas.toDataURL('image/png');
-              link.download = `saju-consultation-${Date.now()}.png`;
-              link.click();
-            } catch (error) {
-              console.error('내보내기 실패:', error);
-              alert('상담 내용 저장에 실패했습니다.');
-            }
-          }}
-          className="p-2 hover:opacity-70 transition-opacity"
-          title="상담 내용 저장"
-        >
-          <Download size={20} style={{ color: 'oklch(0.70 0.18 60)' }} />
-        </button>
+        <div className="flex items-center gap-2">
+          <ConsultationShareButtons consultationType="사주" messages={messages} />
+          <button
+            onClick={async () => {
+              const element = document.getElementById('consultation-messages');
+              if (!element) return;
+              try {
+                const canvas = await html2canvas(element, {
+                  backgroundColor: '#0a0415',
+                  scale: 2,
+                });
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = `saju-consultation-${Date.now()}.png`;
+                link.click();
+              } catch (error) {
+                console.error('내보내기 실패:', error);
+                alert('상담 내용 저장에 실패했습니다.');
+              }
+            }}
+            className="p-2 hover:opacity-70 transition-opacity"
+            title="상담 내용 저장"
+          >
+            <Download size={20} style={{ color: 'oklch(0.70 0.18 60)' }} />
+          </button>
+        </div>
       </div>
 
       {/* 메시지 영역 */}

@@ -17,6 +17,7 @@ import {
 import { processBlessingPayment, getUserCredit } from '@/lib/paymentHandler';
 import InteractionAnimation from '@/components/InteractionAnimation';
 import PaymentSuccessAnimation from '@/components/PaymentSuccessAnimation';
+import BestWishesSection from '@/components/BestWishesSection';
 
 interface Wish {
   id: number;
@@ -388,6 +389,13 @@ export default function WishesPage() {
             소원 올리기
           </button>
         </div>
+
+        {/* 베스트 소원 섹션 */}
+        {wishes.length > 0 && (
+          <div style={cardStyle} className="p-5">
+            <BestWishesSection wishes={wishes} />
+          </div>
+        )}
 
         {/* Info */}
         <div
