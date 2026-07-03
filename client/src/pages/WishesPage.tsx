@@ -45,7 +45,8 @@ export default function WishesPage() {
   const [, navigate] = useLocation();
   const [wishes, setWishes] = useState<Wish[]>([]);
   const [newWish, setNewWish] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('기타');
+  const [selectedCategory, setSelectedCategory] = useState<string>(CATEGORIES[0]);
+  const [selectedBlessing, setSelectedBlessing] = useState<number | null>(null);
   const [selectedWishForBlessing, setSelectedWishForBlessing] = useState<number | null>(null);
   const [showBlessingModal, setShowBlessingModal] = useState(false);
   const [showEncouragementModal, setShowEncouragementModal] = useState(false);
@@ -174,7 +175,7 @@ export default function WishesPage() {
       likes: 0,
       liked: false,
       date: new Date().toISOString().split('T')[0],
-      blessings: 0,
+      blessings: selectedBlessing || 0,
       expiresAt: expiryDate.toISOString(),
     };
 
@@ -182,6 +183,7 @@ export default function WishesPage() {
     setWishes(updatedWishes);
     saveWishes(updatedWishes);
     setNewWish('');
+    setSelectedBlessing(null);
   };
 
   const handleLike = (id: number) => {
@@ -305,6 +307,30 @@ export default function WishesPage() {
               </button>
             ))}
           </div>
+          
+          {/* 복비 선택 버튼 */}
+          <div className="space-y-2">
+            <label className="block text-xs font-semibold tracking-wide uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>
+              💝 복비 선택
+            </label>
+            <div className="grid grid-cols-4 gap-2">
+              {[100, 500, 1000, 3000].map((amount) => (
+                <button
+                  key={amount}
+                  onClick={() => setSelectedBlessing(selectedBlessing === amount ? null : amount)}
+                  className="py-2 rounded-lg text-xs font-bold transition-all active:scale-95"
+                  style={{
+                    background: selectedBlessing === amount ? 'oklch(0.55 0.25 290)' : 'oklch(0.25 0.08 290)',
+                    color: 'oklch(0.94 0.015 90)',
+                    border: selectedBlessing === amount ? '2px solid oklch(0.78 0.15 85)' : '1px solid oklch(1 0 0 / 15%)',
+                  }}
+                >
+                  {amount}원
+                </button>
+              ))}
+            </div>
+          </div>
+          
           <button
             onClick={handleAddWish}
             className="w-full py-3 rounded-xl font-bold text-sm transition-all active:scale-[0.97] flex items-center justify-center gap-2"

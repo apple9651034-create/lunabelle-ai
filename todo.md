@@ -38,7 +38,7 @@
 - [x] 타로/육효 페이지에도 신비로운 로딩 애니메이션 통합 - TarotPage, YukPage 완료
 - [x] AI 채팅 상담에도 로딩 애니메이션 통합 - SajuConsultationPage 완료
 - [x] 중복 요청 방지 로직 (버튼 중복 클릭 방지) - usePreventDuplicateSubmit 훅 구현
-- [ ] 응답 캐싱 구현 (같은 입력에 대한 재사용) - 선택사항
+- [x] 응답 캠싱 구현 (같은 입력에 대한 재사용) - 선택사항
 
 
 ## 신규 작업 (완료)
