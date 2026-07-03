@@ -72,7 +72,7 @@ export default function SajuPage() {
   const years = Array.from({ length: 100 }, (_, i) => String(2026 - i));
   const months = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
   const days = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0'));
-  const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+  const hours = ["자시(24-02)", "인시(02-04)", "묘시(04-06)", "진시(06-08)", "사시(08-10)", "오시(10-12)", "미시(12-14)", "신시(14-16)", "유시(16-18)", "술시(18-20)", "해시(20-22)", "자시(22-24)"];
   const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
 
   const handleShareKakao = () => {
@@ -292,7 +292,7 @@ export default function SajuPage() {
           <div>
             <label className="block text-xs font-semibold mb-2 tracking-wide uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>태어난 시간</label>
             <div className="grid grid-cols-2 gap-2">
-              <select value={birthHour} onChange={(e) => setBirthHour(e.target.value)} disabled={unknownTime} className="w-full px-3 py-3 rounded-xl text-sm focus:outline-none appearance-none text-center disabled:opacity-40" style={selectStyle}><option value="">시간</option>{hours.map((h) => <option key={h} value={h}>{h}시</option>)}</select>
+              <select value={birthHour} onChange={(e) => setBirthHour(e.target.value)} disabled={unknownTime} className="w-full px-3 py-3 rounded-xl text-sm focus:outline-none appearance-none text-center disabled:opacity-40" style={selectStyle}><option value="">시간</option>{hours.map((h, i) => <option key={h} value={String(i)}>{h}</option>)}</select>
               <select value={birthMinute} onChange={(e) => setBirthMinute(e.target.value)} disabled={unknownTime} className="w-full px-3 py-3 rounded-xl text-sm focus:outline-none appearance-none text-center disabled:opacity-40" style={selectStyle}><option value="">분</option>{minutes.map((m) => <option key={m} value={m}>{m}분</option>)}</select>
             </div>
             <label className="flex items-center gap-2 mt-2 cursor-pointer">
