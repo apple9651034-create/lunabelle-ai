@@ -11,6 +11,7 @@ import html2canvas from 'html2canvas';
 import MysticalLoader from '@/components/MysticalLoader';
 import { shareToKakao, shareToInstagram, generateSajuShareData } from '@/lib/shareResult';
 import { getFortuneDetails } from '@/lib/fortuneDetails';
+import { deductCharge, getCharges, isChargesEmpty } from '@/lib/chargeSystem';
 
 declare global {
   interface Window {
@@ -149,6 +150,12 @@ export default function SajuPage() {
       return;
     }
 
+    // 충전별 확인
+    if (isChargesEmpty()) {
+      alert('충전별이 부족합니다. 충전해주세요.');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -223,6 +230,14 @@ export default function SajuPage() {
         '임': '2026년 병오년(丙午年)은 지혜와 통찰의 해입니다. 내면의 성장에 집중하고 미래를 준비하세요. 학습과 연구에 좋은 시기입니다.',
         '계': '2026년 병오년(丙午年)은 신비로운 매력이 빛나는 해입니다. 직관을 믿고 따르면 좋은 결과를 얻을 수 있습니다.',
       };
+
+      // 충전별 차감
+      const deducted = deductCharge();
+      if (!deducted) {
+        alert('충전별 차감에 실패했습니다.');
+        setIsLoading(false);
+        return;
+      }
 
       setResult({
         fourPillars,

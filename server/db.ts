@@ -90,3 +90,24 @@ export async function getUserByOpenId(openId: string) {
 }
 
 // TODO: add feature queries here as your schema grows.
+
+// 크레딧 관련 함수들
+export async function getBalance(userId: number): Promise<number> {
+  // 로컬스토리지 기반 임시 구현 (실제는 DB에서 조회)
+  return 10; // 기본 10 크레딧
+}
+
+export async function deductCredit(userId: number, amount: number, type: string): Promise<void> {
+  // 크레딧 차감 로직
+  console.log(`[Credit] User ${userId} deducted ${amount} credits for ${type}`);
+}
+
+export async function addCredit(userId: number, amount: number, type: string, description?: string): Promise<void> {
+  // 크레딧 추가 로직
+  console.log(`[Credit] User ${userId} added ${amount} credits for ${type}: ${description}`);
+}
+
+export async function getTransactions(userId: number, limit: number = 50): Promise<any[]> {
+  // 거래 내역 조회
+  return [];
+}
