@@ -20,6 +20,7 @@ import TarotPage from "./pages/TarotPage";
 import ConsultationHistoryPage from "./pages/ConsultationHistoryPage";
 import MonthlyFortuneCalendar from "./pages/MonthlyFortuneCalendar";
 import ChargePage from "./pages/ChargePage";
+import SajuConsultationPage from "./pages/SajuConsultationPage";
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
@@ -37,6 +38,7 @@ function Router() {
         <Route path="/history" component={ConsultationHistoryPage} />
         <Route path="/calendar" component={MonthlyFortuneCalendar} />
         <Route path="/charge" component={ChargePage} />
+        <Route path="/saju-consultation" component={SajuConsultationPage} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>

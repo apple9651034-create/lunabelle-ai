@@ -6,6 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { Edit2 } from 'lucide-react';
 import DailyFortuneWidget from '@/components/DailyFortuneWidget';
+import { getUserSajuProfile } from '@/lib/userSajuProfile';
 
 interface SajuProfile {
   year: string;
@@ -80,14 +81,18 @@ export default function HomePage() {
   const [selectedPillar, setSelectedPillar] = useState<{ type: keyof typeof PILLAR_MEANINGS; char: string } | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem('userSajuProfile');
-    if (stored) {
-      try {
-        setSajuProfile(JSON.parse(stored));
-      } catch (error) {
-        console.error('사주 정보 로드 오류:', error);
-      }
-    }
+    // 기본 사주 프로필 자동 로드 (없으면 기본값으로 설정)
+    const profile = getUserSajuProfile();
+    setSajuProfile({
+      year: String(profile.year),
+      month: String(profile.month),
+      day: String(profile.day),
+      hour: `오전 ${profile.hour}시 ${profile.minute}분`,
+      gender: profile.gender,
+      fourPillars: profile.fourPillars,
+      personality: profile.personality,
+      luck: profile.luck,
+    });
   }, []);
 
   const pillarLabels = { yearString: '년주', monthString: '월주', dayString: '일주', hourString: '시주' };
@@ -236,7 +241,7 @@ export default function HomePage() {
           <h3 className="text-sm font-semibold mb-3 tracking-widest uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>✨ 서비스</h3>
           <div className="space-y-3">
             {[
-              { icon: '🌙', title: 'AI 루나 채팅', desc: '실시간으로 AI 루나와 대화하며 당신의 운명을 알아보세요', path: '/chat' },
+              { icon: '🌙', title: 'AI 루나 운세 상담', desc: '당신의 사주를 기반으로 실시간 운세 상담을 받으세요', path: '/saju-consultation' },
               { icon: '🎴', title: '육효 점속', desc: '변화하는 운명의 흐름을 육효로 읽어보세요', path: '/yuk' },
               { icon: '🔮', title: '사주 분석', desc: '생년월일시로 당신의 사주를 분석합니다', path: '/saju' },
               { icon: '🃏', title: '타로 검속', desc: '타로 카드로 당신의 미래를 예측해보세요', path: '/tarot' },
