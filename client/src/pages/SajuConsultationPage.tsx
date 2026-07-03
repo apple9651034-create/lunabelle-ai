@@ -7,6 +7,7 @@ import { Send, ArrowLeft, Loader2 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import MysticalLoadingAnimation from '@/components/MysticalLoadingAnimation';
 import TypingEffect from '@/components/TypingEffect';
+import ChatLoadingWithTips from '@/components/ChatLoadingWithTips';
 import { getUserSajuProfile, getSajuContext, getSajuMingshik } from '@/lib/userSajuProfile';
 import { Streamdown } from 'streamdown';
 
@@ -157,10 +158,8 @@ export default function SajuConsultationPage() {
           </div>
         ))}
         {isLoading && (
-          <div className="flex justify-start">
-            <div className="px-4 py-3 rounded-lg" style={{ background: 'oklch(0.20 0.05 270)' }}>
-              <Loader2 size={20} className="animate-spin" style={{ color: 'oklch(0.78 0.15 85)' }} />
-            </div>
+          <div className="flex justify-center w-full">
+            <ChatLoadingWithTips category="saju" />
           </div>
         )}
         <div ref={messagesEndRef} />

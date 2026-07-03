@@ -14,7 +14,7 @@ import {
   ENCOURAGEMENT_TEMPLATES,
   WishWithInteractions,
 } from '@/lib/wishInteraction';
-import { processBlessingPayment } from '@/lib/paymentHandler';
+import { processBlessingPayment, getUserCredit } from '@/lib/paymentHandler';
 import InteractionAnimation from '@/components/InteractionAnimation';
 
 interface Wish {
@@ -55,8 +55,13 @@ export default function WishesPage() {
   const [selectedWishForEncouragement, setSelectedWishForEncouragement] = useState<number | null>(null);
   const [encouragementMessage, setEncouragementMessage] = useState('');
   const [wishInteractions, setWishInteractions] = useState<Map<number, WishWithInteractions>>(new Map());
+  const [userCredit, setUserCredit] = useState(0);
 
   useEffect(() => {
+    // 크레딧 로드
+    const credit = getUserCredit();
+    setUserCredit(credit.balance);
+    
     const stored = localStorage.getItem(STORAGE_KEY);
     if (!stored) {
       const expiryDate = new Date();
@@ -173,6 +178,9 @@ export default function WishesPage() {
         alert(paymentResult.message);
         return;
       }
+      // 결제 완료 알림
+      setUserCredit(paymentResult.newBalance || 0);
+      alert(`✅ 소원 기도가 완료되었습니다!\n동전: ${selectedBlessing}원\n차감 잔앩: ${paymentResult.newBalance}원`);
     }
 
     const expiryDate = new Date();
@@ -272,11 +280,15 @@ export default function WishesPage() {
           >
             <ArrowLeft size={20} style={{ color: 'oklch(0.78 0.15 85)' }} />
           </button>
-          <div>
+          <div className="flex-1">
             <h1 className="text-xl font-bold" style={{ color: 'oklch(0.94 0.015 90)', fontFamily: "'Noto Serif KR', serif" }}>
               소원 게시판
             </h1>
             <p className="text-xs" style={{ color: 'oklch(0.78 0.15 85)' }}>소원을 빌고 복비로 응원해요</p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs" style={{ color: 'oklch(0.78 0.15 85)' }}>MY 동전</p>
+            <p className="text-lg font-bold" style={{ color: 'oklch(0.70 0.18 60)' }}>{userCredit.toLocaleString()}원</p>
           </div>
         </div>
       </div>
@@ -476,17 +488,18 @@ export default function WishesPage() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => {
+                          handleAddEncouragement(wish.id);
                           setSelectedWishForEncouragement(wish.id);
                           setShowEncouragementModal(true);
                         }}
-                        className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1"
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1 hover:scale-110 active:scale-95"
                         style={{
                           background: 'oklch(0.55 0.25 290 / 20%)',
                           color: 'oklch(0.78 0.15 85)',
                           border: '1px solid oklch(0.55 0.25 290 / 30%)',
                         }}
                       >
-                        <MessageCircle size={12} />
+                        <InteractionAnimation type="encouragement" />
                         응원 ({interaction.encouragementCount})
                       </button>
 

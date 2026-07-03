@@ -7,6 +7,7 @@ import { Send, ArrowLeft, Loader2 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import MysticalLoadingAnimation from '@/components/MysticalLoadingAnimation';
 import TypingEffect from '@/components/TypingEffect';
+import ChatLoadingWithTips from '@/components/ChatLoadingWithTips';
 import { Streamdown } from 'streamdown';
 
 interface Message {
@@ -101,9 +102,10 @@ export default function YukConsultationPage() {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: data.content || '죄송합니다. 응답을 생성할 수 없었습니다.',
+        content: data.content || data.message?.content || data.choices?.[0]?.message?.content || '죄송합니다. 응답을 생성할 수 없었습니다.',
         timestamp: new Date(),
       };
+      console.log('API Response:', data); // 디버깅용
 
       setLoadingStage('completing');
       setTimeout(() => {
@@ -168,10 +170,8 @@ export default function YukConsultationPage() {
           </div>
         ))}
         {isLoading && (
-          <div className="flex justify-start">
-            <div className="px-4 py-3 rounded-lg" style={{ background: 'oklch(0.20 0.05 270)' }}>
-              <Loader2 size={20} className="animate-spin" style={{ color: 'oklch(0.78 0.15 85)' }} />
-            </div>
+          <div className="flex justify-center w-full">
+            <ChatLoadingWithTips category="yuk" />
           </div>
         )}
         <div ref={messagesEndRef} />
