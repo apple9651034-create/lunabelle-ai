@@ -5,6 +5,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, ArrowLeft, Loader2 } from 'lucide-react';
 import { useLocation } from 'wouter';
+import MysticalLoadingAnimation from '@/components/MysticalLoadingAnimation';
 import { getUserSajuProfile, getSajuContext, getSajuMingshik } from '@/lib/userSajuProfile';
 import { Streamdown } from 'streamdown';
 
@@ -20,6 +21,7 @@ export default function SajuConsultationPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingStage, setLoadingStage] = useState<'analyzing' | 'divining' | 'interpreting' | 'completing'>('analyzing');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const userProfile = getUserSajuProfile();
 
@@ -51,6 +53,7 @@ export default function SajuConsultationPage() {
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
+    setLoadingStage('analyzing');
 
     try {
       const response = await fetch('/api/chat', {
@@ -80,7 +83,9 @@ export default function SajuConsultationPage() {
         throw new Error('API 요청 실패');
       }
 
+      setLoadingStage('divining');
       const data = await response.json();
+      setLoadingStage('interpreting');
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -88,7 +93,12 @@ export default function SajuConsultationPage() {
         timestamp: new Date(),
       };
 
-      setMessages((prev) => [...prev, assistantMessage]);
+      setLoadingStage('completing');
+      setTimeout(() => {
+        setMessages((prev) => [...prev, assistantMessage]);
+        setIsLoading(false);
+        setLoadingStage('analyzing');
+      }, 800);
     } catch (error) {
       console.error('채팅 오류:', error);
       const errorMessage: Message = {
@@ -98,13 +108,17 @@ export default function SajuConsultationPage() {
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
-    } finally {
       setIsLoading(false);
+      setLoadingStage('analyzing');
     }
   };
 
+  if (isLoading) {
+    return <MysticalLoadingAnimation isLoading={isLoading} stage={loadingStage} />;
+  }
+
   return (
-    <div className="h-screen flex flex-col" style={{ background: 'oklch(0.12 0.03 270)' }}>
+    <div className="min-h-screen" style={{ background: 'oklch(0.12 0.03 270)' }}>
       {/* 헤더 */}
       <div className="p-4 border-b flex items-center justify-between" style={{ background: 'oklch(0.18 0.08 290)', borderColor: 'oklch(1 0 0 / 10%)' }}>
         <div className="flex items-center gap-3">

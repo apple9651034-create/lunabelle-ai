@@ -4,6 +4,7 @@
  */
 import React, { useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import MysticalLoadingAnimation from '@/components/MysticalLoadingAnimation';
 
 interface YukResult {
   line: number;
@@ -36,6 +37,7 @@ export default function YukPage() {
   const [hexagramKey, setHexagramKey] = useState('');
   const [hexagramInfo, setHexagramInfo] = useState<HexagramInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingStage, setLoadingStage] = useState<'analyzing' | 'divining' | 'interpreting' | 'completing'>('analyzing');
 
   // 시간 기반 육효 생성 알고리즘
   const generateYukByTime = (): YukResult[] => {
@@ -82,11 +84,18 @@ export default function YukPage() {
       return;
     }
     setIsLoading(true);
+    setLoadingStage('analyzing');
     setTimeout(() => {
+      setLoadingStage('divining');
       const drawn = generateYukByTime();
+      setLoadingStage('interpreting');
+      setLoadingStage('completing');
       setResults(drawn);
-      setIsLoading(false);
-    }, 1200);
+      setTimeout(() => {
+        setIsLoading(false);
+        setLoadingStage('analyzing');
+      }, 800);
+    }, 1500);
   };
 
   const cardStyle = {
@@ -102,6 +111,10 @@ export default function YukPage() {
       return changing ? '━ ━ ━' : '━ ━';
     }
   };
+
+  if (isLoading) {
+    return <MysticalLoadingAnimation isLoading={isLoading} stage={loadingStage} />;
+  }
 
   return (
     <div className="min-h-screen" style={{ background: 'oklch(0.12 0.03 270)' }}>

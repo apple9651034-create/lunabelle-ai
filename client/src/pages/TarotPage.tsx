@@ -8,6 +8,7 @@ import { useLocation } from 'wouter';
 import { fullTarotDeck, detectQuestionType, selectSpread, drawCards, TarotCard } from '@/lib/tarotCards';
 import { saveConsultation } from '@/lib/consultationHistory';
 import MysticalLoader from '@/components/MysticalLoader';
+import MysticalLoadingAnimation from '@/components/MysticalLoadingAnimation';
 
 interface TarotReading {
   question: string;
@@ -23,9 +24,10 @@ export default function TarotPage() {
   const [question, setQuestion] = useState('');
   const [reading, setReading] = useState<TarotReading | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingStage, setLoadingStage] = useState<'analyzing' | 'divining' | 'interpreting' | 'completing'>('analyzing');
 
   if (isLoading) {
-    return <MysticalLoader type="tarot" />;
+    return <MysticalLoadingAnimation isLoading={isLoading} stage={loadingStage} />;
   }
 
   const handleDrawTarot = () => {
@@ -35,14 +37,17 @@ export default function TarotPage() {
     }
 
     setIsLoading(true);
+    setLoadingStage('analyzing');
     setTimeout(() => {
+      setLoadingStage('divining');
       // 질문 유형 감지
       const questionType = detectQuestionType(question);
       
       // 스프레드 선택
       const spread = selectSpread(questionType);
+      setLoadingStage('interpreting');
       
-      // 카드 뽑기
+      // 카드 뛰기
       const { cards, reversed } = drawCards(spread.positions.length);
       
       // 해석 생성
@@ -56,6 +61,7 @@ export default function TarotPage() {
         interpretation,
       };
 
+      setLoadingStage('completing');
       setReading(newReading);
 
       // 상담내역 저장
@@ -65,8 +71,11 @@ export default function TarotPage() {
         result: newReading,
       });
 
-      setIsLoading(false);
-    }, 1500);
+      setTimeout(() => {
+        setIsLoading(false);
+        setLoadingStage('analyzing');
+      }, 800);
+    }, 2000);
   };
 
   const cardStyle = {
