@@ -27,6 +27,10 @@ export default function SajuConsultationPage() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const userProfile = getUserSajuProfile();
+  const [profiles, setProfiles] = useState([userProfile]);
+  const [showAddProfile, setShowAddProfile] = useState(false);
+  const [newProfileName, setNewProfileName] = useState('');
+  const [selectedProfileIdx, setSelectedProfileIdx] = useState(0);
 
   useEffect(() => {
     // 초기 인사말
@@ -209,7 +213,7 @@ export default function SajuConsultationPage() {
       {/* 결제 충전소 */}
       <div className="p-4 border-t" style={{ background: 'oklch(0.18 0.08 290)', borderColor: 'oklch(1 0 0 / 10%)' }}>
         <div className="mb-4">
-          <h3 className="text-sm font-semibold mb-3" style={{ color: 'oklch(0.94 0.015 90)' }}>💳 크레딧 충전 (20% 이벤트)</h3>
+          <h3 className="text-sm font-semibold mb-3" style={{ color: 'oklch(0.94 0.015 90)' }}>💳 크레딧 충전 ✨ (20% 추가 이벤트)</h3>
           <div className="grid grid-cols-2 gap-2">
             <button className="p-3 rounded-lg text-xs font-semibold transition-opacity hover:opacity-80" style={{ background: 'oklch(0.50 0.28 290)', color: 'oklch(1 0 0)' }}>
               10,000원 → 12,000원
