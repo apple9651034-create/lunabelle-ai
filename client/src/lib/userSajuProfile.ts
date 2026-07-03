@@ -43,15 +43,7 @@ export const DEFAULT_USER_SAJU: UserSajuProfile = {
 };
 
 export function getUserSajuProfile(): UserSajuProfile {
-  const stored = localStorage.getItem('userSajuProfile');
-  if (stored) {
-    try {
-      return JSON.parse(stored);
-    } catch (error) {
-      console.error('사주 프로필 로드 오류:', error);
-    }
-  }
-  // 기본값 저장 및 반환
+  // 항상 기본값으로 초기화 (localStorage 무시)
   saveUserSajuProfile(DEFAULT_USER_SAJU);
   return DEFAULT_USER_SAJU;
 }
@@ -61,6 +53,7 @@ export function saveUserSajuProfile(profile: UserSajuProfile): void {
 }
 
 export function resetToDefaultProfile(): void {
+  localStorage.removeItem('userSajuProfile');
   saveUserSajuProfile(DEFAULT_USER_SAJU);
 }
 

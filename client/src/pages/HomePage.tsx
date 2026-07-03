@@ -194,10 +194,10 @@ export default function HomePage() {
                     <p style={{ color: 'oklch(0.60 0.02 290)' }} className="text-xs mb-2 font-semibold">사주 명식</p>
                     <div className="flex gap-2 text-lg font-bold" style={{ fontFamily: "'Noto Serif KR', serif" }}>
                       {sajuProfile.fourPillars && [
-                        { type: 'yearString' as const, char: sajuProfile.fourPillars.yearString },
-                        { type: 'monthString' as const, char: sajuProfile.fourPillars.monthString },
-                        { type: 'dayString' as const, char: sajuProfile.fourPillars.dayString },
                         { type: 'hourString' as const, char: sajuProfile.fourPillars.hourString },
+                        { type: 'dayString' as const, char: sajuProfile.fourPillars.dayString },
+                        { type: 'monthString' as const, char: sajuProfile.fourPillars.monthString },
+                        { type: 'yearString' as const, char: sajuProfile.fourPillars.yearString },
                       ].map(({ type, char }) => (
                         <div key={type} className="relative group">
                           <button
