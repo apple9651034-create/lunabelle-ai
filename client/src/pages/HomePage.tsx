@@ -7,6 +7,8 @@ import { useLocation } from 'wouter';
 import { Edit2 } from 'lucide-react';
 import DailyFortuneWidget from '@/components/DailyFortuneWidget';
 import { getUserSajuProfile } from '@/lib/userSajuProfile';
+import ProfileSelector from '@/components/ProfileSelector';
+import { migrateOldProfile } from '@/lib/profileManager';
 
 interface SajuProfile {
   year: string;
@@ -79,6 +81,7 @@ export default function HomePage() {
   const [, navigate] = useLocation();
   const [sajuProfile, setSajuProfile] = useState<SajuProfile | null>(null);
   const [selectedPillar, setSelectedPillar] = useState<{ type: keyof typeof PILLAR_MEANINGS; char: string } | null>(null);
+  const [isProfileSelectorOpen, setIsProfileSelectorOpen] = useState(false);
 
   useEffect(() => {
     // 기본 사주 프로필 자동 로드 (없으면 기본값으로 설정)
@@ -141,6 +144,59 @@ export default function HomePage() {
 
       {/* 메인 콘텐츠 */}
       <div className="p-5 space-y-6 relative z-10">
+        {/* 사주 명식 - 헤더 바로 아래 */}
+        {sajuProfile && (
+          <div className="px-5 py-4 rounded-xl border flex items-center justify-between" style={{
+            background: 'oklch(0.18 0.08 290)',
+            borderColor: 'oklch(0.78 0.15 85 / 30%)',
+            boxShadow: '0 0 20px oklch(0.55 0.25 290 / 10%)',
+          }}>
+            <div className="flex-1">
+              <p style={{ color: 'oklch(0.60 0.02 290)' }} className="text-xs mb-2 font-semibold">📍 사주 명식</p>
+              <div className="flex gap-2 text-base font-bold" style={{ fontFamily: "'Noto Serif KR', serif" }}>
+                {sajuProfile.fourPillars && [
+                  sajuProfile.fourPillars.yearString,
+                  sajuProfile.fourPillars.monthString,
+                  sajuProfile.fourPillars.dayString,
+                  sajuProfile.fourPillars.hourString,
+                ].map((char, idx) => (
+                  <span key={idx} className="px-3 py-2 rounded-lg" style={{
+                    background: 'oklch(0.30 0.10 290)',
+                    color: 'oklch(0.94 0.015 90)',
+                    border: '1px solid oklch(0.78 0.15 85 / 20%)',
+                  }}>
+                    {char}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="flex gap-2 ml-4">
+              <button
+                onClick={() => navigate('/saju')}
+                className="p-2 rounded-lg transition-all hover:opacity-80"
+                style={{
+                  background: 'oklch(0.50 0.28 290)',
+                  color: 'oklch(1 0 0)',
+                }}
+                title="사주 수정"
+              >
+                <Edit2 size={18} />
+              </button>
+              <button
+                onClick={() => setIsProfileSelectorOpen(true)}
+                className="p-2 rounded-lg transition-all hover:opacity-80"
+                style={{
+                  background: 'oklch(0.50 0.28 290)',
+                  color: 'oklch(1 0 0)',
+                }}
+                title="프로필 추가"
+              >
+                <span className="text-lg">+</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* 환영 메시지 */}
         <div className="p-6 rounded-2xl border" style={{
           background: 'oklch(0.17 0.04 270)',
@@ -158,42 +214,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* 사주 명식 - 상단 미니 카드 */}
-        {sajuProfile && (
-          <div className="px-4 py-3 rounded-lg border flex items-center justify-between" style={{
-            background: 'oklch(0.18 0.08 290)',
-            borderColor: 'oklch(0.78 0.15 85 / 30%)',
-          }}>
-            <div className="flex-1">
-              <p style={{ color: 'oklch(0.60 0.02 290)' }} className="text-xs mb-1">📍 사주 명식</p>
-              <div className="flex gap-1 text-sm font-bold" style={{ fontFamily: "'Noto Serif KR', serif" }}>
-                {sajuProfile.fourPillars && [
-                  sajuProfile.fourPillars.yearString,
-                  sajuProfile.fourPillars.monthString,
-                  sajuProfile.fourPillars.dayString,
-                  sajuProfile.fourPillars.hourString,
-                ].map((char, idx) => (
-                  <span key={idx} className="px-2 py-1 rounded" style={{
-                    background: 'oklch(0.30 0.10 290)',
-                    color: 'oklch(0.94 0.015 90)',
-                  }}>
-                    {char}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <button
-              onClick={() => navigate('/saju')}
-              className="p-2 rounded-lg transition-all hover:opacity-80 ml-3"
-              style={{
-                background: 'oklch(0.50 0.28 290)',
-                color: 'oklch(1 0 0)',
-              }}
-            >
-              <Edit2 size={16} />
-            </button>
-          </div>
-        )}
+
 
         {/* 오늘의 운세 */}
         <DailyFortuneWidget />
@@ -270,6 +291,15 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+      <ProfileSelector
+        isOpen={isProfileSelectorOpen}
+        onClose={() => setIsProfileSelectorOpen(false)}
+        onProfileChange={(profile) => {
+          setSajuProfile(profile);
+          setIsProfileSelectorOpen(false);
+        }}
+      />
 
       <style>{`
         @keyframes float {
