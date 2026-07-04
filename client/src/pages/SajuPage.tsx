@@ -292,6 +292,18 @@ export default function SajuPage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'oklch(0.12 0.03 270)' }}>
+      {/* 사주 명식 - 왼쪽 상단 */}
+      {result && (
+        <div className="px-5 py-3 border-b" style={{
+          background: 'oklch(0.18 0.08 290)',
+          borderColor: 'oklch(1 0 0 / 10%)',
+        }}>
+          <p className="text-xs font-semibold" style={{ color: 'oklch(0.70 0.18 60)' }}>
+            📍 {result.fourPillars.yearString} {result.fourPillars.monthString} {result.fourPillars.dayString} {result.fourPillars.hourString}
+          </p>
+        </div>
+      )}
+      
       {/* Header */}
       <div
         className="px-5 py-4 border-b flex items-center gap-3"
@@ -314,7 +326,6 @@ export default function SajuPage() {
           <p className="text-xs" style={{ color: 'oklch(0.78 0.15 85)' }}>생년월일로 운명을 분석합니다</p>
         </div>
       </div>
-
       <div className="p-4 space-y-4">
         {/* Input Form */}
         <div className="p-5 space-y-3" style={cardStyle}>

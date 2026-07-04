@@ -158,83 +158,85 @@ export default function HomePage() {
           </div>
         </div>
 
+        {/* 사주 명식 - 상단 미니 카드 */}
+        {sajuProfile && (
+          <div className="px-4 py-3 rounded-lg border flex items-center justify-between" style={{
+            background: 'oklch(0.18 0.08 290)',
+            borderColor: 'oklch(0.78 0.15 85 / 30%)',
+          }}>
+            <div className="flex-1">
+              <p style={{ color: 'oklch(0.60 0.02 290)' }} className="text-xs mb-1">📍 사주 명식</p>
+              <div className="flex gap-1 text-sm font-bold" style={{ fontFamily: "'Noto Serif KR', serif" }}>
+                {sajuProfile.fourPillars && [
+                  sajuProfile.fourPillars.yearString,
+                  sajuProfile.fourPillars.monthString,
+                  sajuProfile.fourPillars.dayString,
+                  sajuProfile.fourPillars.hourString,
+                ].map((char, idx) => (
+                  <span key={idx} className="px-2 py-1 rounded" style={{
+                    background: 'oklch(0.30 0.10 290)',
+                    color: 'oklch(0.94 0.015 90)',
+                  }}>
+                    {char}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <button
+              onClick={() => navigate('/saju')}
+              className="p-2 rounded-lg transition-all hover:opacity-80 ml-3"
+              style={{
+                background: 'oklch(0.50 0.28 290)',
+                color: 'oklch(1 0 0)',
+              }}
+            >
+              <Edit2 size={16} />
+            </button>
+          </div>
+        )}
+
         {/* 오늘의 운세 */}
         <DailyFortuneWidget />
 
-        {/* 사주 명식 */}
-        {sajuProfile && (
-          <div className="mb-12 p-6 rounded-2xl border" style={{
-            background: 'oklch(0.18 0.08 290)',
-            borderColor: 'oklch(0.78 0.15 85 / 30%)',
-            boxShadow: '0 0 30px oklch(0.55 0.25 290 / 15%)',
-          }}>
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1">
-                <h2 className="text-sm font-semibold mb-3 tracking-widest uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>
-                  📿 나의 사주
-                </h2>
-                <div className="grid grid-cols-2 gap-3 text-sm mb-4">
-                  <div>
-                    <p style={{ color: 'oklch(0.60 0.02 290)' }}>생년월일</p>
-                    <p className="font-bold" style={{ color: 'oklch(0.94 0.015 90)' }}>
-                      {sajuProfile.year}년 {sajuProfile.month}월 {sajuProfile.day}일
-                    </p>
-                  </div>
-                  <div>
-                    <p style={{ color: 'oklch(0.60 0.02 290)' }}>태어난 시간</p>
-                    <p className="font-bold" style={{ color: 'oklch(0.94 0.015 90)' }}>
-                      {sajuProfile.hour}
-                    </p>
-                  </div>
-                </div>
-
-                {/* 사주 명식 글자 */}
-                {sajuProfile.fourPillars && (
-                  <div>
-                    <p style={{ color: 'oklch(0.60 0.02 290)' }} className="text-xs mb-2 font-semibold">사주 명식</p>
-                    <div className="flex gap-2 text-lg font-bold" style={{ fontFamily: "'Noto Serif KR', serif" }}>
-                      {sajuProfile.fourPillars && [
-                        { type: 'hourString' as const, char: sajuProfile.fourPillars.hourString },
-                        { type: 'dayString' as const, char: sajuProfile.fourPillars.dayString },
-                        { type: 'monthString' as const, char: sajuProfile.fourPillars.monthString },
-                        { type: 'yearString' as const, char: sajuProfile.fourPillars.yearString },
-                      ].map(({ type, char }) => (
-                        <div key={type} className="relative group">
-                          <button
-                            onClick={() => setSelectedPillar({ type, char })}
-                            className="px-3 py-2 rounded-lg transition-all hover:scale-110"
-                            style={{
-                              background: 'oklch(0.30 0.10 290)',
-                              color: 'oklch(0.94 0.015 90)',
-                              border: '1px solid oklch(0.78 0.15 85 / 30%)',
-                            }}
-                          >
-                            {char}
-                          </button>
-                          {/* 호버 툴팁 */}
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-black rounded-lg p-3 text-xs whitespace-nowrap text-white z-50 w-max" style={{ background: 'oklch(0.15 0.05 290)', border: '1px solid oklch(0.78 0.15 85 / 30%)' }}>
-                            <div className="font-bold mb-1">{pillarLabels[type]}: {char}</div>
-                            <div style={{ color: 'oklch(0.78 0.15 85)' }}>{PILLAR_MEANINGS[type][char] || '의미 정보 없음'}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-              <button
-                onClick={() => navigate('/saju')}
-                className="p-2 rounded-lg transition-all hover:opacity-80"
-                style={{
-                  background: 'oklch(0.50 0.28 290)',
-                  color: 'oklch(1 0 0)',
-                }}
-              >
-                <Edit2 size={18} />
-              </button>
+        {/* 크레딧 충전소 - 중앙 */}
+        <div className="p-6 rounded-2xl border relative overflow-hidden" style={{
+          background: 'oklch(0.18 0.08 290)',
+          borderColor: 'oklch(0.78 0.15 85 / 30%)',
+          boxShadow: '0 0 30px oklch(0.55 0.25 290 / 15%)',
+        }}>
+          {/* 반짝이는 배경 효과 */}
+          <div className="absolute inset-0 opacity-30" style={{
+            background: 'linear-gradient(45deg, transparent 30%, oklch(0.55 0.25 290 / 20%) 50%, transparent 70%)',
+            backgroundSize: '200% 200%',
+            animation: 'shimmer 3s infinite',
+          }} />
+          
+          <div className="relative z-10">
+            <h3 className="text-sm font-semibold mb-4 tracking-widest uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>
+              💳 크레딧 충전 ✨ (20% 추가 이벤트)
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { price: '10,000원', bonus: '12,000원' },
+                { price: '30,000원', bonus: '36,000원' },
+                { price: '50,000원', bonus: '60,000원' },
+                { price: '100,000원', bonus: '120,000원' },
+              ].map((item, idx) => (
+                <button
+                  key={idx}
+                  className="p-4 rounded-lg text-xs font-semibold transition-all hover:scale-105 hover:shadow-lg active:scale-95"
+                  style={{
+                    background: 'linear-gradient(135deg, oklch(0.50 0.28 290), oklch(0.45 0.25 310))',
+                    color: 'oklch(1 0 0)',
+                  }}
+                >
+                  <div className="font-bold">{item.price}</div>
+                  <div style={{ color: 'oklch(0.94 0.015 90)' }}>→ {item.bonus}</div>
+                </button>
+              ))}
             </div>
           </div>
-        )}
+        </div>
 
         {/* 서비스 카드 */}
         <div>
@@ -273,6 +275,10 @@ export default function HomePage() {
         @keyframes float {
           0%, 100% { transform: translateY(0px); opacity: 0.3; }
           50% { transform: translateY(-20px); opacity: 0.6; }
+        }
+        @keyframes shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
         }
       `}</style>
     </div>
