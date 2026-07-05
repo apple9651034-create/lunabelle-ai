@@ -94,11 +94,41 @@ export default function YukConsultationPage() {
     setIsLoading(true);
 
     try {
-      // AI 응답 생성 (실제 API 호출로 대체 필요)
+      // API 호출
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: 'system',
+              content: YUK_SYSTEM_PROMPT,
+            },
+            ...messages.map((msg) => ({
+              role: msg.role,
+              content: msg.content,
+            })),
+            {
+              role: 'user',
+              content: input,
+            },
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('API 호출 실패');
+      }
+
+      const data = await response.json();
+      const assistantContent = data.choices[0]?.message?.content || '죄송합니다. 응답을 생성할 수 없습니다.';
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: `육효의 지혜로 달빛님의 질문을 살펴보겠습니다.\n\n달빛님이 말씀하신 "${input}"에 대해 깊이 있게 생각해봅시다. 이것은 변화와 성장의 시간입니다.`,
+        content: assistantContent,
         timestamp: new Date(),
       };
 
