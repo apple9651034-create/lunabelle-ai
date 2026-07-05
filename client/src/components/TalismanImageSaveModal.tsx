@@ -110,11 +110,7 @@ export default function TalismanImageSaveModal({
             닫기
           </button>
         </div>
-      <PaymentSuccessAnimation 
-        isVisible={showAnimation}
-        onComplete={() => setShowAnimation(false)}
-      />
-    </div>
+      </div>
     </div>
   );
 }

@@ -91,16 +91,18 @@ export default function HomePage() {
   useEffect(() => {
     // 기본 사주 프로필 자동 로드 (없으면 기본값으로 설정)
     const profile = getUserSajuProfile();
-    setSajuProfile({
-      year: String(profile.year),
-      month: String(profile.month),
-      day: String(profile.day),
-      hour: `오전 ${profile.hour}시 ${profile.minute}분`,
-      gender: profile.gender,
-      fourPillars: profile.fourPillars,
-      personality: profile.personality,
-      luck: profile.luck,
-    });
+    if (profile) {
+      setSajuProfile({
+        year: String(profile.year),
+        month: String(profile.month),
+        day: String(profile.day),
+        hour: `오전 ${profile.hour}시`,
+        gender: profile.gender,
+        fourPillars: profile.fourPillars,
+        personality: profile.personality,
+        luck: profile.luck,
+      });
+    }
   }, []);
 
   const pillarLabels = { yearString: '년주', monthString: '월주', dayString: '일주', hourString: '시주' };
@@ -293,7 +295,7 @@ export default function HomePage() {
           
           <div className="relative z-10">
             <div className="mb-4 p-3 rounded-lg" style={{ background: 'oklch(0.25 0.10 290)', border: '1px solid oklch(0.70 0.18 60)' }}>
-              <TalismanDiscountTimer />
+              <TalismanDiscountTimer purchaseTime={new Date().toISOString()} />
             </div>
             <h3 className="text-sm font-semibold mb-4 tracking-widest uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>
               💳 크레딧 충전 ✨ (20% 추가 이벤트)

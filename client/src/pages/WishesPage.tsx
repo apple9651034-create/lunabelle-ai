@@ -283,7 +283,6 @@ export default function WishesPage() {
     <>
       <PaymentSuccessAnimation
         isVisible={showSuccessAnimation}
-        chargeAmount={lastBlessingAmount}
         onComplete={() => setShowSuccessAnimation(false)}
       />
       <div className="min-h-screen" style={{ background: 'oklch(0.12 0.03 270)' }}>

@@ -41,7 +41,6 @@ export default function ChargeModal({ isOpen, onClose }: ChargeModalProps) {
     <>
       <PaymentSuccessAnimation
         isVisible={showAnimation}
-        chargeAmount={selectedCharges}
         onComplete={handleAnimationComplete}
       />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'oklch(0 0 0 / 50%)' }}>

@@ -30,6 +30,11 @@ export default function TalismanDetailModal({
       return;
     }
 
+    if (!talisman.image) {
+      alert('이미지를 찾을 수 없습니다.');
+      return;
+    }
+
     try {
       const response = await fetch(talisman.image);
       const blob = await response.blob();

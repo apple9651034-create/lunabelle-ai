@@ -110,7 +110,6 @@ export default function ChargePage() {
     <>
       <PaymentSuccessAnimation
         isVisible={showSuccessAnimation}
-        chargeAmount={selectedPkg?.credits || 0}
         onComplete={() => setShowSuccessAnimation(false)}
       />
       <div className="min-h-screen" style={{ background: 'oklch(0.10 0.02 270)' }}>

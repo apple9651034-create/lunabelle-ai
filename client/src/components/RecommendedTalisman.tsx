@@ -19,7 +19,7 @@ interface TalismanRecommendation {
 
 interface RecommendedTalismanProps {
   consultationMessages?: any[];
-  consultationContent: string;
+  consultationContent?: string;
   consultationType: 'saju' | 'tarot' | 'yuk';
   onAddToCart?: (talisman: TalismanRecommendation) => void;
 }
@@ -59,7 +59,7 @@ export default function RecommendedTalisman({
 
   // 상담 내용 기반 부적 추천 로직
   const getRecommendedTalismanByContent = (): TalismanRecommendation => {
-    const content = consultationContent.toLowerCase();
+    const content = (consultationContent || '').toLowerCase();
 
     // 키워드 기반 부적 추천
     const recommendations: Record<string, TalismanRecommendation> = {

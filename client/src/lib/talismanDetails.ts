@@ -12,6 +12,7 @@ export interface TalismanDetail {
   usage: string;
   history: string;
   symbol: string;
+  image?: string; // 부적 이미지 URL
 }
 
 export const TALISMAN_DETAILS: Record<number, TalismanDetail> = {

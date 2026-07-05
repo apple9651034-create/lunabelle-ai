@@ -3,7 +3,7 @@
  * 상담 내역 QR코드 표시 컴포넌트
  */
 import React, { useState } from 'react';
-import QRCode from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import { Copy, X } from 'lucide-react';
 
 interface ConsultationQRCodeProps {
@@ -70,7 +70,7 @@ export default function ConsultationQRCode({
             className="p-4 rounded-lg"
             style={{ background: 'oklch(0.95 0.01 90)' }}
           >
-            <QRCode
+            <QRCodeSVG
               value={shareLink}
               size={200}
               level="H"
