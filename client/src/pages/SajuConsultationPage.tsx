@@ -4,13 +4,14 @@
  * 사주 명식을 기반으로 AI 루나가 맞춤형 상담 제공
  */
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, ArrowLeft, Loader2, Download } from 'lucide-react';
+import { Send, ArrowLeft, Loader2, Download, Share2 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import ChatLoadingWithTips from '@/components/ChatLoadingWithTips';
 import ConsultationShareButtons from '@/components/ConsultationShareButtons';
 import { getUserSajuProfile } from '@/lib/userSajuProfile';
 import { Streamdown } from 'streamdown';
 import html2canvas from 'html2canvas';
+import ConsultationQRCode from '@/components/ConsultationQRCode';
 
 interface Message {
   id: string;
@@ -25,6 +26,7 @@ export default function SajuConsultationPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showQRCode, setShowQRCode] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const userProfile = getUserSajuProfile();
   const [profiles, setProfiles] = useState([userProfile]);
@@ -156,6 +158,9 @@ export default function SajuConsultationPage() {
         </div>
         <div className="flex items-center gap-2">
           <ConsultationShareButtons consultationType="사주" messages={messages} />
+          <button onClick={() => setShowQRCode(true)} className="p-2 hover:opacity-70" title="QR코드">
+            <Share2 size={20} style={{ color: "oklch(0.94 0.015 90)" }} />
+          </button>
           <button
             onClick={async () => {
               const element = document.getElementById('consultation-messages');
@@ -272,6 +277,13 @@ export default function SajuConsultationPage() {
           </button>
         </div>
       </div>
+      {showQRCode && (
+        <ConsultationQRCode
+          consultationType="사주"
+          consultationId={Date.now().toString()}
+          onClose={() => setShowQRCode(false)}
+        />
+      )}
     </div>
   );
 }

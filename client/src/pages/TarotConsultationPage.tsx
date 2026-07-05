@@ -3,7 +3,8 @@
  * 사용자의 질문에 대해 타로 카드를 기반으로 AI 루나가 맞춤형 상담 제공
  */
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, ArrowLeft, Loader2, Download } from 'lucide-react';
+import { Send, ArrowLeft, Loader2, Download, Share2 } from 'lucide-react';
+import ConsultationQRCode from '@/components/ConsultationQRCode';
 import { useLocation } from 'wouter';
 import ChatLoadingWithTips from '@/components/ChatLoadingWithTips';
 import ConsultationShareButtons from '@/components/ConsultationShareButtons';
@@ -23,6 +24,7 @@ export default function TarotConsultationPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showQRCode, setShowQRCode] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -222,6 +224,13 @@ export default function TarotConsultationPage() {
           </button>
         </div>
       </div>
+          {showQRCode && (
+        <ConsultationQRCode
+          consultationType="타로"
+          consultationId={Date.now().toString()}
+          onClose={() => setShowQRCode(false)}
+        />
+      )}
     </div>
   );
 }

@@ -3,7 +3,8 @@
  * 사용자의 질문에 대해 육효를 기반으로 AI 루나가 맞춤형 상담 제공
  */
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, ArrowLeft, Loader2, Download } from 'lucide-react';
+import { Send, ArrowLeft, Loader2, Download, Share2 } from 'lucide-react';
+import ConsultationQRCode from '@/components/ConsultationQRCode';
 import { useLocation } from 'wouter';
 import ChatLoadingWithTips from '@/components/ChatLoadingWithTips';
 import ConsultationShareButtons from '@/components/ConsultationShareButtons';
@@ -32,6 +33,7 @@ export default function YukConsultationPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showQRCode, setShowQRCode] = useState(false);
   const [previousConsultation, setPreviousConsultation] = useState<any>(null);
   const [consultationId, setConsultationId] = useState(nanoid());
   const [mainConcern, setMainConcern] = useState('');
@@ -161,9 +163,12 @@ export default function YukConsultationPage() {
         </h1>
         <div className="flex gap-2">
           <ConsultationShareButtons consultationType="육효" messages={messages} />
+          <button onClick={() => setShowQRCode(true)} className="p-2 hover:opacity-70" title="QR코드">
+            <Share2 size={20} style={{ color: "oklch(0.94 0.015 90)" }} />
+          </button>
           <button
             onClick={downloadConsultation}
-            className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+            className="p-2 hover:opacity-70"
             title="다운로드"
           >
             <Download size={20} style={{ color: 'oklch(0.78 0.15 85)' }} />
@@ -285,6 +290,13 @@ export default function YukConsultationPage() {
           </button>
         </div>
       </div>
+          {showQRCode && (
+        <ConsultationQRCode
+          consultationType="육효"
+          consultationId={Date.now().toString()}
+          onClose={() => setShowQRCode(false)}
+        />
+      )}
     </div>
   );
 }
