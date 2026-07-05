@@ -20,7 +20,7 @@ import {
 } from '@/lib/consultationMemory';
 import { nanoid } from 'nanoid';
 import { trpc } from '@/lib/trpc';
-import { YUK_SYSTEM_PROMPT } from '@/lib/yukPrompt';
+import { YUK_SYSTEM_PROMPT_ENHANCED } from '@/lib/yukPromptEnhanced';
 
 interface Message {
   id: string;
@@ -104,7 +104,7 @@ export default function YukConsultationPage() {
           messages: [
             {
               role: 'system',
-              content: YUK_SYSTEM_PROMPT,
+              content: YUK_SYSTEM_PROMPT_ENHANCED,
             },
             ...messages.map((msg) => ({
               role: msg.role,
