@@ -1,4 +1,3 @@
-import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
@@ -9,6 +8,8 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { calculateYukHyo } from "../yukCalculator";
+import OpenAI from "openai";
+import { ENV } from "./env";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -38,7 +39,7 @@ async function startServer() {
   registerStorageProxy(app);
   registerOAuthRoutes(app);
 
-  // AI 채팅 API - 견고한 구현
+  // AI 채팅 API - OpenAI 직접 호출
   app.post('/api/chat', async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     
@@ -56,17 +57,18 @@ async function startServer() {
       }
 
       // 환경 변수 확인
-      const forgeUrl = process.env.BUILT_IN_FORGE_API_URL?.replace(/\/+$/, '');
-      const forgeKey = process.env.BUILT_IN_FORGE_API_KEY;
+      const openaiKey = ENV.openaiApiKey;
 
-      if (!forgeUrl || !forgeKey) {
-        console.error('[Chat API] LLM not configured. URL:', forgeUrl ? 'exists' : 'missing', 'Key:', forgeKey ? 'exists' : 'missing');
-        return res.status(500).json({ error: 'LLM API not configured' });
+      if (!openaiKey) {
+        console.error('[Chat API] OpenAI API key not configured');
+        return res.status(500).json({ error: 'OpenAI API key not configured' });
       }
 
-      console.log('[Chat API] Calling LLM with', messages.length, 'messages');
+      // OpenAI 클라이언트 초기화
+      const openai = new OpenAI({ apiKey: openaiKey });
 
-      // LLM API 호출
+      console.log('[Chat API] Calling OpenAI with', messages.length, 'messages');
+
       // 리딩 타입 감지
       const systemMessage = messages.find((m: any) => m.role === 'system')?.content || '';
       const isYuk = systemMessage.includes('육효') || systemMessage.includes('괘');
@@ -130,36 +132,33 @@ ${Object.entries(yukCalculation.yugjinAnalysis).map(([line, info]) =>
         max_tokens = 2300;
       }
 
-      const llmResponse = await fetch(`${forgeUrl}/v1/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${forgeKey}`,
-        },
-        body: JSON.stringify({
-          model: model,
-          messages: enhancedMessages,
-          temperature: temperature,
-          max_tokens: max_tokens,
-        }),
+      // OpenAI API 호출
+      const data = await openai.chat.completions.create({
+        model: model,
+        messages: enhancedMessages as any,
+        temperature: temperature,
+        max_tokens: max_tokens,
       });
 
-      if (!llmResponse.ok) {
-        const errorText = await llmResponse.text();
-        console.error('[Chat API] LLM error:', llmResponse.status, errorText);
-        return res.status(502).json({ error: 'LLM API error', details: errorText });
-      }
-
-      const data = await llmResponse.json();
-      console.log('[Chat API] LLM response received');
+      console.log('[Chat API] OpenAI response received');
       
       // 응답 형식 검증
       if (!data.choices || !Array.isArray(data.choices) || data.choices.length === 0) {
         console.error('[Chat API] Invalid response format:', data);
-        return res.status(502).json({ error: 'Invalid LLM response format' });
+        return res.status(502).json({ error: 'Invalid OpenAI response format' });
       }
 
-      return res.json(data);
+      // OpenAI 응답을 기존 형식으로 변환
+      const response = {
+        choices: data.choices.map((choice: any) => ({
+          message: {
+            content: choice.message.content,
+            role: choice.message.role,
+          },
+        })),
+      };
+
+      return res.json(response);
     } catch (error) {
       console.error('[Chat API] Error:', error instanceof Error ? error.message : error);
       return res.status(500).json({ error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' });

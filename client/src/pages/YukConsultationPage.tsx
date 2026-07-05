@@ -321,7 +321,7 @@ export default function YukConsultationPage() {
           </button>
         </div>
       </div>
-          {showQRCode && (
+      {showQRCode && (
         <ConsultationQRCode
           consultationType="주역"
           consultationId={Date.now().toString()}
