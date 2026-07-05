@@ -3,8 +3,8 @@
  * 프로필 목록에서 개별 프로필을 수정/삭제할 수 있는 UI
  */
 import React, { useState } from 'react';
-import { Edit2, Trash2, X, Save } from 'lucide-react';
-import { getAllProfiles, updateProfile, deleteProfile } from '@/lib/profileManager';
+import { Edit2, Trash2, X, Save, Plus } from 'lucide-react';
+import { getAllProfiles, updateProfile, deleteProfile, addProfile } from '@/lib/profileManager';
 
 interface Profile {
   id: string;
@@ -30,11 +30,20 @@ export default function ProfileManager({
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingData, setEditingData] = useState<Partial<Profile>>({});
+  const [isAddingNew, setIsAddingNew] = useState(false);
+  const [newProfileData, setNewProfileData] = useState({
+    name: '',
+    year: '',
+    month: '',
+    day: '',
+    hour: '',
+    gender: '남성',
+  });
 
   React.useEffect(() => {
     if (isOpen) {
       const allProfiles = getAllProfiles();
-      setProfiles(allProfiles);
+      setProfiles(allProfiles as Profile[]);
     }
   }, [isOpen]);
 
@@ -60,14 +69,39 @@ export default function ProfileManager({
     }
   };
 
+  const handleAddNew = () => {
+    if (!newProfileData.name || !newProfileData.year || !newProfileData.month || !newProfileData.day) {
+      alert('모든 필드를 입력해주세요.');
+      return;
+    }
+
+    const newProfile = addProfile({
+      name: newProfileData.name,
+      year: newProfileData.year,
+      month: newProfileData.month,
+      day: newProfileData.day,
+      hour: newProfileData.hour,
+      gender: newProfileData.gender,
+    });
+
+    setProfiles([...profiles, newProfile as Profile]);
+    setNewProfileData({
+      name: '',
+      year: '',
+      month: '',
+      day: '',
+      hour: '',
+      gender: '남성',
+    });
+    setIsAddingNew(false);
+    onProfileUpdated();
+  };
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0, 0, 0, 0.7)' }}>
-      {/* 배경 클릭 시 닫기 */}
       <div className="absolute inset-0" onClick={onClose} />
-
-      {/* 모달 컨텐츠 */}
       <div
         className="relative max-w-2xl w-full rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto"
         style={{
@@ -75,7 +109,6 @@ export default function ProfileManager({
           border: '2px solid oklch(0.70 0.18 60)',
         }}
       >
-        {/* 닫기 버튼 */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 z-10 p-2 rounded-lg transition-colors hover:bg-white/10"
@@ -83,7 +116,6 @@ export default function ProfileManager({
           <X size={24} style={{ color: 'oklch(0.94 0.015 90)' }} />
         </button>
 
-        {/* 헤더 */}
         <div
           className="p-8 text-center border-b"
           style={{
@@ -96,8 +128,145 @@ export default function ProfileManager({
           </h2>
         </div>
 
-        {/* 프로필 목록 */}
         <div className="p-8">
+          {isAddingNew ? (
+            <div
+              className="p-4 rounded-lg border mb-4"
+              style={{
+                background: 'oklch(0.20 0.05 270)',
+                borderColor: 'oklch(0.70 0.18 60)',
+              }}
+            >
+              <h3 className="font-semibold mb-3" style={{ color: 'oklch(0.94 0.015 90)' }}>
+                ✨ 새 프로필 추가
+              </h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm" style={{ color: 'oklch(0.70 0.02 290)' }}>
+                    이름
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="예: 아내, 딸, 아들"
+                    value={newProfileData.name}
+                    onChange={(e) => setNewProfileData({ ...newProfileData, name: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg mt-1"
+                    style={{
+                      background: 'oklch(0.15 0.04 270)',
+                      color: 'oklch(0.94 0.015 90)',
+                      border: '1px solid oklch(1 0 0 / 20%)',
+                    }}
+                  />
+                </div>
+                <div className="grid grid-cols-4 gap-2">
+                  <div>
+                    <label className="text-xs" style={{ color: 'oklch(0.70 0.02 290)' }}>
+                      년
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="1990"
+                      value={newProfileData.year}
+                      onChange={(e) => setNewProfileData({ ...newProfileData, year: e.target.value })}
+                      className="w-full px-2 py-1 rounded text-sm"
+                      style={{
+                        background: 'oklch(0.15 0.04 270)',
+                        color: 'oklch(0.94 0.015 90)',
+                        border: '1px solid oklch(1 0 0 / 20%)',
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs" style={{ color: 'oklch(0.70 0.02 290)' }}>
+                      월
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="5"
+                      value={newProfileData.month}
+                      onChange={(e) => setNewProfileData({ ...newProfileData, month: e.target.value })}
+                      className="w-full px-2 py-1 rounded text-sm"
+                      style={{
+                        background: 'oklch(0.15 0.04 270)',
+                        color: 'oklch(0.94 0.015 90)',
+                        border: '1px solid oklch(1 0 0 / 20%)',
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs" style={{ color: 'oklch(0.70 0.02 290)' }}>
+                      일
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="15"
+                      value={newProfileData.day}
+                      onChange={(e) => setNewProfileData({ ...newProfileData, day: e.target.value })}
+                      className="w-full px-2 py-1 rounded text-sm"
+                      style={{
+                        background: 'oklch(0.15 0.04 270)',
+                        color: 'oklch(0.94 0.015 90)',
+                        border: '1px solid oklch(1 0 0 / 20%)',
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs" style={{ color: 'oklch(0.70 0.02 290)' }}>
+                      시간
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="9"
+                      value={newProfileData.hour}
+                      onChange={(e) => setNewProfileData({ ...newProfileData, hour: e.target.value })}
+                      className="w-full px-2 py-1 rounded text-sm"
+                      style={{
+                        background: 'oklch(0.15 0.04 270)',
+                        color: 'oklch(0.94 0.015 90)',
+                        border: '1px solid oklch(1 0 0 / 20%)',
+                      }}
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleAddNew}
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg font-semibold transition-all hover:scale-105"
+                    style={{
+                      background: 'oklch(0.50 0.28 290)',
+                      color: 'oklch(1 0 0)',
+                    }}
+                  >
+                    <Plus size={16} />
+                    추가
+                  </button>
+                  <button
+                    onClick={() => setIsAddingNew(false)}
+                    className="flex-1 px-3 py-2 rounded-lg font-semibold transition-all hover:opacity-80"
+                    style={{
+                      background: 'oklch(0.25 0.08 280)',
+                      color: 'oklch(0.70 0.02 290)',
+                    }}
+                  >
+                    취소
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => setIsAddingNew(true)}
+              className="w-full mb-4 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold transition-all hover:scale-105"
+              style={{
+                background: 'oklch(0.50 0.28 290)',
+                color: 'oklch(1 0 0)',
+              }}
+            >
+              <Plus size={18} />
+              새 프로필 추가
+            </button>
+          )}
+
           {profiles.length === 0 ? (
             <p className="text-center" style={{ color: 'oklch(0.70 0.02 290)' }}>
               등록된 프로필이 없습니다.
@@ -114,7 +283,6 @@ export default function ProfileManager({
                   }}
                 >
                   {editingId === profile.id ? (
-                    // 편집 모드
                     <div className="space-y-3">
                       <div>
                         <label className="text-sm" style={{ color: 'oklch(0.70 0.02 290)' }}>
@@ -223,7 +391,6 @@ export default function ProfileManager({
                       </div>
                     </div>
                   ) : (
-                    // 보기 모드
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-semibold" style={{ color: 'oklch(0.94 0.015 90)' }}>
@@ -256,7 +423,6 @@ export default function ProfileManager({
             </div>
           )}
 
-          {/* 닫기 버튼 */}
           <button
             onClick={onClose}
             className="w-full mt-6 px-4 py-3 rounded-lg font-semibold transition-all hover:opacity-80"

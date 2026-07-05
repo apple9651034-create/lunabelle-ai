@@ -167,29 +167,3 @@ export function migrateOldProfile(): void {
     // 마이그레이션 실패 무시
   }
 }
-
-// 프로필 업데이트 함수
-export function updateProfile(id: string, updates: Partial<Profile>): void {
-  const profiles = getAllProfiles();
-  const updatedProfiles = profiles.map(p => 
-    p.id === id ? { ...p, ...updates } : p
-  );
-  localStorage.setItem(PROFILES_KEY, JSON.stringify(updatedProfiles));
-}
-
-// 프로필 삭제 함수
-export function deleteProfile(id: string): void {
-  const profiles = getAllProfiles();
-  const filteredProfiles = profiles.filter(p => p.id !== id);
-  localStorage.setItem(PROFILES_KEY, JSON.stringify(filteredProfiles));
-}
-
-// 모든 프로필 가져오기 함수
-export function getAllProfiles(): Profile[] {
-  try {
-    const profiles = localStorage.getItem(PROFILES_KEY);
-    return profiles ? JSON.parse(profiles) : [];
-  } catch {
-    return [];
-  }
-}
