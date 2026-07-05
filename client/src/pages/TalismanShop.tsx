@@ -43,6 +43,9 @@ export default function TalismanShop() {
   const [selectedTalismanId, setSelectedTalismanId] = useState<number | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showDownloadAnimation, setShowDownloadAnimation] = useState(false);
+  const [isPaymentLoading, setIsPaymentLoading] = useState(false);
+  const [paymentResult, setPaymentResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   const toggleLike = (id: number) => {
     setTalismans((prev) => prev.map((t) => t.id === id ? { ...t, liked: !t.liked } : t));
@@ -70,15 +73,19 @@ export default function TalismanShop() {
       return;
     }
 
+    setIsPaymentLoading(true);
+
     try {
       // PortOne 결제 게이트웨이 초기화
       const { IMP } = window as any;
       if (!IMP) {
-        alert('결제 시스템을 불러올 수 없습니다.');
+        setPaymentResult({ success: false, message: '결제 시스템을 불러올 수 없습니다.' });
+        setShowPaymentModal(true);
+        setIsPaymentLoading(false);
         return;
       }
 
-      IMP.init('imp12345678'); // PortOne 가맹점 ID
+      IMP.init('imp12345678'); // PortOne 가맩점 ID
 
       const merchantUid = `order_${Date.now()}`;
       const cartTalismans = cart.map((item) => ({
@@ -104,6 +111,7 @@ export default function TalismanShop() {
           m_redirect_url: window.location.href,
         },
         (response: any) => {
+          setIsPaymentLoading(false);
           if (response.success) {
             // 결제 성공
             const ids = cart.map((item) => item.id);
@@ -116,15 +124,19 @@ export default function TalismanShop() {
 
             setCart([]);
             setShowCart(false);
-            alert('구매가 완료되었습니다! 부적 이미지를 다운로드하실 수 있습니다.');
+            setPaymentResult({ success: true, message: `${cart.length}개의 부적 구매가 완료되었습니다!` });
+            setShowPaymentModal(true);
           } else {
-            alert(`결제 실패: ${response.error_msg}`);
+            setPaymentResult({ success: false, message: `결제 실패: ${response.error_msg || '알 수 없는 오류'}` });
+            setShowPaymentModal(true);
           }
         }
       );
     } catch (error) {
       console.error('결제 처리 오류:', error);
-      alert('결제 처리 중 오류가 발생했습니다.');
+      setIsPaymentLoading(false);
+      setPaymentResult({ success: false, message: '결제 처리 중 오류가 발생했습니다.' });
+      setShowPaymentModal(true);
     }
   };
 
@@ -313,8 +325,11 @@ export default function TalismanShop() {
                   <Info size={14} />
                 </button>
               </div>
-              <p className="text-[11px] mb-1 leading-snug" style={{ color: 'oklch(0.60 0.02 290)' }}>
+              <p className="text-[11px] mb-2 leading-snug" style={{ color: 'oklch(0.60 0.02 290)' }}>
                 {talisman.description}
+              </p>
+              <p className="text-[10px] mb-2 leading-tight p-2 rounded" style={{ color: 'oklch(0.85 0.015 90)', background: 'oklch(0.20 0.05 270)' }}>
+                <span style={{ color: 'oklch(0.78 0.15 85)', fontWeight: 'bold' }}>효능:</span> {talisman.benefit}
               </p>
               <p className="text-sm font-bold mb-2" style={{ color: 'oklch(0.78 0.15 85)' }}>
                 {talisman.price.toLocaleString()}원
@@ -362,6 +377,59 @@ export default function TalismanShop() {
         isVisible={showDownloadAnimation}
         onComplete={() => setShowDownloadAnimation(false)}
       />
+
+      {/* 결제 로드링 오버레이 */}
+      {isPaymentLoading && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-gradient-to-br from-purple-900 to-indigo-900 rounded-2xl p-8 text-center">
+            <div className="mb-4 flex justify-center">
+              <div className="w-12 h-12 border-4 border-purple-400 border-t-yellow-400 rounded-full animate-spin"></div>
+            </div>
+            <p className="text-white font-semibold text-lg">결제 중...</p>
+            <p className="text-purple-200 text-sm mt-2">잠시만 기다려주세요</p>
+          </div>
+        </div>
+      )}
+
+      {/* 결제 결과 모달 */}
+      {showPaymentModal && paymentResult && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-8 max-w-sm mx-4 border border-purple-500/30">
+            <div className="text-center mb-6">
+              {paymentResult.success ? (
+                <>
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
+                    <span className="text-3xl">✓</span>
+                  </div>
+                  <h2 className="text-2xl font-bold text-green-400 mb-2">결제 성공!</h2>
+                </>
+              ) : (
+                <>
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-red-400 to-rose-500 rounded-full flex items-center justify-center">
+                    <span className="text-3xl">✕</span>
+                  </div>
+                  <h2 className="text-2xl font-bold text-red-400 mb-2">결제 실패</h2>
+                </>
+              )}
+            </div>
+            <p className="text-white text-center mb-6 text-lg">{paymentResult.message}</p>
+            <button
+              onClick={() => {
+                setShowPaymentModal(false);
+                setPaymentResult(null);
+              }}
+              className="w-full py-3 rounded-xl font-bold text-white transition-all active:scale-[0.97]"
+              style={{
+                background: paymentResult.success
+                  ? 'linear-gradient(135deg, oklch(0.50 0.28 120), oklch(0.45 0.25 140))'
+                  : 'linear-gradient(135deg, oklch(0.50 0.28 20), oklch(0.45 0.25 40))',
+              }}
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
