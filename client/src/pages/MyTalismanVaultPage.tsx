@@ -5,6 +5,8 @@
 import React, { useEffect, useState } from 'react';
 import { Download, Trash2, Calendar, Coins } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
+import TalismanDetailModal from '@/components/TalismanDetailModal';
+import { TALISMAN_DETAILS } from '@/lib/talismanDetails';
 import { useAuth } from '@/_core/hooks/useAuth';
 
 interface PurchasedTalisman {
@@ -23,6 +25,7 @@ export default function MyTalismanVaultPage() {
   const { user, isAuthenticated } = useAuth();
   const [talismans, setTalismans] = useState<PurchasedTalisman[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedTalisman, setSelectedTalisman] = useState<PurchasedTalisman | null>(null);
 
   // 부적 목록 조회 (실제로는 tRPC를 통해 서버에서 조회)
   useEffect(() => {
@@ -123,7 +126,8 @@ export default function MyTalismanVaultPage() {
             {talismans.map((talisman) => (
               <div
                 key={talisman.id}
-                className="p-4 rounded-lg border overflow-hidden hover:shadow-lg transition-shadow"
+                onClick={() => setSelectedTalisman(talisman)}
+                className="p-4 rounded-lg border overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
                 style={{
                   borderColor: 'oklch(1 0 0 / 10%)',
                   background: 'linear-gradient(135deg, oklch(0.18 0.08 290), oklch(0.15 0.06 310))',
@@ -226,6 +230,23 @@ export default function MyTalismanVaultPage() {
             </div>
           </div>
         </div>
+      )}
+      
+      {/* 부적 상세 정보 팝업 */}
+      {selectedTalisman && (
+        <TalismanDetailModal
+          isOpen={!!selectedTalisman}
+          talisman={TALISMAN_DETAILS[parseInt(selectedTalisman.talismanId) || 1] || {
+            name: selectedTalisman.talismanName,
+            symbol: selectedTalisman.talismanImage || '🏺',
+            meaning: '부적의 의미',
+            benefit: '부적의 효능',
+            description: selectedTalisman.consultationContent || '부적에 대한 설명',
+            usage: '부적 사용 방법',
+            history: '부적의 역사',
+          }}
+          onClose={() => setSelectedTalisman(null)}
+        />
       )}
     </div>
   );
