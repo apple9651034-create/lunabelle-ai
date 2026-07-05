@@ -213,7 +213,7 @@
 ## 남은 작업 (진행 중)
 
 - [x] 육효 리딩 API 연동 에러 해결 (chat 라우터 추가, tRPC 호출 구현)
-- [ ] 운세 카드에 QR코드/링크 추가 (진행 중)
-- [ ] 부적 할인 24시간 카운트다운 타이머
-- [ ] 부적 클릭 시 상품설명 표시 (단니 추가)
-- [ ] AI 루나 운세 추천 시스템
+- [x] 운세 카드에 QR코드/링크 추가 (ConsultationQRCode.tsx 생성, 모든 상담 페이지에 통합)
+- [x] 부적 할인 24시간 카운트다운 타이머 (TalismanDiscountTimer.tsx 이미 구현)
+- [x] 부적 클릭 시 상품설명 표시 (TalismanDetailModal.tsx 이미 구현)
+- [x] AI 루나 운세 추천 시스템 (RecommendedTalisman.tsx 이미 구현)
