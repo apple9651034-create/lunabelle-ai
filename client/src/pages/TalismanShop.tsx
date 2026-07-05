@@ -27,14 +27,14 @@ export default function TalismanShop() {
   const [, setLocation] = useLocation();
 
   const [talismans, setTalismans] = useState<Talisman[]>([
-    { id: 1, name: '연애 부적', price: 4900, description: '사랑과 인연을 이끌어주는 부적', benefit: '연애운 상승, 좋은 인연 만남', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-1-love-bLeDzFpnV2UzvMrKEXHcfS.png', liked: false },
-    { id: 2, name: '재물 부적', price: 4900, description: '재운과 복을 가져오는 부적', benefit: '재운 상승, 사업 번영', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-2-wealth-mRS4ntPC5oMZUSQrufKhfx.png', liked: false },
-    { id: 3, name: '건강 부적', price: 4900, description: '건강과 치유를 주는 부적', benefit: '건강 증진, 질병 예방', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-3-health-e8fgjmK6ft6oQ2RaJMeRPG.png', liked: false },
-    { id: 4, name: '보호 부적', price: 4900, description: '안전과 보호를 주는 부적', benefit: '사고 예방, 안전 보호', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-4-protection-j6YmcCi3ALWNMUxQAFYHsm.png', liked: false },
-    { id: 5, name: '성공 부적', price: 4900, description: '성공과 성취를 이끌어주는 부적', benefit: '성공운 상승, 목표 달성', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-5-success-6yziXbQeZ27Bpmt9S2S5Vi.png', liked: false },
-    { id: 6, name: '조화 부적', price: 4900, description: '조화와 평화를 가져오는 부적', benefit: '가정 화목, 인간관계 개선', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-6-harmony-HATmo4UvH6h2kFMqvf4PQw.png', liked: false },
-    { id: 7, name: '행운 부적', price: 4900, description: '행운과 좋은 기운을 주는 부적', benefit: '행운 상승, 좋은 일 발생', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-7-luck-GjiKSjMM23b5PgV7RKgAc8.png', liked: false },
-    { id: 8, name: '학업 부적', price: 4900, description: '학업과 지혜를 주는 부적', benefit: '학업 성취, 시험 합격', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-8-study-XuKPVKHHHxDWQ2JVKPUjn2.png', liked: false },
+    { id: 1, name: '연애 부적', price: 4900, description: '사랑과 인연을 이끌어주는 부적', benefit: '연애운 상승, 좋은 인연 만남, 내 진실된 마음 전달', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-1-love-bLeDzFpnV2UzvMrKEXHcfS.png', liked: false },
+    { id: 2, name: '재물 부적', price: 4900, description: '재운과 복을 가져오는 부적', benefit: '재운 상승, 사업 번영, 간절한 재정 달성', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-2-wealth-mRS4ntPC5oMZUSQrufKhfx.png', liked: false },
+    { id: 3, name: '건강 부적', price: 4900, description: '건강과 치유를 주는 부적', benefit: '건강 증진, 질병 예방, 면역력 강화', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-3-health-e8fgjmK6ft6oQ2RaJMeRPG.png', liked: false },
+    { id: 4, name: '보호 부적', price: 4900, description: '안전과 보호를 주는 부적', benefit: '사고 예방, 안전 보호, 단연한 운운', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-4-protection-j6YmcCi3ALWNMUxQAFYHsm.png', liked: false },
+    { id: 5, name: '성공 부적', price: 4900, description: '성공과 성취를 이끌어주는 부적', benefit: '성공운 상승, 목표 달성, 동료의 신뢰', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-5-success-6yziXbQeZ27Bpmt9S2S5Vi.png', liked: false },
+    { id: 6, name: '조화 부적', price: 4900, description: '조화와 평화를 가져오는 부적', benefit: '가정 화목, 인간관계 개선, 대나무 연대', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-6-harmony-HATmo4UvH6h2kFMqvf4PQw.png', liked: false },
+    { id: 7, name: '행운 부적', price: 4900, description: '행운과 좋은 기운을 주는 부적', benefit: '행운 상승, 좋은 일 발생, 상날 기대', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-7-luck-GjiKSjMM23b5PgV7RKgAc8.png', liked: false },
+    { id: 8, name: '학업 부적', price: 4900, description: '학업과 지혜를 주는 부적', benefit: '학업 성취, 시험 합격, 집중력 중대', image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663786803659/B23kaSJwN8DhSY2JeTWyAi/talisman-white-gold-8-study-XuKPVKHHHxDWQ2JVKPUjn2.png', liked: false },
   ]);
 
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -64,27 +64,68 @@ export default function TalismanShop() {
     );
   };
 
-  const handleCheckout = () => {
-    const ids = cart.map((item) => item.id);
-    setPurchasedItems((prev) => Array.from(new Set([...prev, ...ids])));
-    
-    // 구매한 부적 localStorage에 저장
-    const cartTalismans = cart.map((item) => ({
-      id: item.id,
-      name: item.name,
-      image: item.image,
-      purchaseDate: new Date().toISOString(),
-      price: item.price,
-    }));
-    
-    const saved = localStorage.getItem('purchasedTalismans');
-    const existing = saved ? JSON.parse(saved) : [];
-    const updated = [...existing, ...cartTalismans];
-    localStorage.setItem('purchasedTalismans', JSON.stringify(updated));
-    
-    setCart([]);
-    setShowCart(false);
-    alert('구매가 완료되었습니다! 부적 이미지를 다운로드하실 수 있습니다.');
+  const handleCheckout = async () => {
+    if (cart.length === 0) {
+      alert('장바구니가 비어있습니다.');
+      return;
+    }
+
+    try {
+      // PortOne 결제 게이트웨이 초기화
+      const { IMP } = window as any;
+      if (!IMP) {
+        alert('결제 시스템을 불러올 수 없습니다.');
+        return;
+      }
+
+      IMP.init('imp12345678'); // PortOne 가맹점 ID
+
+      const merchantUid = `order_${Date.now()}`;
+      const cartTalismans = cart.map((item) => ({
+        id: item.id,
+        name: item.name,
+        image: item.image,
+        purchaseDate: new Date().toISOString(),
+        price: item.price,
+        quantity: item.quantity,
+      }));
+
+      // PortOne 결제 요청
+      IMP.request_pay(
+        {
+          pg: 'html5_inicis',
+          pay_method: 'card',
+          merchant_uid: merchantUid,
+          name: cart.length === 1 ? cart[0].name : `부적 ${cart.length}개`,
+          amount: totalPrice,
+          buyer_email: 'buyer@example.com',
+          buyer_name: '구매자',
+          buyer_tel: '010-0000-0000',
+          m_redirect_url: window.location.href,
+        },
+        (response: any) => {
+          if (response.success) {
+            // 결제 성공
+            const ids = cart.map((item) => item.id);
+            setPurchasedItems((prev) => Array.from(new Set([...prev, ...ids])));
+
+            const saved = localStorage.getItem('purchasedTalismans');
+            const existing = saved ? JSON.parse(saved) : [];
+            const updated = [...existing, ...cartTalismans];
+            localStorage.setItem('purchasedTalismans', JSON.stringify(updated));
+
+            setCart([]);
+            setShowCart(false);
+            alert('구매가 완료되었습니다! 부적 이미지를 다운로드하실 수 있습니다.');
+          } else {
+            alert(`결제 실패: ${response.error_msg}`);
+          }
+        }
+      );
+    } catch (error) {
+      console.error('결제 처리 오류:', error);
+      alert('결제 처리 중 오류가 발생했습니다.');
+    }
   };
 
   const downloadImage = async (imageUrl: string, name: string) => {

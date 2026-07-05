@@ -332,12 +332,12 @@ export default function SajuPage() {
           <label className="block text-xs font-semibold tracking-wide uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>
             달력 선택
           </label>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-2 gap-2 mb-3">
             {(['solar', 'lunar'] as const).map((type) => (
               <button
                 key={type}
                 onClick={() => setCalendarType(type)}
-                className="flex-1 py-2 rounded-lg font-semibold text-sm transition-all"
+                className="py-2 rounded-lg font-semibold text-sm transition-all"
                 style={
                   calendarType === type
                     ? { background: 'oklch(0.55 0.25 290)', color: 'oklch(0.97 0.005 90)' }
@@ -350,15 +350,26 @@ export default function SajuPage() {
           </div>
 
           {calendarType === 'lunar' && (
-            <label className="flex items-center gap-2 text-sm" style={{ color: 'oklch(0.85 0.015 90)' }}>
-              <input
-                type="checkbox"
-                checked={isLeapMonth}
-                onChange={(e) => setIsLeapMonth(e.target.checked)}
-                className="w-4 h-4"
-              />
-              윤달
-            </label>
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              <label className="flex items-center gap-2 text-sm" style={{ color: 'oklch(0.85 0.015 90)' }}>
+                <input
+                  type="radio"
+                  checked={!isLeapMonth}
+                  onChange={() => setIsLeapMonth(false)}
+                  className="w-4 h-4"
+                />
+                평달
+              </label>
+              <label className="flex items-center gap-2 text-sm" style={{ color: 'oklch(0.85 0.015 90)' }}>
+                <input
+                  type="radio"
+                  checked={isLeapMonth}
+                  onChange={() => setIsLeapMonth(true)}
+                  className="w-4 h-4"
+                />
+                윤달
+              </label>
+            </div>
           )}
 
           <label className="block text-xs font-semibold tracking-wide uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>
@@ -419,47 +430,53 @@ export default function SajuPage() {
           </div>
 
           <label className="block text-xs font-semibold tracking-wide uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>
-            태어난 시간
+            태어난 시간 (시:분)
           </label>
-          <div className="flex gap-2">
-            <select
-              value={birthHour}
-              onChange={(e) => setBirthHour(e.target.value)}
-              disabled={unknownTime}
-              className="flex-1 px-3 py-2 rounded-lg text-sm focus:outline-none"
-              style={{
-                background: 'oklch(0.20 0.05 270)',
-                color: 'oklch(0.85 0.015 90)',
-                border: '1px solid oklch(1 0 0 / 15%)',
-                opacity: unknownTime ? 0.5 : 1,
-              }}
-            >
-              <option value="">시간</option>
-              {hours.map((h, i) => (
-                <option key={i} value={String(i)}>
-                  {h}
-                </option>
-              ))}
-            </select>
-            <select
-              value={birthMinute}
-              onChange={(e) => setBirthMinute(e.target.value)}
-              disabled={unknownTime}
-              className="px-3 py-2 rounded-lg text-sm focus:outline-none"
-              style={{
-                background: 'oklch(0.20 0.05 270)',
-                color: 'oklch(0.85 0.015 90)',
-                border: '1px solid oklch(1 0 0 / 15%)',
-                opacity: unknownTime ? 0.5 : 1,
-              }}
-            >
-              <option value="">분</option>
-              {minutes.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <p className="text-xs mb-1" style={{ color: 'oklch(0.70 0.10 85)' }}>시간</p>
+              <select
+                value={birthHour}
+                onChange={(e) => setBirthHour(e.target.value)}
+                disabled={unknownTime}
+                className="w-full px-3 py-2 rounded-lg text-sm focus:outline-none"
+                style={{
+                  background: 'oklch(0.20 0.05 270)',
+                  color: 'oklch(0.85 0.015 90)',
+                  border: '1px solid oklch(1 0 0 / 15%)',
+                  opacity: unknownTime ? 0.5 : 1,
+                }}
+              >
+                <option value="">선택</option>
+                {hours.map((h, i) => (
+                  <option key={i} value={String(i)}>
+                    {h}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <p className="text-xs mb-1" style={{ color: 'oklch(0.70 0.10 85)' }}>분</p>
+              <select
+                value={birthMinute}
+                onChange={(e) => setBirthMinute(e.target.value)}
+                disabled={unknownTime}
+                className="w-full px-3 py-2 rounded-lg text-sm focus:outline-none"
+                style={{
+                  background: 'oklch(0.20 0.05 270)',
+                  color: 'oklch(0.85 0.015 90)',
+                  border: '1px solid oklch(1 0 0 / 15%)',
+                  opacity: unknownTime ? 0.5 : 1,
+                }}
+              >
+                <option value="">선택</option>
+                {minutes.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <label className="flex items-center gap-2 text-sm" style={{ color: 'oklch(0.85 0.015 90)' }}>
