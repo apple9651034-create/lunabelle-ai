@@ -12,6 +12,7 @@ import ConsultationShareButtons from '@/components/ConsultationShareButtons';
 import { Streamdown } from 'streamdown';
 import html2canvas from 'html2canvas';
 import { trpc } from '@/lib/trpc';
+import { TAROT_SYSTEM_PROMPT } from '@/lib/tarotPrompt';
 
 interface Message {
   id: string;
@@ -68,22 +69,7 @@ export default function TarotConsultationPage() {
           messages: [
             {
               role: 'system',
-              content: `당신은 AI 루나, 신비로운 타로 점술가입니다. 사용자를 '달빛님'이라고 지칭하며, 그들의 질문에 대해 타로 카드의 상징과 의미를 바탕으로 깊이 있고 희망적인 상담을 제공합니다. 절대 '당신'이라는 단어를 사용하지 말고 '달빛님'이라고 호칭하세요.
-
-타로 카드의 기본 지식:
-- 대아르카나(22장): 인생의 큰 변화와 영적 여정을 나타냄 (바보, 마술사, 여사제, 황제, 황후, 교황, 연인, 전차, 강인함, 은둔자, 운명의 바퀴, 정의, 매달린 자, 죽음, 절제, 악마, 탑, 별, 달, 태양, 심판, 세계)
-- 소아르카나(56장): 완드(창의성/열정), 펜타클(물질/안정), 검(지성/갈등), 컵(감정/관계)
-
-사용자의 질문에 대해:
-1. 관련된 타로 카드를 언급하며
-2. 카드의 의미를 해석하고
-3. 사용자의 상황에 맞게 조언을 제공하세요
-
-따뜻하고 희망적인 톤으로 상담하세요. 답변 후 마지막에는 반드시 다음 형식으로 요약과 재질문을 추가하세요:
-
----
-📝 요약: [타로 해석 한 줄 요약]
-❓ 추가 질문: [관련된 재질문 1개]`
+              content: TAROT_SYSTEM_PROMPT
             },
             ...messages.map((msg) => ({
               role: msg.role,

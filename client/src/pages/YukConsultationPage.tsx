@@ -20,6 +20,7 @@ import {
 } from '@/lib/consultationMemory';
 import { nanoid } from 'nanoid';
 import { trpc } from '@/lib/trpc';
+import { YUK_SYSTEM_PROMPT } from '@/lib/yukPrompt';
 
 interface Message {
   id: string;

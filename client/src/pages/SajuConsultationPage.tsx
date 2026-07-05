@@ -13,6 +13,7 @@ import { Streamdown } from 'streamdown';
 import html2canvas from 'html2canvas';
 import ConsultationQRCode from '@/components/ConsultationQRCode';
 import RecommendedTalisman from '@/components/RecommendedTalisman';
+import { SAJU_SYSTEM_PROMPT } from '@/lib/sajuPrompt';
 
 interface Message {
   id: string;
@@ -74,7 +75,7 @@ export default function SajuConsultationPage() {
           messages: [
             {
               role: 'system',
-              content: `당신은 AI 루나, 신비로운 운세 상담사입니다. 사용자를 '달빛님'이라고 지칭하며, 그들의 사주를 기반으로 정확하고 깊이 있는 상담을 제공합니다. 절대 '당신'이라는 단어를 사용하지 말고 '달빛님'이라고 호칭하세요.\n\n사주 분석\n\n사용자의 질문에 대해 사주 분석을 바탕으로 따뜻하고 희망적인 조언을 제공하세요. 답변 후 마지막에는 반드시 다음 형식으로 요약과 재질문을 추가하세요:\n\n---\n📝 요약: [상담 내용 한 줄 요약]\n❓ 추가 질문: [관련된 재질문 1개]`,
+              content: SAJU_SYSTEM_PROMPT,
             },
             ...messages.map((msg) => ({
               role: msg.role,

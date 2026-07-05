@@ -66,6 +66,28 @@ async function startServer() {
       console.log('[Chat API] Calling LLM with', messages.length, 'messages');
 
       // LLM API 호출
+      // 리딩 타입 감지
+      const systemMessage = messages.find((m: any) => m.role === 'system')?.content || '';
+      const isYuk = systemMessage.includes('육효') || systemMessage.includes('괘');
+      const isTarot = systemMessage.includes('타로') || systemMessage.includes('카드');
+      const isSaju = systemMessage.includes('사주') || systemMessage.includes('명식');
+
+      // 리딩 타입별 최적화된 설정
+      let model = 'gpt-4o';
+      let temperature = 0.8;
+      let max_tokens = 2000;
+
+      if (isYuk) {
+        temperature = 0.75;
+        max_tokens = 2500;
+      } else if (isTarot) {
+        temperature = 0.85;
+        max_tokens = 2200;
+      } else if (isSaju) {
+        temperature = 0.7;
+        max_tokens = 2300;
+      }
+
       const llmResponse = await fetch(`${forgeUrl}/v1/chat/completions`, {
         method: 'POST',
         headers: {
@@ -73,10 +95,10 @@ async function startServer() {
           'Authorization': `Bearer ${forgeKey}`,
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini',
+          model: model,
           messages: messages,
-          temperature: 0.7,
-          max_tokens: 1000,
+          temperature: temperature,
+          max_tokens: max_tokens,
         }),
       });
 
