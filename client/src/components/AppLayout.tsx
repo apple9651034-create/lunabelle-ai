@@ -4,7 +4,7 @@
  */
 import React from 'react';
 import { useLocation } from 'wouter';
-import { Home, MessageCircle, Wand2, Calendar, ShoppingBag, Heart, User, HelpCircle, ArrowLeft, Sparkles, Clock } from 'lucide-react';
+import { Home, MessageCircle, Wand2, Calendar, ShoppingBag, Heart, User, HelpCircle, ArrowLeft, Sparkles, Clock, Vault } from 'lucide-react';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -21,6 +21,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     { path: '/tarot', icon: Sparkles, label: '타로' },
     { path: '/history', icon: Clock, label: '기록' },
     { path: '/shop', icon: ShoppingBag, label: '부적' },
+    { path: '/vault', icon: Vault, label: '보관함' },
     { path: '/wishes', icon: Heart, label: '소원' },
     { path: '/dashboard', icon: User, label: '대시' },
     { path: '/support', icon: HelpCircle, label: '지원' },
@@ -28,6 +29,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   const isHome = location === '/';
   const isDashboard = location === '/dashboard';
+  const isVault = location === '/vault';
 
   return (
     <div
@@ -35,7 +37,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       style={{ background: 'oklch(0.12 0.03 270)' }}
     >
       {/* Top Back Button (서브 페이지에서만 표시) */}
-      {!isHome && !isDashboard && (
+      {!isHome && !isDashboard && !isVault && (
         <div
           className="flex items-center px-4 py-3 border-b"
           style={{
