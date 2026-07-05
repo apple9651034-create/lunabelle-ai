@@ -12,7 +12,7 @@ import ConsultationShareButtons from '@/components/ConsultationShareButtons';
 import { Streamdown } from 'streamdown';
 import html2canvas from 'html2canvas';
 import { trpc } from '@/lib/trpc';
-import { TAROT_SYSTEM_PROMPT } from '@/lib/tarotPrompt';
+import { TAROT_SYSTEM_PROMPT_ENHANCED } from '@/lib/tarotPromptEnhanced';
 
 interface Message {
   id: string;
@@ -69,7 +69,7 @@ export default function TarotConsultationPage() {
           messages: [
             {
               role: 'system',
-              content: TAROT_SYSTEM_PROMPT
+              content: TAROT_SYSTEM_PROMPT_ENHANCED
             },
             ...messages.map((msg) => ({
               role: msg.role,

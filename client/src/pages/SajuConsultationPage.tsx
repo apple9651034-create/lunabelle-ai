@@ -13,7 +13,7 @@ import { Streamdown } from 'streamdown';
 import html2canvas from 'html2canvas';
 import ConsultationQRCode from '@/components/ConsultationQRCode';
 import RecommendedTalisman from '@/components/RecommendedTalisman';
-import { SAJU_SYSTEM_PROMPT } from '@/lib/sajuPrompt';
+import { SAJU_SYSTEM_PROMPT_ENHANCED } from '@/lib/sajuPromptEnhanced';
 
 interface Message {
   id: string;
@@ -75,7 +75,7 @@ export default function SajuConsultationPage() {
           messages: [
             {
               role: 'system',
-              content: SAJU_SYSTEM_PROMPT,
+              content: SAJU_SYSTEM_PROMPT_ENHANCED,
             },
             ...messages.map((msg) => ({
               role: msg.role,
