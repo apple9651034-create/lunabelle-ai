@@ -6,6 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { Edit2, ChevronDown } from 'lucide-react';
 import DailyFortuneWidget from '@/components/DailyFortuneWidget';
+import TalismanDiscountTimer from '@/components/TalismanDiscountTimer';
 import { getUserSajuProfile } from '@/lib/userSajuProfile';
 import ProfileSelector from '@/components/ProfileSelector';
 import { migrateOldProfile, getAllProfiles, getActiveProfile, setActiveProfile } from '@/lib/profileManager';
@@ -290,6 +291,9 @@ export default function HomePage() {
           }} />
           
           <div className="relative z-10">
+            <div className="mb-4 p-3 rounded-lg" style={{ background: 'oklch(0.25 0.10 290)', border: '1px solid oklch(0.70 0.18 60)' }}>
+              <TalismanDiscountTimer />
+            </div>
             <h3 className="text-sm font-semibold mb-4 tracking-widest uppercase" style={{ color: 'oklch(0.78 0.15 85)' }}>
               💳 크레딧 충전 ✨ (20% 추가 이벤트)
             </h3>

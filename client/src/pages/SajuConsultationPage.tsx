@@ -12,6 +12,7 @@ import { getUserSajuProfile } from '@/lib/userSajuProfile';
 import { Streamdown } from 'streamdown';
 import html2canvas from 'html2canvas';
 import ConsultationQRCode from '@/components/ConsultationQRCode';
+import RecommendedTalisman from '@/components/RecommendedTalisman';
 
 interface Message {
   id: string;
@@ -216,6 +217,13 @@ export default function SajuConsultationPage() {
           </div>
         ))}
         <div ref={messagesEndRef} />
+        
+        {/* AI 루나 운세 추천 시스템 - 상담 결과 기반 부적 추천 */}
+        {messages.length > 1 && (
+          <div className="px-4 py-3 border-t" style={{ background: 'oklch(0.15 0.06 280)', borderColor: 'oklch(1 0 0 / 10%)' }}>
+            <RecommendedTalisman consultationMessages={messages} consultationType="saju" />
+          </div>
+        )}
       </div>
 
       {/* 결제 충전소 */}

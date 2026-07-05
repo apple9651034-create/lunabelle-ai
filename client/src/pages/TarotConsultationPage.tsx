@@ -5,6 +5,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, ArrowLeft, Loader2, Download, Share2 } from 'lucide-react';
 import ConsultationQRCode from '@/components/ConsultationQRCode';
+import RecommendedTalisman from '@/components/RecommendedTalisman';
 import { useLocation } from 'wouter';
 import ChatLoadingWithTips from '@/components/ChatLoadingWithTips';
 import ConsultationShareButtons from '@/components/ConsultationShareButtons';
