@@ -18,6 +18,7 @@ interface TalismanRecommendation {
 }
 
 interface RecommendedTalismanProps {
+  consultationMessages?: any[];
   consultationContent: string;
   consultationType: 'saju' | 'tarot' | 'yuk';
   onAddToCart?: (talisman: TalismanRecommendation) => void;
