@@ -8,6 +8,7 @@ import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+import { calculateYukHyo } from "../yukCalculator";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -72,6 +73,47 @@ async function startServer() {
       const isTarot = systemMessage.includes('타로') || systemMessage.includes('카드');
       const isSaju = systemMessage.includes('사주') || systemMessage.includes('명식');
 
+      // 육효 계산 엔진 통합
+      let enhancedMessages = messages;
+      if (isYuk) {
+        try {
+          const userMessage = messages.find((m: any) => m.role === 'user')?.content || '';
+          const yukCalculation = calculateYukHyo(
+            userMessage,
+            { year: 2024, month: 7, day: 5, hour: 12, minute: 0 },
+            { monthGanji: '을축', dayGanji: '정묘' }
+          );
+          
+          // 계산 결과를 프롬프트에 추가
+          const calculationInfo = `
+【육효 계산 결과】
+본괘: ${yukCalculation.benggwae.number}. ${yukCalculation.benggwae.name} (${yukCalculation.benggwae.meaning})
+변괘: ${yukCalculation.byeonggwae.number}. ${yukCalculation.byeonggwae.name} (${yukCalculation.byeonggwae.meaning})
+동효: ${yukCalculation.movingLines.join(', ')}효
+용신: ${yukCalculation.yongsin}
+원신: ${yukCalculation.wonsin}
+기신: ${yukCalculation.gisin}
+용신 왕쇠: ${yukCalculation.wangsoe}
+월건: ${yukCalculation.monthGanji}, 일진: ${yukCalculation.dayGanji}
+공망: ${yukCalculation.kongmang.join(', ') || '없음'}
+
+각 효 분석:
+${Object.entries(yukCalculation.yugjinAnalysis).map(([line, info]) => 
+  `제${line}효: ${info.yinyang} - 육친: ${info.yugjin} - 오행: ${info.ohaeng}`
+).join('\n')}
+
+위 계산 결과를 바탕으로 사용자의 질문에 답변하세요.`;
+          
+          // 시스템 메시지에 계산 결과 추가
+          enhancedMessages = messages.map((m: any) => 
+            m.role === 'system' ? { ...m, content: m.content + calculationInfo } : m
+          );
+        } catch (error) {
+          console.error('[Chat API] Yuk calculation error:', error);
+          // 계산 실패해도 계속 진행
+        }
+      }
+
       // 리딩 타입별 최적화된 설정
       let model = 'gpt-4o';
       let temperature = 0.8;
@@ -96,7 +138,7 @@ async function startServer() {
         },
         body: JSON.stringify({
           model: model,
-          messages: messages,
+          messages: enhancedMessages,
           temperature: temperature,
           max_tokens: max_tokens,
         }),
