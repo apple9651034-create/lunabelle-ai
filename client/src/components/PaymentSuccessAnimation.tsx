@@ -14,18 +14,28 @@ export default function PaymentSuccessAnimation({
   isVisible,
   onComplete,
 }: PaymentSuccessAnimationProps) {
-  const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number }>>([]);
+  const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number; color: string }>>([]);
+  const [rings, setRings] = useState<Array<{ id: number; delay: number }>>([]);
 
   useEffect(() => {
     if (!isVisible) return;
 
     // 파티클 생성
-    const newParticles = Array.from({ length: 30 }, (_, i) => ({
+    const colors = ['60', '120', '180', '240', '300'];
+    const newParticles = Array.from({ length: 50 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
+      color: colors[i % colors.length],
     }));
     setParticles(newParticles);
+
+    // 링 효과 생성
+    const newRings = Array.from({ length: 4 }, (_, i) => ({
+      id: i,
+      delay: i * 0.2,
+    }));
+    setRings(newRings);
 
     // 3초 후 완료 콜백
     const timer = setTimeout(() => {
@@ -67,17 +77,38 @@ export default function PaymentSuccessAnimation({
         />
       </div>
 
+      {/* 링 효과 */}
+      {rings.map((ring) => (
+        <div
+          key={`ring-${ring.id}`}
+          className="absolute rounded-full"
+          style={{
+            width: '100px',
+            height: '100px',
+            border: '2px solid oklch(0.70 0.18 60)',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            animation: `expandRing 1.5s ease-out forwards`,
+            animationDelay: `${ring.delay}s`,
+            opacity: 0.8,
+          }}
+        />
+      ))}
+
       {/* 파티클 효과 */}
       {particles.map((particle) => (
         <div
           key={particle.id}
-          className="absolute w-2 h-2 rounded-full"
+          className="absolute rounded-full"
           style={{
+            width: `${2 + Math.random() * 4}px`,
+            height: `${2 + Math.random() * 4}px`,
             left: `${particle.x}%`,
             top: `${particle.y}%`,
-            background: `oklch(0.70 0.18 ${60 + particle.id * 2})`,
-            animation: `float ${2 + Math.random() * 1}s ease-out forwards`,
-            boxShadow: `0 0 ${10 + particle.id}px oklch(0.70 0.18 ${60 + particle.id * 2})`,
+            background: `oklch(0.70 0.18 ${particle.color})`,
+            animation: `float ${2 + Math.random() * 1.5}s ease-out forwards`,
+            boxShadow: `0 0 ${8 + Math.random() * 12}px oklch(0.70 0.18 ${particle.color})`,
           }}
         />
       ))}
@@ -117,8 +148,25 @@ export default function PaymentSuccessAnimation({
         }
 
         @keyframes float {
+          0% {
+            opacity: 1;
+            transform: translateY(0) translateX(0) scale(1);
+          }
+          100% {
+            opacity: 0;
+            transform: translateY(-150px) translateX(${Math.random() * 150 - 75}px) scale(0);
+          }
+        }
+
+        @keyframes expandRing {
+          from {
+            width: 0;
+            height: 0;
+            opacity: 1;
+          }
           to {
-            transform: translateY(-100px) translateX(${Math.random() * 100 - 50}px);
+            width: 300px;
+            height: 300px;
             opacity: 0;
           }
         }
