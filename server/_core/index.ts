@@ -8,6 +8,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { calculateYukHyo } from "../yukCalculator";
+import { calculateIChing } from "../iChingCalculator";
 import OpenAI from "openai";
 import { ENV } from "./env";
 
@@ -71,13 +72,46 @@ async function startServer() {
 
       // 리딩 타입 감지
       const systemMessage = messages.find((m: any) => m.role === 'system')?.content || '';
-      const isYuk = systemMessage.includes('육효') || systemMessage.includes('괘');
+      const isIChing = systemMessage.includes('주역') || systemMessage.includes('변화의 흐름');
+      const isYukHyo = systemMessage.includes('육효') && !isIChing;
       const isTarot = systemMessage.includes('타로') || systemMessage.includes('카드');
       const isSaju = systemMessage.includes('사주') || systemMessage.includes('명식');
 
-      // 육효 계산 엔진 통합
+      // 주역/육효 계산 엔진 통합
       let enhancedMessages = messages;
-      if (isYuk) {
+      
+      if (isIChing) {
+        // 주역 계산 엔진
+        try {
+          const userMessage = messages.find((m: any) => m.role === 'user')?.content || '';
+          const iChingCalculation = calculateIChing(
+            userMessage,
+            { year: 2024, month: 7, day: 5, hour: 12, minute: 0 },
+            { monthGanji: '을축', dayGanji: '정묘' }
+          );
+          
+          // 주역 계산 결과를 프롬프트에 추가
+          const calculationInfo = `
+【주역 계산 결과】
+본괘: ${iChingCalculation.benggwae.number}. ${iChingCalculation.benggwae.name} (${iChingCalculation.benggwae.meaning})
+변괘: ${iChingCalculation.byeonggwae.number}. ${iChingCalculation.byeonggwae.name} (${iChingCalculation.byeonggwae.meaning})
+동효: ${iChingCalculation.movingLines.join(', ')}
+
+괘사: ${iChingCalculation.benggwae.guaSi}
+변괘 괘사: ${iChingCalculation.byeonggwae.guaSi}
+
+위 주역 계산 결과를 바탕으로 사용자의 질문에 답변하세요.`;
+          
+          // 시스템 메시지에 계산 결과 추가
+          enhancedMessages = messages.map((m: any) => 
+            m.role === 'system' ? { ...m, content: m.content + calculationInfo } : m
+          );
+        } catch (error) {
+          console.error('[Chat API] IChing calculation error:', error);
+          // 계산 실패해도 계속 진행
+        }
+      } else if (isYukHyo) {
+        // 육효 계산 엔진
         try {
           const userMessage = messages.find((m: any) => m.role === 'user')?.content || '';
           const yukCalculation = calculateYukHyo(
@@ -121,7 +155,10 @@ ${Object.entries(yukCalculation.yugjinAnalysis).map(([line, info]) =>
       let temperature = 0.8;
       let max_tokens = 2000;
 
-      if (isYuk) {
+      if (isIChing) {
+        temperature = 0.75;
+        max_tokens = 2500;
+      } else if (isYukHyo) {
         temperature = 0.75;
         max_tokens = 2500;
       } else if (isTarot) {
