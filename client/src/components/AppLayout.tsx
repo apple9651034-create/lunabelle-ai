@@ -16,7 +16,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const navItems = [
     { path: '/', icon: Home, label: '홈' },
     { path: '/chat', icon: MessageCircle, label: '채팅' },
-    { path: '/yuk', icon: Wand2, label: '육효' },
+    { path: '/yuk', icon: Wand2, label: '주역' },
     { path: '/saju', icon: Calendar, label: '사주' },
     { path: '/tarot', icon: Sparkles, label: '타로' },
     { path: '/history', icon: Clock, label: '기록' },

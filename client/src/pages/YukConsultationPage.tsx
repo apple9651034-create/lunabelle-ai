@@ -1,6 +1,6 @@
 /* AI 루나 — YukConsultationPage.tsx
- * 육효 실시간 AI 채팅 상담
- * 사용자의 질문에 대해 육효를 기반으로 AI 루나가 맞춤형 상담 제공
+ * 주역 흐름 리딩
+ * 사용자의 질문에 대해 주역의 변화 흐름을 기반으로 AI 루나가 맞춤형 상담 제공
  */
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, ArrowLeft, Loader2, Download, Share2 } from 'lucide-react';
@@ -49,7 +49,7 @@ export default function YukConsultationPage() {
     setPreviousConsultation(previous);
 
     // 초기 인사말
-    let initialContent = `안녕하세요, 저는 AI 루나입니다. 고대의 지혜인 육효의 세계에 오신 것을 환영합니다.\n\n육효는 중국의 고대 점술 체계로, 64개의 괘(卦)로 이루어져 있습니다. 각 괘는 6개의 효(爻)로 구성되며, 변화하는 효(변효)를 통해 미래의 변화를 읽을 수 있습니다.\n\n육효는 자연의 변화와 인간의 운명을 깊이 있게 해석하는 도구입니다. 달빛님의 질문이나 상황에 대해 말씀해주시면, 육효의 지혜를 통해 현명한 조언을 제공해드리겠습니다.`;
+    let initialContent = `안녕하세요, 저는 AI 루나입니다.\n\n주역은 변화의 원리를 통해 현재의 흐름과 앞으로의 방향을 읽는 동양 최고의 지혜입니다.\n\n달빛님의 고민을 현재의 흐름과 변화의 방향을 중심으로 함께 살펴보겠습니다.`;
 
     // 이전 상담이 있으면 맥락 추가
     if (previous) {
@@ -165,7 +165,7 @@ export default function YukConsultationPage() {
       });
       const link = document.createElement('a');
       link.href = canvas.toDataURL('image/png');
-      link.download = `육효상담_${new Date().toLocaleDateString('ko-KR')}.png`;
+      link.download = `주역흐름리딩_${new Date().toLocaleDateString('ko-KR')}.png`;
       link.click();
     } catch (error) {
       console.error('Failed to download consultation:', error);
@@ -190,10 +190,10 @@ export default function YukConsultationPage() {
           <ArrowLeft size={20} style={{ color: 'oklch(0.78 0.15 85)' }} />
         </button>
         <h1 className="font-bold text-lg" style={{ color: 'oklch(0.78 0.15 85)' }}>
-          🔮 육효 상담
+          ☯️ 주역 흐름 리딩
         </h1>
         <div className="flex gap-2">
-          <ConsultationShareButtons consultationType="육효" messages={messages} />
+          <ConsultationShareButtons consultationType="주역" messages={messages} />
           <button onClick={() => setShowQRCode(true)} className="p-2 hover:opacity-70" title="QR코드">
             <Share2 size={20} style={{ color: "oklch(0.94 0.015 90)" }} />
           </button>
@@ -323,7 +323,7 @@ export default function YukConsultationPage() {
       </div>
           {showQRCode && (
         <ConsultationQRCode
-          consultationType="육효"
+          consultationType="주역"
           consultationId={Date.now().toString()}
           onClose={() => setShowQRCode(false)}
         />
