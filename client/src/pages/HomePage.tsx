@@ -86,6 +86,7 @@ export default function HomePage() {
   const [activeProfileId, setActiveProfileId] = useState<string | null>(null);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [isProfileSelectorOpen, setIsProfileSelectorOpen] = useState(false);
+  const [isProfileManagerOpen, setIsProfileManagerOpen] = useState(false);
 
   useEffect(() => {
     // 기본 사주 프로필 자동 로드 (없으면 기본값으로 설정)
