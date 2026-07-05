@@ -81,6 +81,13 @@ export function addProfile(profile: Omit<SajuProfile, 'id' | 'createdAt' | 'isAc
 }
 
 /**
+ * 프로필 활성화 (setActiveProfile 별칭)
+ */
+export function setActiveProfile(profileId: string): boolean {
+  return activateProfile(profileId);
+}
+
+/**
  * 프로필 활성화
  */
 export function activateProfile(profileId: string): boolean {

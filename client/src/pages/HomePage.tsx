@@ -4,11 +4,11 @@
  */
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { Edit2 } from 'lucide-react';
+import { Edit2, ChevronDown } from 'lucide-react';
 import DailyFortuneWidget from '@/components/DailyFortuneWidget';
 import { getUserSajuProfile } from '@/lib/userSajuProfile';
 import ProfileSelector from '@/components/ProfileSelector';
-import { migrateOldProfile } from '@/lib/profileManager';
+import { migrateOldProfile, getAllProfiles, getActiveProfile, setActiveProfile } from '@/lib/profileManager';
 
 interface SajuProfile {
   year: string;
@@ -81,6 +81,9 @@ export default function HomePage() {
   const [, navigate] = useLocation();
   const [sajuProfile, setSajuProfile] = useState<SajuProfile | null>(null);
   const [selectedPillar, setSelectedPillar] = useState<{ type: keyof typeof PILLAR_MEANINGS; char: string } | null>(null);
+  const [allProfiles, setAllProfiles] = useState<any[]>([]);
+  const [activeProfileId, setActiveProfileId] = useState<string | null>(null);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [isProfileSelectorOpen, setIsProfileSelectorOpen] = useState(false);
 
   useEffect(() => {
@@ -99,6 +102,14 @@ export default function HomePage() {
   }, []);
 
   const pillarLabels = { yearString: '년주', monthString: '월주', dayString: '일주', hourString: '시주' };
+  const handleProfileChange = (profileId: string) => {
+    setActiveProfileId(profileId);
+    setActiveProfile(profileId);
+    setShowProfileDropdown(false);
+    
+    // 프로필 변경 후 페이지 새로고침
+    window.location.reload();
+  };
 
   return (
     <div className="min-h-screen" style={{ background: 'oklch(0.12 0.03 270)' }}>
@@ -144,15 +155,60 @@ export default function HomePage() {
 
       {/* 메인 콘텐츠 */}
       <div className="p-5 space-y-6 relative z-10">
-        {/* 사주 명식 - 헤더 바로 아래 */}
+        {/* 사주 명식 - 헤더 바로 아래 + 드롭다운 */}
         {sajuProfile && (
-          <div className="px-5 py-4 rounded-xl border flex items-center justify-between" style={{
-            background: 'oklch(0.18 0.08 290)',
-            borderColor: 'oklch(0.78 0.15 85 / 30%)',
-            boxShadow: '0 0 20px oklch(0.55 0.25 290 / 10%)',
-          }}>
-            <div className="flex-1">
-              <p style={{ color: 'oklch(0.60 0.02 290)' }} className="text-xs mb-2 font-semibold">📍 사주 명식</p>
+          <div className="space-y-3">
+            {/* 프로필 드롭다운 */}
+            {allProfiles.length > 0 && (
+              <div className="relative">
+                <button
+                  onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+                  className="w-full px-4 py-3 rounded-lg border flex items-center justify-between transition-all hover:bg-white/5"
+                  style={{
+                    background: 'oklch(0.18 0.08 290)',
+                    borderColor: 'oklch(0.70 0.18 60 / 50%)',
+                  }}
+                >
+                  <span style={{ color: 'oklch(0.94 0.015 90)' }} className="font-semibold">
+                    👤 프로필 선택
+                  </span>
+                  <ChevronDown size={20} style={{ color: 'oklch(0.70 0.18 60)', transform: showProfileDropdown ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
+                </button>
+                
+                {showProfileDropdown && (
+                  <div className="absolute top-full left-0 right-0 mt-2 rounded-lg border z-50 overflow-hidden" style={{
+                    background: 'oklch(0.18 0.08 290)',
+                    borderColor: 'oklch(0.70 0.18 60 / 50%)',
+                  }}>
+                    {allProfiles.map((profile) => (
+                      <button
+                        key={profile.id}
+                        onClick={() => handleProfileChange(profile.id)}
+                        className="w-full px-4 py-3 text-left border-b last:border-b-0 transition-colors hover:bg-white/10"
+                        style={{
+                          borderColor: 'oklch(0.70 0.18 60 / 20%)',
+                          color: activeProfileId === profile.id ? 'oklch(0.70 0.18 60)' : 'oklch(0.78 0.15 85)',
+                          background: activeProfileId === profile.id ? 'oklch(0.25 0.10 290)' : 'transparent',
+                        }}
+                      >
+                        <div className="font-semibold">{profile.name}</div>
+                        <div className="text-xs" style={{ color: 'oklch(0.60 0.02 290)' }}>
+                          {profile.year}년 {profile.month}월 {profile.day}일
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            
+            <div className="px-5 py-4 rounded-xl border flex items-center justify-between" style={{
+              background: 'oklch(0.18 0.08 290)',
+              borderColor: 'oklch(0.78 0.15 85 / 30%)',
+              boxShadow: '0 0 20px oklch(0.55 0.25 290 / 10%)',
+            }}>
+              <div className="flex-1">
+                <p style={{ color: 'oklch(0.60 0.02 290)' }} className="text-xs mb-2 font-semibold">📍 사주 명식</p>
               <div className="flex gap-2 text-base font-bold" style={{ fontFamily: "'Noto Serif KR', serif" }}>
                 {sajuProfile.fourPillars && [
                   sajuProfile.fourPillars.yearString,
@@ -194,6 +250,7 @@ export default function HomePage() {
                 <span className="text-lg">+</span>
               </button>
             </div>
+          </div>
           </div>
         )}
 
