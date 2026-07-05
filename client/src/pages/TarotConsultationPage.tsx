@@ -9,6 +9,7 @@ import ChatLoadingWithTips from '@/components/ChatLoadingWithTips';
 import ConsultationShareButtons from '@/components/ConsultationShareButtons';
 import { Streamdown } from 'streamdown';
 import html2canvas from 'html2canvas';
+import { trpc } from '@/lib/trpc';
 
 interface Message {
   id: string;

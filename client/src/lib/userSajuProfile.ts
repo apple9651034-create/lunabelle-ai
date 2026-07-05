@@ -1,82 +1,119 @@
 /**
  * 사용자 사주 프로필 관리
- * 1977년 7월 19일 오전 9시 16분 양력 고정
+ * 프로필 시스템과 통합
  */
+import { getActiveProfile, addProfile, SajuProfile } from './profileManager';
 
-import { calculateFourPillars } from 'manseryeok';
+const LEGACY_STORAGE_KEY = 'userSajuProfile';
 
 export interface UserSajuProfile {
-  year: number;
-  month: number;
-  day: number;
-  hour: number;
-  minute: number;
-  isLunar: boolean;
+  year: string;
+  month: string;
+  day: string;
+  hour: string;
   gender: string;
-  fourPillars: {
+  fourPillars?: {
     yearString: string;
     monthString: string;
     dayString: string;
     hourString: string;
   };
-  personality: string;
-  luck: string;
+  personality?: string;
+  luck?: string;
 }
 
-// 기본 사주 프로필 - 1977년 7월 19일 오전 9시 16분 양력
-export const DEFAULT_USER_SAJU: UserSajuProfile = {
-  year: 1977,
-  month: 7,
-  day: 19,
-  hour: 9,
-  minute: 16,
-  isLunar: false,
-  gender: 'M',
-  fourPillars: {
-    yearString: '정사',
-    monthString: '정미',
-    dayString: '정축',
-    hourString: '갑진',
-  },
-  personality: '정화일생 - 예민하고 열정적인 성격',
-  luck: '2026년 병오년(丙午年) - 변화와 도약의 해',
-};
+/**
+ * 사용자 사주 프로필 가져오기
+ * 활성 프로필이 있으면 그것을 사용, 없으면 레거시 저장소에서 가져오기
+ */
+export function getUserSajuProfile(): UserSajuProfile | null {
+  try {
+    // 1. 활성 프로필 확인
+    const activeProfile = getActiveProfile();
+    if (activeProfile) {
+      return {
+        year: activeProfile.year,
+        month: activeProfile.month,
+        day: activeProfile.day,
+        hour: activeProfile.hour,
+        gender: activeProfile.gender,
+        fourPillars: activeProfile.fourPillars,
+        personality: activeProfile.personality,
+        luck: activeProfile.luck,
+      };
+    }
 
-export function getUserSajuProfile(): UserSajuProfile {
-  // 항상 기본값으로 초기화 (localStorage 무시)
-  saveUserSajuProfile(DEFAULT_USER_SAJU);
-  return DEFAULT_USER_SAJU;
+    // 2. 레거시 저장소에서 가져오기
+    const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+    if (legacy) {
+      const parsed = JSON.parse(legacy);
+      
+      // 레거시 데이터를 새 프로필 시스템으로 마이그레이션
+      if (!getActiveProfile()) {
+        addProfile({
+          name: '본인',
+          year: parsed.year,
+          month: parsed.month,
+          day: parsed.day,
+          hour: parsed.hour,
+          gender: parsed.gender,
+          fourPillars: parsed.fourPillars,
+          personality: parsed.personality,
+          luck: parsed.luck,
+        });
+      }
+      
+      return parsed;
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
 }
 
+/**
+ * 사용자 사주 프로필 저장
+ * 활성 프로필과 레거시 저장소 모두에 저장
+ */
 export function saveUserSajuProfile(profile: UserSajuProfile): void {
-  localStorage.setItem('userSajuProfile', JSON.stringify(profile));
+  try {
+    // 레거시 저장소에 저장 (호환성)
+    localStorage.setItem(LEGACY_STORAGE_KEY, JSON.stringify(profile));
+
+    // 프로필 시스템에 저장
+    const activeProfile = getActiveProfile();
+    if (activeProfile) {
+      // 기존 활성 프로필 업데이트는 profileManager에서 처리
+      // 여기서는 레거시만 업데이트
+    } else {
+      // 활성 프로필이 없으면 새로 추가
+      addProfile({
+        name: '본인',
+        year: profile.year,
+        month: profile.month,
+        day: profile.day,
+        hour: profile.hour,
+        gender: profile.gender,
+        fourPillars: profile.fourPillars,
+        personality: profile.personality,
+        luck: profile.luck,
+      });
+    }
+  } catch {
+    // 저장 실패 무시
+  }
 }
 
-export function resetToDefaultProfile(): void {
-  localStorage.removeItem('userSajuProfile');
-  saveUserSajuProfile(DEFAULT_USER_SAJU);
-}
-
-export function getSajuSummary(): string {
-  const profile = getUserSajuProfile();
-  return `${profile.year}년 ${profile.month}월 ${profile.day}일 오전 ${profile.hour}시 ${profile.minute}분 출생 (양력)`;
-}
-
-export function getSajuMingshik(): string {
-  const profile = getUserSajuProfile();
-  return `${profile.fourPillars.yearString}${profile.fourPillars.monthString}${profile.fourPillars.dayString}${profile.fourPillars.hourString}`;
-}
-
-export function getSajuContext(): string {
-  const profile = getUserSajuProfile();
-  return `
-사용자 사주 정보:
-- 생년월일: ${profile.year}년 ${profile.month}월 ${profile.day}일
-- 태어난 시간: 오전 ${profile.hour}시 ${profile.minute}분 (양력)
-- 성별: ${profile.gender === 'M' ? '남성' : '여성'}
-- 사주 명식: ${profile.fourPillars.yearString}${profile.fourPillars.monthString}${profile.fourPillars.dayString}${profile.fourPillars.hourString}
-  (년주: ${profile.fourPillars.yearString}, 월주: ${profile.fourPillars.monthString}, 일주: ${profile.fourPillars.dayString}, 시주: ${profile.fourPillars.hourString})
-- 성격: ${profile.personality}
-- 운세: ${profile.luck}
-  `;
+/**
+ * 기본 사주 프로필 생성
+ */
+export function getDefaultSajuProfile(): UserSajuProfile {
+  return {
+    year: '1977',
+    month: '7',
+    day: '19',
+    hour: '9',
+    gender: 'M',
+  };
 }

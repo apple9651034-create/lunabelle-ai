@@ -102,6 +102,134 @@ const creditRouter = router({
     }),
 });
 
+const chatRouter = router({
+  // 육효 상담
+  consultYuk: protectedProcedure
+    .input(z.object({
+      message: z.string(),
+      consultationType: z.string().optional(),
+      previousContext: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const { invokeLLM } = await import("./_core/llm");
+        
+        const systemPrompt = `당신은 AI 루나, 고대의 지혜인 육효 상담 전문가입니다.
+사용자의 질문에 대해 육효의 64개 괘(卦)와 변화하는 효(爻)를 기반으로 깊이 있는 상담을 제공합니다.
+항상 사용자를 "달빛님"이라고 부르고, 따뜻하고 신비로운 톤으로 답변하세요.
+육효의 지혜를 통해 현명한 조언을 제공하되, 실제 괘의 의미를 반영하세요.`;
+
+        const messages = [
+          { role: 'system' as const, content: systemPrompt },
+          ...(input.previousContext ? [{ role: 'user' as const, content: `이전 상담 맥락: ${input.previousContext}` }] : []),
+          { role: 'user' as const, content: input.message },
+        ];
+
+        const response = await invokeLLM({
+          messages,
+          model: 'claude-opus',
+        });
+
+        const responseText = response.choices[0]?.message?.content || '죄송합니다. 응답을 생성할 수 없습니다.';
+
+        return {
+          response: responseText,
+          type: 'yuk',
+        };
+      } catch (error) {
+        console.error('Yuk consultation error:', error);
+        throw new TRPCError({ 
+          code: "INTERNAL_SERVER_ERROR", 
+          message: "맞춤형 운세 서비스 이용 불가" 
+        });
+      }
+    }),
+
+  // 사주 상담
+  consultSaju: protectedProcedure
+    .input(z.object({
+      message: z.string(),
+      consultationType: z.string().optional(),
+      previousContext: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const { invokeLLM } = await import("./_core/llm");
+        
+        const systemPrompt = `당신은 AI 루나, 사주 상담 전문가입니다.
+사용자의 질문에 대해 사주의 오행(목화토금수)과 십간십이지를 기반으로 깊이 있는 상담을 제공합니다.
+항상 사용자를 "달빛님"이라고 부르고, 따뜻하고 신비로운 톤으로 답변하세요.
+사주의 지혜를 통해 현명한 조언을 제공하세요.`;
+
+        const messages = [
+          { role: 'system' as const, content: systemPrompt },
+          ...(input.previousContext ? [{ role: 'user' as const, content: `이전 상담 맥락: ${input.previousContext}` }] : []),
+          { role: 'user' as const, content: input.message },
+        ];
+
+        const response = await invokeLLM({
+          messages,
+          model: 'claude-opus',
+        });
+
+        const responseText = response.choices[0]?.message?.content || '죄송합니다. 응답을 생성할 수 없습니다.';
+
+        return {
+          response: responseText,
+          type: 'saju',
+        };
+      } catch (error) {
+        console.error('Saju consultation error:', error);
+        throw new TRPCError({ 
+          code: "INTERNAL_SERVER_ERROR", 
+          message: "맞춤형 운세 서비스 이용 불가" 
+        });
+      }
+    }),
+
+  // 타로 상담
+  consultTarot: protectedProcedure
+    .input(z.object({
+      message: z.string(),
+      consultationType: z.string().optional(),
+      previousContext: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const { invokeLLM } = await import("./_core/llm");
+        
+        const systemPrompt = `당신은 AI 루나, 타로 상담 전문가입니다.
+사용자의 질문에 대해 타로 카드의 의미와 해석을 기반으로 깊이 있는 상담을 제공합니다.
+항상 사용자를 "달빛님"이라고 부르고, 따뜻하고 신비로운 톤으로 답변하세요.
+타로의 지혜를 통해 현명한 조언을 제공하세요.`;
+
+        const messages = [
+          { role: 'system' as const, content: systemPrompt },
+          ...(input.previousContext ? [{ role: 'user' as const, content: `이전 상담 맥락: ${input.previousContext}` }] : []),
+          { role: 'user' as const, content: input.message },
+        ];
+
+        const response = await invokeLLM({
+          messages,
+          model: 'claude-opus',
+        });
+
+        const responseText = response.choices[0]?.message?.content || '죄송합니다. 응답을 생성할 수 없습니다.';
+
+        return {
+          response: responseText,
+          type: 'tarot',
+        };
+      } catch (error) {
+        console.error('Tarot consultation error:', error);
+        throw new TRPCError({ 
+          code: "INTERNAL_SERVER_ERROR", 
+          message: "맞춤형 운세 서비스 이용 불가" 
+        });
+      }
+    }),
+});
+
 export const appRouter = router({
   system: systemRouter,
   auth: router({
@@ -115,6 +243,7 @@ export const appRouter = router({
     }),
   }),
   credit: creditRouter,
+  chat: chatRouter,
 });
 
 export type AppRouter = typeof appRouter;

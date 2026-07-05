@@ -18,6 +18,7 @@ import {
   generateConsultationContext,
 } from '@/lib/consultationMemory';
 import { nanoid } from 'nanoid';
+import { trpc } from '@/lib/trpc';
 
 interface Message {
   id: string;
