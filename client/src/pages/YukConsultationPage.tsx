@@ -20,7 +20,7 @@ import {
 } from '@/lib/consultationMemory';
 import { nanoid } from 'nanoid';
 import { trpc } from '@/lib/trpc';
-import { ICHING_SYSTEM_PROMPT } from '@/lib/iChingPrompt';
+import { ICHING_SYSTEM_PROMPT } from '@/lib/ichingPrompt';
 
 interface Message {
   id: string;
