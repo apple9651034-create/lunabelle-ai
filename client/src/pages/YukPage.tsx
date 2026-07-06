@@ -244,7 +244,7 @@ export default function YukPage() {
             <button
               onClick={() => {
                 sessionStorage.setItem('yukResult', JSON.stringify({ question, results, hexagramInfo }));
-                window.location.href = '/chat';
+                window.location.href = '/yuk-consultation';
               }}
               className="w-full py-3.5 rounded-xl font-bold text-sm transition-all active:scale-[0.97]"
               style={{
