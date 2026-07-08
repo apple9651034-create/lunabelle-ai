@@ -156,32 +156,21 @@ const chatRouter = router({
     .mutation(async ({ ctx, input }) => {
       try {
         const { invokeLLM } = await import("./_core/llm");
-        const { parseSajuChart, formatSajuInfo } = await import("./sajuParser");
-        const { generateDayMasterSummary } = await import("./heavenlyStemCharacteristics");
+        const { parseSajuChart } = await import("./sajuParser");
+        const { generateSajuAnalysisPrompt } = await import("./sajuAnalysisPrompt");
         
         // 명식 파싱
-        let sajuInfo = "";
-        let dayMasterSummary = "";
+        let systemPrompt = "";
         if (input.chart) {
           const parsed = parseSajuChart(input.chart);
           if (parsed) {
-            sajuInfo = formatSajuInfo(parsed);
-            dayMasterSummary = generateDayMasterSummary(parsed.dayMaster);
+            systemPrompt = generateSajuAnalysisPrompt(parsed, input.message);
+          } else {
+            systemPrompt = "죄송합니다. 명식을 파싱할 수 없습니다. 명식을 다시 확인해주세요.";
           }
+        } else {
+          systemPrompt = "당신은 AI 루나, 사주 상담가입니다. 사용자의 질문에 따뜻하고 신비로운 톤으로 답변하세요.";
         }
-        
-        const systemPrompt = `당신은 AI 루나, 사주 상담 전문가입니다.
-사용자의 질문에 대해 사주의 오행(목화토금수)과 십간십이지를 기반으로 깊이 있는 상담을 제공합니다.
-항상 사용자를 "달빛님"이라고 부르고, 따뜻하고 신비로운 톤으로 답변하세요.
-사주의 지혜를 통해 현명한 조언을 제공하세요.
-
-⚠️ 중요: 반드시 일간(日干)을 기준으로 분석하세요!
-일간은 일주(日柱)의 천간(天干)입니다.${sajuInfo}
-
-【 상담 진행 방식 】
-1. 먼저 사용자의 일간에 대한 기본 성향을 요약해주세요
-2. 사용자의 질문과 관련하여 구체적인 사주 풀이를 제공하세요
-3. 일간의 특성을 바탕으로 현명한 조언을 제공하세요${dayMasterSummary}`;
 
         const messages = [
           { role: 'system' as const, content: systemPrompt },
