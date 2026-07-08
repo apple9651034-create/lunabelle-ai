@@ -9,6 +9,7 @@ import { downloadChatAsText, downloadChatAsImage, downloadChatAsJSON } from '@/l
 import { generateSajuQuestions, SuggestedQuestion } from "@/lib/suggestedQuestions";
 
 import TarotCardImage from "@/components/TarotCardImage";
+import SajuAnalysisAccordion from "@/components/SajuAnalysisAccordion";
 import ChargeModal from "@/components/ChargeModal";
 import { deductCharge, initializeCharges } from "@/lib/chargeSystem";
 import { generateTarotReadingForQuestion } from "@/lib/tarotInterpretation";
@@ -351,7 +352,11 @@ ${sajuResult ? `사용자의 사주: ${sajuResult.fourPillars.yearString} ${saju
                 border: message.type === 'ai' ? '1px solid oklch(1 0 0 / 10%)' : 'none',
               }}
             >
-              <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+              {message.type === 'ai' && message.content.includes('## ') ? (
+                <SajuAnalysisAccordion content={message.content} />
+              ) : (
+                <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+              )}
               <p className="text-xs mt-2" style={{ color: 'oklch(0.60 0.02 290)' }}>
                 {message.timestamp.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
               </p>

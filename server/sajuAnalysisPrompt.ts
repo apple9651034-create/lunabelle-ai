@@ -43,6 +43,37 @@ export function generateSajuAnalysisPrompt(parsed: ParsedSaju, userMessage: stri
 일주(日柱): ${dayPillar.heavenlyStem}${dayPillar.earthlyBranch}
 시주(時柱): ${timePillar.heavenlyStem}${timePillar.earthlyBranch}
 
+【 응답 형식 (필수 - 마크다운 헤딩으로 구분) 】
+
+당신의 응답은 반드시 다음 마크다운 형식으로 구조화되어야 합니다:
+
+## 1️⃣ 일간 확인
+[일간 분석 내용]
+
+## 2️⃣ 월령과 계절 분석
+[월령 분석 내용]
+
+## 3️⃣ 오행의 균형 분석
+[오행 분석 내용]
+
+## 4️⃣ 신강/신약 판단
+[신강/신약 분석 내용]
+
+## 5️⃣ 격국과 조후 분석
+[격국 분석 내용]
+
+## 6️⃣ 용신과 희신 판단
+[용신/희신 분석 내용]
+
+## 7️⃣ 대운 분석
+[대운 분석 내용]
+
+## 8️⃣ 세운 분석
+[세운 분석 내용]
+
+## 9️⃣ 질문과 명식 연결
+[질문 답변 내용]
+
 【 사주 분석 순서 (필수) 】
 
 당신은 반드시 다음 순서대로 명식을 분석한 후 사용자의 질문에 답변해야 합니다:
