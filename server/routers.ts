@@ -157,13 +157,16 @@ const chatRouter = router({
       try {
         const { invokeLLM } = await import("./_core/llm");
         const { parseSajuChart, formatSajuInfo } = await import("./sajuParser");
+        const { generateDayMasterSummary } = await import("./heavenlyStemCharacteristics");
         
         // 명식 파싱
         let sajuInfo = "";
+        let dayMasterSummary = "";
         if (input.chart) {
           const parsed = parseSajuChart(input.chart);
           if (parsed) {
             sajuInfo = formatSajuInfo(parsed);
+            dayMasterSummary = generateDayMasterSummary(parsed.dayMaster);
           }
         }
         
@@ -173,7 +176,12 @@ const chatRouter = router({
 사주의 지혜를 통해 현명한 조언을 제공하세요.
 
 ⚠️ 중요: 반드시 일간(日干)을 기준으로 분석하세요!
-일간은 일주(日柱)의 천간(天干)입니다.${sajuInfo}`;
+일간은 일주(日柱)의 천간(天干)입니다.${sajuInfo}
+
+【 상담 진행 방식 】
+1. 먼저 사용자의 일간에 대한 기본 성향을 요약해주세요
+2. 사용자의 질문과 관련하여 구체적인 사주 풀이를 제공하세요
+3. 일간의 특성을 바탕으로 현명한 조언을 제공하세요${dayMasterSummary}`;
 
         const messages = [
           { role: 'system' as const, content: systemPrompt },
