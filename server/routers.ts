@@ -151,15 +151,29 @@ const chatRouter = router({
       message: z.string(),
       consultationType: z.string().optional(),
       previousContext: z.string().optional(),
+      chart: z.string().optional(), // 명식: "정사 / 정미 / 정축 / 갑진"
     }))
     .mutation(async ({ ctx, input }) => {
       try {
         const { invokeLLM } = await import("./_core/llm");
+        const { parseSajuChart, formatSajuInfo } = await import("./sajuParser");
+        
+        // 명식 파싱
+        let sajuInfo = "";
+        if (input.chart) {
+          const parsed = parseSajuChart(input.chart);
+          if (parsed) {
+            sajuInfo = formatSajuInfo(parsed);
+          }
+        }
         
         const systemPrompt = `당신은 AI 루나, 사주 상담 전문가입니다.
 사용자의 질문에 대해 사주의 오행(목화토금수)과 십간십이지를 기반으로 깊이 있는 상담을 제공합니다.
 항상 사용자를 "달빛님"이라고 부르고, 따뜻하고 신비로운 톤으로 답변하세요.
-사주의 지혜를 통해 현명한 조언을 제공하세요.`;
+사주의 지혜를 통해 현명한 조언을 제공하세요.
+
+⚠️ 중요: 반드시 일간(日干)을 기준으로 분석하세요!
+일간은 일주(日柱)의 천간(天干)입니다.${sajuInfo}`;
 
         const messages = [
           { role: 'system' as const, content: systemPrompt },
