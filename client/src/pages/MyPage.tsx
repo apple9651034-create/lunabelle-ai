@@ -4,9 +4,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
-import { ArrowLeft, Download, Trash2, TrendingDown, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Download, Trash2, TrendingDown, TrendingUp, Calendar, Sparkles } from 'lucide-react';
 import { getRecentHistory, ChargeTransaction, clearHistory } from '@/lib/chargeHistory';
 import { getRewardState } from '@/lib/dailyRewards';
+import { trpc } from '@/lib/trpc';
 
 export default function MyPage() {
   const [, navigate] = useLocation();
@@ -143,6 +144,9 @@ export default function MyPage() {
           </div>
         </div>
 
+        {/* 상담 내역 섹션 */}
+        <ConsultationHistorySection />
+
         {/* 내역 헤더 */}
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold" style={{ color: 'oklch(0.94 0.015 90)' }}>
@@ -218,6 +222,70 @@ export default function MyPage() {
             ))
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function ConsultationHistorySection() {
+  const [, navigate] = useLocation();
+  const { data: sessions } = trpc.consultation.getUserSessions.useQuery();
+
+  if (!sessions || sessions.length === 0) {
+    return null;
+  }
+
+  return (
+    <div>
+      <h2 className="text-lg font-bold mb-4" style={{ color: 'oklch(0.94 0.015 90)' }}>
+        루나벨 1:1 상담 내역
+      </h2>
+      <div className="space-y-3">
+        {sessions.map((session) => (
+          <div
+            key={session.id}
+            className="p-4 rounded-lg cursor-pointer transition-all hover:scale-105"
+            style={{
+              background: 'linear-gradient(135deg, oklch(0.50 0.28 290 / 20%), oklch(0.50 0.28 85 / 10%))',
+              border: '2px solid oklch(0.78 0.15 85)',
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="font-bold" style={{ color: 'oklch(0.94 0.015 90)' }}>
+                  {session.duration}분 상담
+                </p>
+                <div className="flex items-center gap-2 mt-2" style={{ color: 'oklch(0.70 0.02 290)' }}>
+                  <Calendar size={14} />
+                  <span className="text-sm">
+                    {new Date(session.createdAt).toLocaleDateString('ko-KR')}
+                  </span>
+                </div>
+              </div>
+              <div className="text-right">
+                <p style={{ color: 'oklch(0.78 0.15 85)', fontWeight: 'bold' }}>
+                  {session.status === 'completed' ? '완료' : '예약 중'}
+                </p>
+                {session.status === 'completed' && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/advice-card/${session.id}`);
+                    }}
+                    className="mt-2 px-3 py-1 rounded-full text-sm flex items-center gap-1 transition-all hover:scale-110"
+                    style={{
+                      background: 'oklch(0.78 0.15 85)',
+                      color: 'oklch(0.14 0.05 270)',
+                    }}
+                  >
+                    <Sparkles size={14} />
+                    조언 카드
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

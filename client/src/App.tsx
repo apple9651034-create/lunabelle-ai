@@ -27,6 +27,8 @@ import MyPageDashboard from "./pages/MyPageDashboard";
 import MyTalismanVaultPage from "./pages/MyTalismanVaultPage";
 import ConsultationBooking from "./pages/ConsultationBooking";
 import ConsultationPaymentSuccess from "./pages/ConsultationPaymentSuccess";
+import AdviceCardPage from "./pages/AdviceCardPage";
+import AdminConsultationManagement from "./pages/AdminConsultationManagement";
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
@@ -51,6 +53,8 @@ function Router() {
         <Route path="/vault" component={MyTalismanVaultPage} />
         <Route path="/consultation/:duration" component={ConsultationBooking} />
         <Route path="/consultation/success/:sessionId" component={ConsultationPaymentSuccess} />
+        <Route path="/advice-card/:cardId" component={AdviceCardPage} />
+        <Route path="/admin/consultation" component={AdminConsultationManagement} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>
