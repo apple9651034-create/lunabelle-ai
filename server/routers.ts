@@ -4,6 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { consultationRouter } from "./routers/consultation";
 
 const creditRouter = router({
   // 크레딧 잔액 조회
@@ -255,6 +256,7 @@ export const appRouter = router({
   }),
   credit: creditRouter,
   chat: chatRouter,
+  consultation: consultationRouter,
 });
 
 export type AppRouter = typeof appRouter;

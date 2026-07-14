@@ -111,3 +111,151 @@ export async function getTransactions(userId: number, limit: number = 50): Promi
   // 거래 내역 조회
   return [];
 }
+
+
+// 루나벨 1:1 상담 관련 함수
+import { consultationSessions, adviceCards } from "../drizzle/schema";
+import { desc } from "drizzle-orm";
+
+export async function createConsultationSession(
+  userId: number,
+  duration: "20" | "50",
+  price: number,
+  paymentId: string,
+  paymentMethod: string,
+  consultationTopic?: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(consultationSessions).values({
+    userId,
+    duration,
+    price,
+    paymentId,
+    paymentMethod,
+    consultationTopic,
+    status: "pending",
+  });
+  return result;
+}
+
+export async function getConsultationSession(sessionId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db
+    .select()
+    .from(consultationSessions)
+    .where(eq(consultationSessions.id, sessionId))
+    .limit(1);
+  return result[0];
+}
+
+export async function getUserConsultationSessions(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db
+    .select()
+    .from(consultationSessions)
+    .where(eq(consultationSessions.userId, userId))
+    .orderBy(desc(consultationSessions.createdAt));
+  return result;
+}
+
+export async function completeConsultationSession(
+  sessionId: number,
+  consultationNotes?: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db
+    .update(consultationSessions)
+    .set({
+      status: "completed",
+      completedAt: new Date(),
+      consultationNotes,
+    })
+    .where(eq(consultationSessions.id, sessionId));
+  return result;
+}
+
+export async function createAdviceCard(
+  consultationSessionId: number,
+  userId: number,
+  cardName: string,
+  cardReading: string,
+  cardImage?: string,
+  cardType?: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(adviceCards).values({
+    consultationSessionId,
+    userId,
+    cardName,
+    cardReading,
+    cardImage,
+    cardType: cardType || "tarot",
+    isRevealed: false,
+  });
+  return result;
+}
+
+export async function getAdviceCard(cardId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db
+    .select()
+    .from(adviceCards)
+    .where(eq(adviceCards.id, cardId))
+    .limit(1);
+  return result[0];
+}
+
+export async function getUserAdviceCards(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db
+    .select()
+    .from(adviceCards)
+    .where(eq(adviceCards.userId, userId))
+    .orderBy(desc(adviceCards.createdAt));
+  return result;
+}
+
+export async function revealAdviceCard(cardId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db
+    .update(adviceCards)
+    .set({ isRevealed: true })
+    .where(eq(adviceCards.id, cardId));
+  return result;
+}
+
+export async function getConsultationSessionWithCard(sessionId: number) {
+  const session = await getConsultationSession(sessionId);
+  if (!session) return null;
+
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const cards = await db
+    .select()
+    .from(adviceCards)
+    .where(eq(adviceCards.consultationSessionId, sessionId));
+
+  return {
+    ...session,
+    adviceCard: cards[0] || null,
+  };
+}
+
+export { consultationSessions, adviceCards } from "../drizzle/schema";
