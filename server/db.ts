@@ -137,7 +137,16 @@ export async function createConsultationSession(
     consultationTopic,
     status: "pending",
   });
-  return result;
+  
+  // 생성된 세션 조회 및 반환
+  const createdSession = await db
+    .select()
+    .from(consultationSessions)
+    .where(eq(consultationSessions.userId, userId))
+    .orderBy((t) => t.createdAt)
+    .limit(1);
+  
+  return createdSession[0] || null;
 }
 
 export async function getConsultationSession(sessionId: number) {
@@ -256,6 +265,59 @@ export async function getConsultationSessionWithCard(sessionId: number) {
     ...session,
     adviceCard: cards[0] || null,
   };
+}
+
+// 알림 함수들
+export async function createNotification(
+  userId: number,
+  title: string,
+  content: string,
+  type: "advice_card" | "consultation_complete" | "general" = "general",
+  consultationSessionId?: number
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const { notifications } = await import("../drizzle/schema");
+
+  const result = await db.insert(notifications).values({
+    userId,
+    consultationSessionId: consultationSessionId || null,
+    title,
+    content,
+    type,
+    isRead: false,
+  });
+
+  return result;
+}
+
+export async function getUserNotifications(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const { notifications } = await import("../drizzle/schema");
+
+  return await db
+    .select()
+    .from(notifications)
+    .where(eq(notifications.userId, userId))
+    .orderBy(desc(notifications.createdAt));
+}
+
+export async function markNotificationAsRead(notificationId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const { notifications } = await import("../drizzle/schema");
+
+  return await db
+    .update(notifications)
+    .set({
+      isRead: true,
+      readAt: new Date(),
+    })
+    .where(eq(notifications.id, notificationId));
 }
 
 export { consultationSessions, adviceCards } from "../drizzle/schema";

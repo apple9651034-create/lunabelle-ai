@@ -8,7 +8,7 @@ export default function ConsultationPaymentSuccess() {
   const [, params] = useRoute('/consultation/success/:sessionId');
   const sessionId = params?.sessionId;
   const duration = new URLSearchParams(window.location.search).get('duration') || '20';
-  const phoneNumber = process.env.REACT_APP_LUNABELLE_PHONE || '010-1234-5678';
+  const phoneNumber = import.meta.env.VITE_LUNABELLE_PHONE || '010-1234-5678';
 
   const handleCall = () => {
     window.location.href = `tel:${phoneNumber}`;

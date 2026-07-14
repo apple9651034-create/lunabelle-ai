@@ -5,16 +5,26 @@ import { trpc } from '@/lib/trpc';
 
 export default function AdviceCardPage() {
   const [, navigate] = useLocation();
-  const [, params] = useRoute('/advice-card/:cardId');
-  const cardId = params?.cardId ? parseInt(params.cardId) : 0;
+  const [, params] = useRoute('/advice-card/:sessionId');
+  const sessionId = params?.sessionId ? parseInt(params.sessionId) : 0;
   
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  const { data: card, isLoading } = trpc.consultation.getAdviceCard.useQuery(
-    { cardId },
-    { enabled: cardId > 0 }
+  // sessionId로 상담 세션 조회
+  const { data: session, isLoading: sessionLoading } = trpc.consultation.getSession.useQuery(
+    { sessionId },
+    { enabled: sessionId > 0 }
   );
+
+  // sessionId로 해당 조언 카드 조회 (session.id 기준)
+  const { data: cards, isLoading: cardsLoading } = trpc.consultation.getUserAdviceCards.useQuery(
+    undefined,
+    { enabled: !!session }
+  );
+
+  // 현재 세션의 조언 카드 찾기
+  const card = cards?.find(c => c.consultationSessionId === sessionId);
 
   const revealMutation = trpc.consultation.revealCard.useMutation({
     onSuccess: () => {
@@ -23,20 +33,22 @@ export default function AdviceCardPage() {
   });
 
   const handleFlip = async () => {
-    if (isAnimating || isFlipped) return;
+    if (isAnimating || isFlipped || !card) return;
     
     setIsAnimating(true);
     
     // 카드 뒤집기 애니메이션
     setTimeout(() => {
-      if (!card?.isRevealed) {
-        revealMutation.mutate({ cardId });
+      if (!card.isRevealed) {
+        revealMutation.mutate({ cardId: card.id });
       } else {
         setIsFlipped(true);
       }
       setIsAnimating(false);
     }, 300);
   };
+
+  const isLoading = sessionLoading || cardsLoading;
 
   if (isLoading) {
     return (
@@ -51,7 +63,7 @@ export default function AdviceCardPage() {
     );
   }
 
-  if (!card) {
+  if (!card || !session) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950 to-slate-950 flex items-center justify-center px-4">
         <div className="text-center">
@@ -82,101 +94,110 @@ export default function AdviceCardPage() {
         </div>
 
         {/* Card Container */}
-        <div className="flex justify-center mb-12">
+        <div className="flex flex-col items-center gap-8">
+          {/* Flipping Card */}
           <div
             onClick={handleFlip}
-            className={`relative w-64 h-96 cursor-pointer transition-transform duration-300 ${
-              isAnimating ? 'scale-95' : 'hover:scale-105'
-            }`}
+            className="w-full max-w-sm h-96 cursor-pointer perspective"
             style={{
               perspective: '1000px',
             }}
           >
-            {/* Card Flip Animation */}
             <div
-              className={`relative w-full h-full transition-transform duration-300`}
               style={{
+                width: '100%',
+                height: '100%',
+                position: 'relative',
                 transformStyle: 'preserve-3d',
                 transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+                transition: isAnimating ? 'transform 0.6s ease-in-out' : 'none',
               }}
             >
-              {/* Back of Card */}
+              {/* Card Back */}
               <div
-                className="absolute w-full h-full backdrop-blur-md bg-gradient-to-br from-purple-600/30 to-pink-600/30 border-2 border-purple-400/50 rounded-2xl p-8 flex flex-col items-center justify-center"
-                style={{ backfaceVisibility: 'hidden' }}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  position: 'absolute',
+                  backfaceVisibility: 'hidden',
+                  display: isFlipped ? 'none' : 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: 'linear-gradient(135deg, oklch(0.50 0.28 290), oklch(0.50 0.28 85))',
+                  borderRadius: '1.5rem',
+                  border: '2px solid oklch(0.78 0.15 85)',
+                  padding: '2rem',
+                }}
               >
-                <Sparkles className="w-16 h-16 text-purple-300 mb-4" />
-                <p className="text-center text-purple-200 font-light text-lg">
-                  카드 뒤집기
-                </p>
+                <div className="text-center">
+                  <Sparkles className="w-12 h-12 text-purple-200 mx-auto mb-4" />
+                  <p className="text-purple-200 font-light text-lg">
+                    카드를 클릭하여 뒤집어보세요
+                  </p>
+                </div>
               </div>
 
-              {/* Front of Card */}
+              {/* Card Front */}
               <div
-                className="absolute w-full h-full backdrop-blur-md bg-gradient-to-br from-purple-900/50 to-pink-900/50 border-2 border-purple-300/30 rounded-2xl p-8 flex flex-col items-center justify-center overflow-y-auto"
-                style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  position: 'absolute',
+                  backfaceVisibility: 'hidden',
+                  transform: 'rotateY(180deg)',
+                  display: isFlipped ? 'flex' : 'none',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: 'linear-gradient(135deg, oklch(0.60 0.25 290), oklch(0.55 0.20 85))',
+                  borderRadius: '1.5rem',
+                  border: '2px solid oklch(0.78 0.15 85)',
+                  padding: '2rem',
+                }}
               >
-                {card.cardImage && (
-                  <img
-                    src={card.cardImage}
-                    alt={card.cardName}
-                    className="w-32 h-32 mb-4 rounded-lg object-cover"
-                  />
-                )}
-                <h2 className="text-2xl font-light text-purple-200 mb-4 text-center">
-                  {card.cardName}
-                </h2>
-                <p className="text-sm text-gray-300 font-light text-center">
-                  {card.cardReading}
+                <div className="text-center">
+                  {card.cardImage && (
+                    <img
+                      src={card.cardImage}
+                      alt={card.cardName}
+                      className="w-24 h-24 mb-4 rounded-lg object-cover"
+                    />
+                  )}
+                  <h2 className="text-2xl font-light text-purple-100 mb-4">
+                    {card.cardName}
+                  </h2>
+                  <p className="text-purple-200 font-light text-sm leading-relaxed">
+                    {card.cardReading}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Session Info */}
+          <div className="w-full backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl p-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-gray-400 font-light text-sm mb-1">상담 시간</p>
+                <p className="text-purple-200 font-light">{session.duration}분</p>
+              </div>
+              <div>
+                <p className="text-gray-400 font-light text-sm mb-1">상담 날짜</p>
+                <p className="text-purple-200 font-light">
+                  {new Date(session.createdAt).toLocaleDateString('ko-KR')}
                 </p>
               </div>
             </div>
           </div>
+
+          {/* Back Button */}
+          <button
+            onClick={() => navigate('/my')}
+            className="w-full px-8 py-3 border border-purple-400/50 text-purple-300 rounded-full font-light hover:bg-purple-400/10 transition-all"
+          >
+            마이페이지로 돌아가기
+          </button>
         </div>
-
-        {/* Card Info */}
-        <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl p-8 mb-8">
-          <h3 className="text-purple-300 font-light mb-4">카드 정보</h3>
-          <div className="space-y-3 text-gray-300 font-light text-sm">
-            <div className="flex justify-between">
-              <span>카드명</span>
-              <span className="text-purple-200">{card.cardName}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>카드 타입</span>
-              <span className="text-purple-200 capitalize">{card.cardType}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>생성 날짜</span>
-              <span className="text-purple-200">
-                {new Date(card.createdAt).toLocaleDateString('ko-KR')}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span>상태</span>
-              <span className="text-purple-200">
-                {card.isRevealed ? '공개됨' : '미공개'}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Instructions */}
-        {!isFlipped && (
-          <div className="backdrop-blur-md bg-purple-600/10 border border-purple-400/30 rounded-lg p-6 text-center">
-            <p className="text-purple-300 font-light">
-              카드를 클릭하여 루나벨의 조언을 확인하세요.
-            </p>
-          </div>
-        )}
-
-        {/* Back Button */}
-        <button
-          onClick={() => navigate('/my')}
-          className="w-full mt-8 px-8 py-3 border border-purple-400/50 text-purple-300 rounded-full font-light hover:bg-purple-400/10 transition-all"
-        >
-          마이페이지로 돌아가기
-        </button>
       </div>
     </div>
   );

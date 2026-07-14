@@ -80,3 +80,20 @@ export const adviceCards = mysqlTable("adviceCards", {
 
 export type AdviceCard = typeof adviceCards.$inferSelect;
 export type InsertAdviceCard = typeof adviceCards.$inferInsert;
+
+// 사용자 알림
+export const notifications = mysqlTable("notifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id),
+  consultationSessionId: int("consultationSessionId").references(() => consultationSessions.id),
+  title: varchar("title", { length: 255 }).notNull(),
+  content: text("content").notNull(),
+  type: mysqlEnum("type", ["advice_card", "consultation_complete", "general"]).default("general").notNull(),
+  isRead: boolean("isRead").default(false).notNull(),
+  readAt: timestamp("readAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = typeof notifications.$inferInsert;
