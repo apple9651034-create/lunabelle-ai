@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useLocation, useRoute } from 'wouter';
 import { ChevronLeft, Loader } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,36 +14,14 @@ export default function ConsultationBooking() {
   const [consultationTopic, setConsultationTopic] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [portOneLoaded, setPortOneLoaded] = useState(false);
-
-  // tRPC mutation을 컴포넌트 최상단에서 선언 (hooks 규칙 준수)
+  
   const createSessionMutation = trpc.consultation.createSession.useMutation();
 
   const price = duration === '20' ? 22000 : 55000;
   const priceText = duration === '20' ? '22,000원' : '55,000원';
 
-  // PortOne 스크립트 로드
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.portone.io/v2/browser-sdk.js';
-    script.async = true;
-    script.onload = () => {
-      setPortOneLoaded(true);
-    };
-    script.onerror = () => {
-      console.error('PortOne SDK 로드 실패');
-      setError('결제 시스템을 불러올 수 없습니다.');
-    };
-    document.head.appendChild(script);
-    
-    return () => {
-      if (document.head.contains(script)) {
-        document.head.removeChild(script);
-      }
-    };
-  }, []);
-
-  const handlePayment = useCallback(async () => {
+  const handlePayment = async () => {
+    setIsLoading(true);
     if (!user) {
       navigate('/');
       return;
@@ -54,79 +32,61 @@ export default function ConsultationBooking() {
       return;
     }
 
-    if (!portOneLoaded) {
-      setError('결제 시스템을 불러올 수 없습니다.');
-      return;
-    }
-
-    setIsLoading(true);
     setError('');
 
     try {
-      const storeId = import.meta.env.VITE_PORTONE_STORE_ID;
-      const channelKey = import.meta.env.VITE_PORTONE_CHANNEL_KEY;
+      // PortOne 결제 초기화
+      if (typeof window !== 'undefined' && (window as any).IMP) {
+        const IMP = (window as any).IMP;
+        IMP.init('imp12345678'); // 실제 PortOne 가맹점 ID로 변경
 
-      if (!storeId || !channelKey) {
-        setError('결제 설정이 완료되지 않았습니다.');
-        setIsLoading(false);
-        return;
-      }
+        IMP.request_pay(
+          {
+            pg: 'kcp',
+            pay_method: 'card',
+            merchant_uid: `consultation_${Date.now()}`,
+            name: `루나벨 ${duration}분 상담`,
+            amount: price,
+            buyer_email: user.email || 'user@example.com',
+            buyer_name: user.name || '사용자',
+            buyer_tel: '010-0000-0000',
+          },
+          async (rsp: any) => {
+            if (rsp.success) {
+              try {
+                // 결제 검증 및 세션 생성
+                const result = await createSessionMutation.mutateAsync({
+                  duration,
+                  paymentId: rsp.imp_uid,
+                  paymentMethod: rsp.pay_method,
+                  consultationTopic,
+                });
 
-      // PortOne V2 SDK 사용
-      const IMP = (window as any).PortOne;
-      if (!IMP) {
+                if (result?.id) {
+                  navigate(`/consultation/success/${result.id}?duration=${duration}`);
+                } else {
+                  setError('상담 예약 중 오류가 발생했습니다.');
+                }
+
+
+              } catch (err) {
+                setError('상담 예약 중 오류가 발생했습니다.');
+              }
+            } else {
+              setError('결제가 취소되었습니다.');
+            }
+            setIsLoading(false);
+          }
+        );
+      } else {
         setError('결제 시스템을 불러올 수 없습니다.');
         setIsLoading(false);
-        return;
-      }
-
-      const merchantUid = `consultation_${Date.now()}`;
-
-      // PortOne V2 결제 요청
-      const response = await IMP.requestPayment({
-        storeId: storeId,
-        channelKey: channelKey,
-        paymentId: merchantUid,
-        orderName: `루나벨 ${duration}분 상담`,
-        totalAmount: price,
-        currency: 'KRW',
-        payMethod: 'CARD',
-        customer: {
-          customerId: String(user.id),
-          email: user.email || 'user@example.com',
-          name: user.name || '사용자',
-        },
-      });
-
-      if (response.code === 'Success') {
-        // 결제 성공 - 서버에서 검증
-        try {
-          const result = await createSessionMutation.mutateAsync({
-            duration: duration as '20' | '50',
-            paymentId: response.paymentId,
-            paymentMethod: 'CARD',
-            consultationTopic,
-          });
-
-          if (result && result.id) {
-            navigate(`/consultation/success/${result.id}?duration=${duration}`);
-          } else {
-            setError('상담 예약 중 오류가 발생했습니다.');
-          }
-        } catch (err) {
-          console.error('세션 생성 오류:', err);
-          setError('상담 예약 중 오류가 발생했습니다.');
-        }
-      } else {
-        setError(`결제 실패: ${response.message || '알 수 없는 오류'}`);
       }
     } catch (err) {
-      console.error('결제 처리 오류:', err);
       setError('결제 처리 중 오류가 발생했습니다.');
-    } finally {
       setIsLoading(false);
     }
-  }, [user, consultationTopic, duration, price, navigate, portOneLoaded, createSessionMutation]);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950 to-slate-950 px-4 py-8">
@@ -191,7 +151,7 @@ export default function ConsultationBooking() {
         {/* Payment Button */}
         <button
           onClick={handlePayment}
-          disabled={isLoading || !portOneLoaded}
+          disabled={isLoading}
           className="w-full px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full font-light text-lg hover:shadow-lg hover:shadow-purple-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {isLoading ? (
@@ -199,8 +159,6 @@ export default function ConsultationBooking() {
               <Loader className="w-5 h-5 animate-spin" />
               결제 진행 중...
             </>
-          ) : !portOneLoaded ? (
-            '결제 시스템 로드 중...'
           ) : (
             `${priceText}로 상담 예약하기`
           )}

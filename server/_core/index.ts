@@ -40,6 +40,8 @@ async function startServer() {
   registerStorageProxy(app);
   registerOAuthRoutes(app);
 
+
+
   // AI 채팅 API - OpenAI 직접 호출
   app.post('/api/chat', async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
