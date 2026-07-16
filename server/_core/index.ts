@@ -73,14 +73,21 @@ async function startServer() {
       console.log('[Chat API] Calling OpenAI with', messages.length, 'messages');
 
       // 리딩 타입 감지
-      const systemMessage = messages.find((m: any) => m.role === 'system')?.content || '';
+      let systemMessage = messages.find((m: any) => m.role === 'system')?.content || '';
+      
+      // 시스템 프롬프트에 다양성 강조 추가
+      if (systemMessage && !systemMessage.includes('매번 다른 관점')) {
+        systemMessage += '\n\n중요: 매번 다른 관점과 해석을 제시하세요. 같은 답변을 반복하지 마세요.';
+      }
       const isIChing = systemMessage.includes('주역') || systemMessage.includes('변화의 흐름');
       const isYukHyo = systemMessage.includes('육효') && !isIChing;
       const isTarot = systemMessage.includes('타로') || systemMessage.includes('카드');
       const isSaju = systemMessage.includes('사주') || systemMessage.includes('명식');
 
       // 주역/육효 계산 엔진 통합
-      let enhancedMessages = messages;
+      let enhancedMessages = messages.map((m: any) => 
+        m.role === 'system' ? { ...m, content: systemMessage } : m
+      );
       
       if (isIChing) {
         // 주역 계산 엔진
@@ -152,23 +159,23 @@ ${Object.entries(yukCalculation.yugjinAnalysis).map(([line, info]) =>
         }
       }
 
-      // 리딩 타입별 최적화된 설정
+      // 리딩 타입별 최적화된 설정 (무료 운세 품질 극대화)
       let model = 'gpt-4o';
-      let temperature = 0.8;
-      let max_tokens = 2000;
+      let temperature = 0.92;  // 기본: 최대 다양성 (무료 운세 품질 향상)
+      let max_tokens = 3000;   // 응답 길이 증가 (더 풍부한 콘텐츠)
 
       if (isIChing) {
-        temperature = 0.75;
-        max_tokens = 2500;
+        temperature = 0.92;  // 주역: 최대 다양성
+        max_tokens = 3500;
       } else if (isYukHyo) {
-        temperature = 0.75;
-        max_tokens = 2500;
+        temperature = 0.92;  // 육효: 최대 다양성
+        max_tokens = 3500;
       } else if (isTarot) {
-        temperature = 0.85;
-        max_tokens = 2200;
+        temperature = 0.93;  // 타로: 극대 다양성
+        max_tokens = 3200;
       } else if (isSaju) {
-        temperature = 0.7;
-        max_tokens = 2300;
+        temperature = 0.92;  // 사주: 최대 다양성
+        max_tokens = 3300;
       }
 
       // OpenAI API 호출
