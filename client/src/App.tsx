@@ -29,6 +29,8 @@ import ConsultationBooking from "./pages/ConsultationBooking";
 import ConsultationPaymentSuccess from "./pages/ConsultationPaymentSuccess";
 import AdviceCardPage from "./pages/AdviceCardPage";
 import AdminConsultationManagement from "./pages/AdminConsultationManagement";
+import FreeFortuneSelection from "./pages/FreeFortuneSelection";
+import FortuneTarot from "./pages/FortuneTarot";
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
@@ -55,6 +57,8 @@ function Router() {
         <Route path="/consultation/success/:sessionId" component={ConsultationPaymentSuccess} />
         <Route path="/advice-card/:cardId" component={AdviceCardPage} />
         <Route path="/admin/consultation" component={AdminConsultationManagement} />
+        <Route path="/fortune" component={FreeFortuneSelection} />
+        <Route path="/fortune/tarot" component={FortuneTarot} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>
