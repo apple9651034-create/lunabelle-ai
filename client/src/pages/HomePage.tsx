@@ -87,7 +87,7 @@ export default function HomePage() {
       {/* Today's Free Reading */}
       <section className="px-4 py-20 max-w-6xl mx-auto">
         <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl p-8 md:p-12 hover:bg-white/10 transition-all duration-300 cursor-pointer"
-             onClick={() => navigate('/fortune')}>
+             onClick={() => navigate('/fortune/tarot')}>
           <div className="flex items-center gap-4 mb-4">
             <span className="text-3xl">🔮</span>
             <h2 className="text-2xl font-light text-purple-200">오늘의 운세</h2>
@@ -96,7 +96,7 @@ export default function HomePage() {
             무료로 오늘의 운세를 받아보세요. 당신의 하루를 밝혀줄 특별한 메시지가 기다리고 있습니다.
           </p>
           <button className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full font-light hover:shadow-lg hover:shadow-purple-500/50 transition-all duration-300">
-            무료 운세 보기
+            타로 무료 운세 보기
           </button>
         </div>
       </section>
